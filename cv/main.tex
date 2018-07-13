@@ -1,0 +1,201 @@
+%% start of file `template.tex'.
+%% Copyright 2006-2013 Xavier Danaux (xdanaux@gmail.com).
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License version 1.3c,
+% available at http://www.latex-project.org/lppl/.
+
+
+\documentclass[11pt,a4paper,sans]{moderncv}        % possible options include font size ('10pt', '11pt' and '12pt'), paper size ('a4paper', 'letterpaper', 'a5paper', 'legalpaper', 'executivepaper' and 'landscape') and font family ('sans' and 'roman')
+
+% moderncv themes
+\moderncvstyle{oldstyle}                           % style options are 'casual' (default), 'classic', 'oldstyle' and 'banking'
+\moderncvcolor{grey}                               % color options 'blue' (default), 'orange', 'green', 'red', 'purple', 'grey' and 'black'
+%\renewcommand{\familydefault}{\sfdefault}         % to set the default font; use '\sfdefault' for the default sans serif font, '\rmdefault' for the default roman one, or any tex font name
+%\nopagenumbers{}                                  % uncomment to suppress automatic page numbering for CVs longer than one page
+
+% character encoding
+\usepackage[utf8]{inputenc}                       % if you are not using xelatex ou lualatex, replace by the encoding you are using
+%\usepackage{CJKutf8}                              % if you need to use CJK to typeset your resume in Chinese, Japanese or Korean
+
+% adjust the page margins
+\usepackage[scale=0.75]{geometry}
+%\setlength{\hintscolumnwidth}{3cm}                % if you want to change the width of the column with the dates
+%\setlength{\makecvtitlenamewidth}{10cm}           % for the 'classic' style, if you want to force the width allocated to your name and avoid line breaks. be careful though, the length is normally calculated to avoid any overlap with your personal info; use this at your own typographical risks...
+
+\usepackage{paralist}
+
+% personal data
+\name{Andrew}{Amis}
+%\title{Resumé}                               % optional, remove / comment the line if not wanted
+\address{12 Pine Hill Dr.}{Santa Cruz, CA}{95060}% optional, remove / comment the line if not wanted; the "postcode city" and and "country" arguments can be omitted or provided empty
+%\phone[mobile]{+1~(234)~567~890}                   % optional, remove / comment the line if not wanted
+\phone[fixed]{1~(831)~423~0895}                    % optional, remove / comment the line if not wanted
+%\phone[fax]{+3~(456)~789~012}                      % optional, remove / comment the line if not wanted
+\email{atamiser@gmail.com}                               % optional, remove / comment the line if not wanted
+\homepage{atamis.me}                         % optional, remove / comment the line if not wanted
+%\extrainfo{additional information}                 % optional, remove / comment the line if not wanted
+%\photo[64pt][0.4pt]{picture}                       % optional, remove / comment the line if not wanted; '64pt' is the height the picture must be resized to, 0.4pt is the thickness of the frame around it (put it to 0pt for no frame) and 'picture' is the name of the picture file
+%\quote{Some quote}                                 % optional, remove / comment the line if not wanted
+
+% to show numerical labels in the bibliography (default is to show no labels); only useful if you make citations in your resume
+%\makeatletter
+%\renewcommand*{\bibliographyitemlabel}{\@biblabel{\arabic{enumiv}}}
+%\makeatother
+%\renewcommand*{\bibliographyitemlabel}{[\arabic{enumiv}]}% CONSIDER REPLACING THE ABOVE BY THIS
+
+% bibliography with mutiple entries
+%\usepackage{multibib}
+%\newcites{book,misc}{{Books},{Others}}
+%----------------------------------------------------------------------------------
+%            content
+%----------------------------------------------------------------------------------
+\begin{document}
+%\begin{CJK*}{UTF8}{gbsn}                          % to typeset your resume in Chinese using CJK
+%-----       resume       ---------------------------------------------------------
+\makecvtitle
+
+\section{Education}
+\cventry{2013--2017}{Bacheler's in Computer Science}{Oberlin}{}{}{I attended Oberlin College, and obtained a Bacheler's in Computer Science.}  % arguments 3 to 6 can be left empty
+
+%\section{Master thesis}
+%\cvitem{title}{\emph{Title}}
+%\cvitem{supervisors}{Supervisors}
+%\cvitem{description}{Short thesis abstract}
+
+\section{Experience}
+\subsection{Vocational}
+\cventry{2015}{Symantec}{eBusiness Internship}{}{}{
+I worked with QA teams on relevant programming projects. I also worked on a reporting dashboard for
+manual testing in Java, and worked on test automation for the storefront team in Go.
+}
+\cventry{2013--2016}{Oberlin College}{Work Study}{}{}{
+I filled a variety of roles including Macintosh Desktop Support, Assistant Network Technician,
+and Web Developer for Oberlin IT and Psychology Departments. I primarily used Ruby and Rails.
+}
+\cventry{2014--2016}{Townsend \& Clark}{freelance programmer}{}{}{
+I opened a web design firm focusing on small business websites and web
+applications. As the backend engineer and systems administrator, I developed several Rails applications
+ranging from the simple campaign sites to complex web applications.
+}
+
+\cventry{2008--2013}{Georgiana Bruce Kirby}{Computer Technician}{}{}{
+I assisted the IT administrator at my high school in his maintenance of the school's network,
+comprising approximately 100 Windows machines, routers, switches, and central servers. 
+I additionally worked on the school's homework, event management, and communications Rails application,
+fixing bugs to drastically reduce downtime.
+}
+\cventry{2011}{Codulous}{Web Developer}{}{}{
+I started a company with two friends through the Teens in Tech program, a
+startup incubator aimed at young adults. We made a company that built and operated an online code editor.
+I handled backend code and system administration for the company. I was the main programmer for the Ruby
+on Rails web application, assisted the frontend team, and managed the company's server operations, both
+in house and client facing applications.
+}
+
+\subsection{Smaller Projects}
+\cventry{2008--2014}{AYPSELA}{System Administrator}{}{}{
+  I operated a Linux server for a group of friends that ran VoIP communcation and packaged game server
+  applications.
+}
+\cventry{2012}{COSMOS}{summer program}{}{}{
+In the summer of 2012, I attended the COSMOS program at UCSC for video game design.
+A colleague and I built a strategy game in Java (using the Processing framework). You can find the game I made at \url{http://atamis.me/2012/08/05/planet-5/}.
+}
+\cventry{2011-2015}{OpenThought}{web application}{}{}{
+OpenThought is a Ruby on Rails web application I wrote to hold, sort, and list notes, or thoughts, for myself and others.
+I use it as a note pad, a bookmarking service, and a place to store important text semgents I may need later. You can
+find it at \url{ http://openthought.herokuapp.com/ }
+}
+\cventry{2015}{Prestissimo}{web application}{}{}{
+  Prestissimo is a Rails web application created by the Oberlin CS department as an alternative to the college's
+  official couse listing website. I worked to improve page load time and performance. You can find it at
+  \url{ https://oprestissimo.com/ }. This job represents working with an established code base that at the
+  time lacked tests or thorough documentation.
+}
+\cventry{2016}{Gobcom}{web application}{}{}{
+An unreleased web forum written in Rails with multiple identity levels and associated restrictions.
+}
+\cventry{}{CSCI361}{Game Design}{Oberlin}{}{
+  At Oberlin I took a course in practical game design using Unity, and created two games over the course of the semester.
+  The focus of the course was practical software development as part of a team, under deadline, and without
+  strong specifications.
+}
+
+%\cventry{year--year}{Job title}{Employer}{City}{}{Description}
+
+\section{Languages}
+\cvlistitem{Ruby \& Rails}{}
+\cvlistitem{Python \& Java}{}
+\cvlistitem{C\#/Unity}{}
+\cvlistitem{Go}{}
+\cvlistitem{Erlang/Elixir}{}
+\cvlistitem{Scheme}{}
+\cvlistitem{Clojure}{}
+\cvlistitem{C}{}
+\cvlistitem{HTML, Javascript, \& CSS}{}
+
+\section{Computer skills}
+\cvdoubleitem{Linux}{SSH, Git}{Web}{PostgreSQL, NGINX, Apache}
+\cvdoubleitem{Remote}{OpenVPN, VNC, IRC}{Virtualization}{Xen, AWS, Docker}
+
+%\section{Interests}
+%\cvitem{hobby 1}{Description}
+%\cvitem{hobby 2}{Description}
+%\cvitem{hobby 3}{Description}
+
+%\section{Extra 1}
+%\cvlistitem{Item 1}
+%\cvlistitem{Item 2}
+%\cvlistitem{Item 3. This item is particularly long and therefore normally spans over several lines. Did you notice the indentation when the line wraps?}
+
+%\section{Extra 2}
+%\cvlistdoubleitem{Item 1}{Item 4}
+%\cvlistdoubleitem{Item 2}{Item 5}
+%\cvlistdoubleitem{Item 3}{Item 6. Like item 3 in the single column list before, this item is particularly long to wrap over several lines.}
+
+%\section{References}
+%\begin{cvcolumns}
+  %\cvcolumn{Category 1}{\begin{itemize}\item Person 1\item Person 2\item Person 3\end{itemize}}
+  %\cvcolumn{Category 2}{Amongst others:\begin{itemize}\item Person 1, and\item Person 2\end{itemize}(more upon request)}
+  %\cvcolumn[0.5]{All the rest \& some more}{\textit{That} person, and \textbf{those} also (all available upon request).}
+%\end{cvcolumns}
+
+% Publications from a BibTeX file without multibib
+%  for numerical labels: \renewcommand{\bibliographyitemlabel}{\@biblabel{\arabic{enumiv}}}% CONSIDER MERGING WITH PREAMBLE PART
+%  to redefine the heading string ("Publications"): \renewcommand{\refname}{Articles}
+%\nocite{*}
+%\bibliographystyle{plain}
+%\bibliography{publications}                        % 'publications' is the name of a BibTeX file
+
+% Publications from a BibTeX file using the multibib package
+%\section{Publications}
+%\nocitebook{book1,book2}
+%\bibliographystylebook{plain}
+%\bibliographybook{publications}                   % 'publications' is the name of a BibTeX file
+%\nocitemisc{misc1,misc2,misc3}
+%\bibliographystylemisc{plain}
+%\bibliographymisc{publications}                   % 'publications' is the name of a BibTeX file
+
+\clearpage
+%-----       letter       ---------------------------------------------------------
+% recipient data
+%\recipient{Company Recruitment team}{Company, Inc.\\123 somestreet\\some city}
+%\date{January 01, 1984}
+%\opening{Dear Sir or Madam,}
+%\closing{Yours faithfully,}
+%\enclosure[Attached]{curriculum vit\ae{}}          % use an optional argument to use a string other than "Enclosure", or redefine \enclname
+%\makelettertitle
+
+
+%Albert Einstein discovered that $e=mc^2$ in 1905.
+
+%\[ e=\lim_{n \to \infty} \left(1+\frac{1}{n}\right)^n \]
+
+%\makeletterclosing
+
+%\clearpage\end{CJK*}                              % if you are typesetting your resume in Chinese using CJK; the \clearpage is required for fancyhdr to work correctly with CJK, though it kills the page numbering by making \lastpage undefined
+\end{document}
+
+
+%% end of file `template.tex'.
