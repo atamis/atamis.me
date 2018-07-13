@@ -56,21 +56,21 @@ public: $(FILES) cv config.toml
 
 # https://gohugo.io/hosting-and-deployment/hosting-on-github/#build-and-deployment
 deploy:
-	echo "Deleting old publication"
+	@echo "Deleting old publication"
 	make clean
 
 	mkdir public
 	git worktree prune
 
-	echo "Checking out gh-pages branch into public"
+	@echo "Checking out gh-pages branch into public"
 	git worktree add -B gh-pages public origin/gh-pages
 
 
-	echo "Removing existing files"
+	@echo "Removing existing files"
 	rm -rf public/*
 
 	make public
 
-	echo "Updating gh-pages branch"
+	@echo "Updating gh-pages branch"
 	cd public && git add --all && git commit -m "Publishing to gh-pages `date` (Makefile)"
 	cd ..
