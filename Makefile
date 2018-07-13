@@ -1,15 +1,14 @@
 # https://blog.bramp.net/post/2015/08/01/hugo-makefile/
 
-.PHONY: all clean minified server watch help
+.PHONY: all clean watch help cv
 
 HUGO := hugo
-HTML_MINIFIER := html-minifier -c html-minifier.conf
 
 # All input files
 FILES=$(shell find content layouts static themes -type f)
 
 # Below are PHONY targets
-all: public minified
+all: public
 
 help:
 	@echo "Usage: make <command>"
@@ -26,9 +25,7 @@ help:
 
 clean:
 	-rm -rf public
-	-rm .minified
-
-minified: .minified
+	-make -C cv clean
 
 server: public
 	cd public && python -m SimpleHTTPServer 1313
@@ -36,22 +33,22 @@ server: public
 watch: clean
 	$(HUGO) server -w
 
+cv:
+	make -C cv
+	cp cv/main.pdf static/downloads/resume.pdf
+
 # Below are file based targets
-public: $(FILES) config.yaml
+public: $(FILES) cv config.toml
 	$(HUGO)
 
 	# Post process some files (to make the HTML more bootstrap friendly)
 	# Add a table class to all tables
-	grep -IR --include=*.html --null -l -- "<table" public/ | xargs -0 sed -i '' 's/<table/<table class="table"/g'
+	#grep -IR --include=*.html --null -l -- "<table" public/ | xargs -0 sed -i '' 's/<table/<table class="table"/g'
 
 	# Replace "align=..."" with class="test-..."
-	grep -IR --include=*.html --null -l -- "<th" public/ | xargs -0 sed -i '' 's/<th align="/<th class="text-/g'
-	grep -IR --include=*.html --null -l -- "<td" public/ | xargs -0 sed -i '' 's/<td align="/<td class="text-/g'
+	#grep -IR --include=*.html --null -l -- "<th" public/ | xargs -0 sed -i '' 's/<th align="/<th class="text-/g'
+	#grep -IR --include=*.html --null -l -- "<td" public/ | xargs -0 sed -i '' 's/<td align="/<td class="text-/g'
 
 	# Ensure the public folder has it's mtime updated.
 	touch $@
 
-.minified: public html-minifier.conf
-	# Find all HTML and in parallel run the minifier
-	find public -type f -iname '*.html' | parallel --tag $(HTML_MINIFIER) "{}" -o "{}"
-	touch .minified
