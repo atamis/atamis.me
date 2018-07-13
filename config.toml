@@ -21,11 +21,11 @@ theme = "hugo-xmin"
     weight = 2
 
 [[menu.main]]
-    name = "Employment"
-    url = "/employment/"
+    name = "Games"
+    url = "/games/"
     weight = 3
 
 [[menu.main]]
-    name = "Games"
-    url = "/games/"
+    name = "Resume"
+    url = "/downloads/resume.pdf"
     weight = 4
