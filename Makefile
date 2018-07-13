@@ -1,6 +1,6 @@
 # https://blog.bramp.net/post/2015/08/01/hugo-makefile/
 
-.PHONY: all clean watch help cv
+.PHONY: all clean watch help cv deploy
 
 HUGO := hugo
 
@@ -39,6 +39,7 @@ cv:
 
 # Below are file based targets
 public: $(FILES) cv config.toml
+	git submodule update --recursive
 	$(HUGO)
 
 	# Post process some files (to make the HTML more bootstrap friendly)
@@ -52,3 +53,24 @@ public: $(FILES) cv config.toml
 	# Ensure the public folder has it's mtime updated.
 	touch $@
 
+
+# https://gohugo.io/hosting-and-deployment/hosting-on-github/#build-and-deployment
+deploy:
+	echo "Deleting old publication"
+	make clean
+
+	mkdir public
+	git worktree prune
+
+	echo "Checking out gh-pages branch into public"
+	git worktree add -B gh-pages public origin/gh-pages
+
+
+	echo "Removing existing files"
+	rm -rf public/*
+
+	make public
+
+	echo "Updating gh-pages branch"
+	cd public && git add --all && git commit -m "Publishing to gh-pages `date` (Makefile)"
+	cd ..
