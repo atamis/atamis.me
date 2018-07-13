@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Code on Andrew Amis</title>
+    <link>http://atamis.me/tags/code/</link>
+    <description>Recent content in Code on Andrew Amis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 25 Nov 2011 15:12:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://atamis.me/tags/code/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Hacking Turntable for Fun and Music</title>
+      <link>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</link>
+      <pubDate>Fri, 25 Nov 2011 15:12:00 +0000</pubDate>
+      
+      <guid>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</guid>
+      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.</description>
+    </item>
+    
+  </channel>
+</rss>

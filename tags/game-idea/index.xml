@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Game Idea on Andrew Amis</title>
+    <link>http://atamis.me/tags/game-idea/</link>
+    <description>Recent content in Game Idea on Andrew Amis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 04 May 2018 09:29:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://atamis.me/tags/game-idea/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Game Idea: Compressed Dungeons, pt. 1</title>
+      <link>http://atamis.me/posts/2018-05-04-game-idea-micro-dungeon.html/</link>
+      <pubDate>Fri, 04 May 2018 09:29:00 +0000</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-05-04-game-idea-micro-dungeon.html/</guid>
+      <description>tldr: moba keystone dungeons
+Traditional cRPGs are, in general, united by a strong emphasis on character progression. By playing the game, and completing challenges, your character gains experience, sometimes represented by literal experience points, and becomes stronger, more capable, and better equipped for even more challenging encounters. This is frequently associated with numerical increases (allowing you to crush old content with pure numerical advantage), and in many cases, although you grow stronger your enemies do to at a carefully controlled rate that matches yours, and in some cases comparatively exceeds yours, making later enemies harder and harder to kill so the gameplay still has a positive difficulty curve.</description>
+    </item>
+    
+  </channel>
+</rss>

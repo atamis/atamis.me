@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://atamis.me/posts/2018-05-04-game-idea-micro-dungeon.html/</loc>
+    <lastmod>2018-05-04T09:29:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</loc>
+    <lastmod>2011-11-25T15:12:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/games/4x/</loc>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/</loc>
+    <lastmod>2018-05-04T09:29:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/tags/code/</loc>
+    <lastmod>2011-11-25T15:12:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/categories/code/</loc>
+    <lastmod>2011-11-25T15:12:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/employment/</loc>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/tags/game-idea/</loc>
+    <lastmod>2018-05-04T09:29:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/games/</loc>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/games/hexdecks/</loc>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/tags/node/</loc>
+    <lastmod>2011-11-25T15:12:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/games/planet5/</loc>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/posts/</loc>
+    <lastmod>2018-05-04T09:29:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/tags/</loc>
+    <lastmod>2011-11-25T15:12:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

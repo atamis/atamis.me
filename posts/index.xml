@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Andrew Amis</title>
+    <link>http://atamis.me/posts/</link>
+    <description>Recent content in Posts on Andrew Amis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 04 May 2018 09:29:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://atamis.me/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Game Idea: Compressed Dungeons, pt. 1</title>
+      <link>http://atamis.me/posts/2018-05-04-game-idea-micro-dungeon.html/</link>
+      <pubDate>Fri, 04 May 2018 09:29:00 +0000</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-05-04-game-idea-micro-dungeon.html/</guid>
+      <description>tldr: moba keystone dungeons
+Traditional cRPGs are, in general, united by a strong emphasis on character progression. By playing the game, and completing challenges, your character gains experience, sometimes represented by literal experience points, and becomes stronger, more capable, and better equipped for even more challenging encounters. This is frequently associated with numerical increases (allowing you to crush old content with pure numerical advantage), and in many cases, although you grow stronger your enemies do to at a carefully controlled rate that matches yours, and in some cases comparatively exceeds yours, making later enemies harder and harder to kill so the gameplay still has a positive difficulty curve.</description>
+    </item>
+    
+    <item>
+      <title>Hacking Turntable for Fun and Music</title>
+      <link>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</link>
+      <pubDate>Fri, 25 Nov 2011 15:12:00 +0000</pubDate>
+      
+      <guid>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</guid>
+      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.</description>
+    </item>
+    
+  </channel>
+</rss>

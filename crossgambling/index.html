@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
+        "HTMLFiles/xhtml-math11-f.dtd">
+
+<!-- Created with the Wolfram Language : www.wolfram.com -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>
+  crossgambling
+ </title>
+ <link href="HTMLFiles/index.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<p class="Text">
+ <span class="TitleInline">Cross Gambling</span>
+</p>
+
+
+
+<p class="Text">
+ CrossGambling is a simple gambling game designed for use in text only chat interfaces, particularly, MMORPGs with currency systems. To improve flow and reduce complexity, it relies on the honor system for payouts. It works a little something like this.
+</p>
+
+
+
+<p class="Text">
+ One person runs the addon, and requests in group chat that people who wish to join should type 1 in the same chat. This message specifies the &ldquo;roll amount&rdquo;, or the maximum possible payout.
+</p>
+
+
+
+<p class="Input">
+ <img src="HTMLFiles/index_1.png" alt="index_1.png" width="140" height="17" style="vertical-align:middle" />
+</p>
+
+<p class="Output">
+ <img src="HTMLFiles/index_2.png" alt="index_2.png" width="43" height="17" style="vertical-align:middle" />
+</p>
+
+<p class="Text">
+ Everyone then rolls a number between 1 and that number, using the chat system to report authentic results to the group as a whole. The lowest roll must pay the highest roll the difference between their rolls.
+</p>
+
+
+
+<p class="Input">
+ <img src="HTMLFiles/index_3.gif" alt="index_3.gif" width="328" height="65" style="vertical-align:middle" />
+</p>
+
+<p class="Text">
+ To keep things moving, payment is handled immediately between the 2 parties. Let&rsquo;s take a look at the properties of this game of chance.
+</p>
+
+
+
+<p class="Input">
+ <img src="HTMLFiles/index_4.gif" alt="index_4.gif" width="401" height="65" style="vertical-align:middle" />
+</p>
+
+<p class="Text">
+ <span class="CodeInline">Gamble[n]</span> rolls for n people, and reports the winner and the loser, so if we do that 500,000 times, and then transpose it, we get a list of winners and a list of losers. We can graph both of these together as on a histogram
+</p>
+
+
+
+<p class="Input">
+ <img src="HTMLFiles/index_5.png" alt="index_5.png" width="146" height="17" style="vertical-align:middle" />
+</p>
+
+<p class="Output">
+ <img src="HTMLFiles/index_6.gif" alt="index_6.gif" width="360" height="213" style="vertical-align:middle;" usemap="#map_6" />
+<map name="map_6">
+<area shape="rect" coords="336,196,352,13" title="25104" nohref="" />
+<area shape="rect" coords="321,196,337,14" title="24975" nohref="" />
+<area shape="rect" coords="305,196,321,16" title="24712" nohref="" />
+<area shape="rect" coords="290,196,306,14" title="24945" nohref="" />
+<area shape="rect" coords="275,196,291,14" title="24926" nohref="" />
+<area shape="rect" coords="259,196,275,13" title="25117" nohref="" />
+<area shape="rect" coords="244,196,260,15" title="24849" nohref="" />
+<area shape="rect" coords="228,196,244,14" title="24918" nohref="" />
+<area shape="rect" coords="213,196,229,14" title="24936" nohref="" />
+<area shape="rect" coords="197,196,213,13" title="25037" nohref="" />
+<area shape="rect" coords="182,196,198,13" title="25069" nohref="" />
+<area shape="rect" coords="166,196,182,15" title="24845" nohref="" />
+<area shape="rect" coords="151,196,167,10" title="25458" nohref="" />
+<area shape="rect" coords="136,196,152,13" title="25070" nohref="" />
+<area shape="rect" coords="120,196,136,15" title="24800" nohref="" />
+<area shape="rect" coords="105,196,121,14" title="24881" nohref="" />
+<area shape="rect" coords="89,196,105,12" title="25187" nohref="" />
+<area shape="rect" coords="74,196,90,11" title="25364" nohref="" />
+<area shape="rect" coords="58,196,74,16" title="24723" nohref="" />
+<area shape="rect" coords="43,196,59,13" title="25084" nohref="" />
+<area shape="rect" coords="336,196,352,16" title="24606" nohref="" />
+<area shape="rect" coords="321,196,337,14" title="24952" nohref="" />
+<area shape="rect" coords="305,196,321,12" title="25181" nohref="" />
+<area shape="rect" coords="290,196,306,12" title="25190" nohref="" />
+<area shape="rect" coords="275,196,291,11" title="25354" nohref="" />
+<area shape="rect" coords="259,196,275,11" title="25339" nohref="" />
+<area shape="rect" coords="244,196,260,14" title="24889" nohref="" />
+<area shape="rect" coords="228,196,244,13" title="25031" nohref="" />
+<area shape="rect" coords="213,196,229,15" title="24851" nohref="" />
+<area shape="rect" coords="197,196,213,14" title="24873" nohref="" />
+<area shape="rect" coords="182,196,198,14" title="24922" nohref="" />
+<area shape="rect" coords="166,196,182,14" title="24974" nohref="" />
+<area shape="rect" coords="151,196,167,14" title="24995" nohref="" />
+<area shape="rect" coords="136,196,152,15" title="24836" nohref="" />
+<area shape="rect" coords="120,196,136,14" title="24991" nohref="" />
+<area shape="rect" coords="105,196,121,13" title="25027" nohref="" />
+<area shape="rect" coords="89,196,105,14" title="24980" nohref="" />
+<area shape="rect" coords="74,196,90,13" title="25137" nohref="" />
+<area shape="rect" coords="58,196,74,14" title="24994" nohref="" />
+<area shape="rect" coords="43,196,59,14" title="24878" nohref="" />
+</map>
+</p>
+
+<p class="Text">
+ In the abstract, everyone has an equal chance of winning and losing.This makes sense because the rolls are fair and independent. On the other hand, we can also calculate the distribution of payment amounts like so
+</p>
+
+
+
+<p class="Input">
+ <img src="HTMLFiles/index_7.gif" alt="index_7.gif" width="304" height="86" style="vertical-align:middle" />
+</p>
+
+<p class="Output">
+ <img src="HTMLFiles/index_8.gif" alt="index_8.gif" width="360" height="207" style="vertical-align:middle;" usemap="#map_8" />
+<map name="map_8">
+<area shape="rect" coords="324,190,343,117" title="30390" nohref="" />
+<area shape="rect" coords="305,190,324,33" title="65394" nohref="" />
+<area shape="rect" coords="286,190,305,10" title="74949" nohref="" />
+<area shape="rect" coords="267,190,287,18" title="71685" nohref="" />
+<area shape="rect" coords="249,190,268,41" title="61978" nohref="" />
+<area shape="rect" coords="230,190,249,66" title="51467" nohref="" />
+<area shape="rect" coords="211,190,230,93" title="40159" nohref="" />
+<area shape="rect" coords="192,190,212,117" title="30268" nohref="" />
+<area shape="rect" coords="174,190,193,135" title="22673" nohref="" />
+<area shape="rect" coords="155,190,174,150" title="16406" nohref="" />
+<area shape="rect" coords="136,190,156,161" title="11664" nohref="" />
+<area shape="rect" coords="118,190,137,170" title="7901" nohref="" />
+<area shape="rect" coords="99,190,118,176" title="5344" nohref="" />
+<area shape="rect" coords="80,190,99,180" title="3666" nohref="" />
+<area shape="rect" coords="61,190,81,184" title="2302" nohref="" />
+<area shape="rect" coords="43,190,62,186" title="1492" nohref="" />
+<area shape="rect" coords="24,190,43,187" title="855" nohref="" />
+<area shape="rect" coords="5,190,25,188" title="566" nohref="" />
+<area shape="rect" coords="-13,190,6,188" title="356" nohref="" />
+</map>
+</p>
+
+<p class="Text">
+ This is much more interesting. Because the winner is always greater than the loser, the average winnings is skewed heavily upwards. For a round to produce small winnings, not only do the winner and lower have to be close, every other player has to be between them. This makes gambling rounds more exciting because the numbers tend to be higher. However, it means that the upper limit must be chosen carefully, because there&rsquo;s a very good chance winnings will be close to it. In fact, the 50th percentile is very high:
+</p>
+
+
+
+<p class="Input">
+ <img src="HTMLFiles/index_9.png" alt="index_9.png" width="155" height="19" style="vertical-align:middle" />
+</p>
+
+<p class="Output">
+ <img src="HTMLFiles/index_10.png" alt="index_10.png" width="34" height="17" style="vertical-align:middle" />
+</p>
+
+<p class="Input">
+ <img src="HTMLFiles/index_11.png" alt="index_11.png" width="109" height="17" style="vertical-align:middle" />
+</p>
+
+<p class="Output">
+ <img src="HTMLFiles/index_12.png" alt="index_12.png" width="50" height="17" style="vertical-align:middle" />
+</p>
+
+<p class="Text">
+ Ultimately, this means that players have to take the upper limits seriously, because more often than not, wins and losses can get very close to the limit.
+</p>
+
+
+
+
+
+
+<div style="font-family:Helvetica; font-size:11px; width:100%; border:1px none #999999; border-top-style:solid; padding-top:2px; margin-top:20px;">
+ <a href="http://www.wolfram.com/language/" style="color:#000; text-decoration:none;">
+  <span style="color:#555555">Created with the Wolfram Language</span> 
+ </a>
+</div>
+</body>
+
+</html>
