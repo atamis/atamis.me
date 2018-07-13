@@ -1,6 +1,6 @@
 ---
 title: "Planet 5"
-date: 2012-08-05 21:11
+list: false
 ---
 
 ![Planet 5 Screenshot](/images/planet5_screenshot2.png)
@@ -15,3 +15,4 @@ powerful laser turrets and mortars.
 Developed by me and James Zhang as the final project for UCSC COSMOS Cluster 5.
 
 ## <a href="/downloads/planet5-v1.0.0.jar">Download</a>
+[Github](https://github.com/atamis/planet5)

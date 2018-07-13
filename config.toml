@@ -1,6 +1,6 @@
 baseURL = "http://atamis.me/"
 languageCode = "en-us"
-title = "My New Hugo Site"
+title = "Andrew Amis"
 theme = "hugo-xmin"
 
 [params]
