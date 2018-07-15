@@ -1,0 +1,13 @@
+{{ partial "header.html" . }}
+
+{{ .Content }}
+
+{{ $dir := .Dir }}
+
+{{range .Resources.ByType "image" }}
+{{ $loc := print "/" $dir .Name }}
+  <a href="{{$loc}}"> <img src="{{$loc}}" /></a>
+{{ end }}
+
+
+{{ partial "footer.html" . }}

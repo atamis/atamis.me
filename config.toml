@@ -26,6 +26,11 @@ theme = "hugo-xmin"
     weight = 3
 
 [[menu.main]]
+    name = "Pictures"
+    url = "/pictures/"
+    weight = 4
+
+[[menu.main]]
     name = "Resume"
     url = "/downloads/resume.pdf"
-    weight = 4
+    weight = 5
