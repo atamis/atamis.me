@@ -4,7 +4,7 @@ title = "Andrew Amis"
 theme = "hugo-xmin"
 
 [params]
-    footer = "&copy; [Andrew Amis](http://atamis.me) --- [Github](http://github.com/atams) --- 2018"
+    footer = "&copy; [Andrew Amis](http://atamis.me) --- [Github](http://github.com/atamis) --- 2018"
 
 [permalinks]
     post = "/post/:year/:month/:day/:slug/"
