@@ -6,10 +6,20 @@
     <description>Recent content in Posts on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 04 May 2018 09:29:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 29 Jul 2018 02:03:01 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ironic Space Lisp Part 1</title>
+      <link>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</link>
+      <pubDate>Sun, 29 Jul 2018 02:03:01 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</guid>
+      <description>I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done, although the planning document is getting lengthy. Programming games need programming languages, and based on the game design, I had some pretty particular specifications for the language.
+ Sandboxed Concurrent Preemptive  Although the design hasn&amp;rsquo;t settled fully, I&amp;rsquo;m currently planning on executing code on the server, which means the language needs to be able to be sandboxed in two senses: it shouldn&amp;rsquo;t be able to access the server outside of approved channels, and it shouldn&amp;rsquo;t be able to access other threads outside of approved channels.</description>
+    </item>
     
     <item>
       <title>Game Idea: Compressed Dungeons, pt. 1</title>
