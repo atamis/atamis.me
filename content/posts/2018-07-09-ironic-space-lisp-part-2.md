@@ -5,7 +5,7 @@ date: 2018-07-29T10:59:40-07:00
 
 [Part 1](/posts/2018-07-29-ironic-space-lisp/)
 
-[Part 2](/post/2018/07/29/2018-07-09-ironic-space-lisp-part-2/)
+[Part 2](/posts/2018-07-09-ironic-space-lisp-part-2/) 
 
 Last time, the conceptual challenges of a the stack VM convinced me it was the
 wrong approach. In a normal recursive lisp interpreter, code is data, and you
