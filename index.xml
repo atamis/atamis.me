@@ -6,10 +6,22 @@
     <description>Recent content on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 29 Jul 2018 02:03:01 -0700</lastBuildDate>
+    <lastBuildDate>Sun, 29 Jul 2018 10:59:40 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ironic Space Lisp Part 2</title>
+      <link>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</link>
+      <pubDate>Sun, 29 Jul 2018 10:59:40 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</guid>
+      <description>Part 1
+Part 2
+Last time, the conceptual challenges of a the stack VM convinced me it was the wrong approach. In a normal recursive lisp interpreter, code is data, and you have a single evaluator function over every value. Follow along here.
+/// Omni-datatype. Represents both data and code for the lisp VM. #[derive(Debug, Clone)] pub enum Lisp { /// Represents a single u32 number. Num(u32), /// Represents an operation see `Op` for more info.</description>
+    </item>
     
     <item>
       <title>Ironic Space Lisp Part 1</title>
@@ -17,7 +29,9 @@
       <pubDate>Sun, 29 Jul 2018 02:03:01 -0700</pubDate>
       
       <guid>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</guid>
-      <description>I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done, although the planning document is getting lengthy. Programming games need programming languages, and based on the game design, I had some pretty particular specifications for the language.
+      <description>Part 1
+Part 2
+I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done, although the planning document is getting lengthy. Programming games need programming languages, and based on the game design, I had some pretty particular specifications for the language.
  Sandboxed Concurrent Preemptive  Although the design hasn&amp;rsquo;t settled fully, I&amp;rsquo;m currently planning on executing code on the server, which means the language needs to be able to be sandboxed in two senses: it shouldn&amp;rsquo;t be able to access the server outside of approved channels, and it shouldn&amp;rsquo;t be able to access other threads outside of approved channels.</description>
     </item>
     
