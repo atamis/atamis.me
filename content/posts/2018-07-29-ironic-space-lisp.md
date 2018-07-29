@@ -3,6 +3,10 @@ title: "Ironic Space Lisp Part 1"
 date: 2018-07-29T02:03:01-07:00
 ---
 
+[Part 1](/posts/2018-07-29-ironic-space-lisp/)
+
+[Part 2](/post/2018/07/29/2018-07-09-ironic-space-lisp-part-2/)
+
 I recently had a new idea for a space programming game. The idea isn't done,
 although the planning document is getting lengthy. Programming games need
 programming languages, and based on the game design, I had some pretty
