@@ -1,7 +1,6 @@
 ---
 title: "A Hybrid Course"
 date: 2018-07-29T20:05:19-07:00
-draft: true
 ---
 
 I took a lot of interesting courses in college, but I wanted to talk about a
