@@ -6,7 +6,8 @@
     <title>Ironic Space Lisp Part 1 | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    
+    <link rel="stylesheet" href="/css/syntax.css">
+
   </head>
 
   <body>
@@ -96,10 +97,7 @@ point, I felt ready. Laughable, really.</p>
 
 <p>The plan was to write a quick lisp eschewing the normal mutable global state for
 immutability. My first idea looked a little like this:</p>
-
-<pre><code>    lisp strings -&gt; AST -&gt; simplified AST -&gt; &quot;bytecode&quot; -&gt; VM -&gt; scheduler
-</code></pre>
-
+<div class="highlight"><pre class="chroma">    lisp strings -&gt; AST -&gt; simplified AST -&gt; &#34;bytecode&#34; -&gt; VM -&gt; scheduler</pre></div>
 <p>The plan was to psuedo-compile the the AST into bytecode for a stack VM.
 At the time, although the scheduler would likely be the most complex part of
 this project, I thought that starting with the VM would be a good idea. The VM
@@ -114,38 +112,34 @@ here.</a>. As with all
 great lisp interpreters and stack VMs (for they are so similar in this early
 stage), you start by adding numbers. I set up the number literal operations, the
 addition operator, stuck them in a vector and let it rip.</p>
-
-<pre><code class="language-rust">match op {
-    Op::Lit(l) =&gt; frame.stack.push(( l ).clone()),
-    Op::PlusOp =&gt; {
-        let x = frame.stack_pop()?.ensure_number()?;
-        let y = frame.stack_pop()?.ensure_number()?;
-        let s = x + y;
-        frame.stack.push(data::Literal::Number(s));
-    }
-    Op::ApplyFunction =&gt; { /* ... */ },
-    Op::ReturnOp =&gt; { /* ... */ },
-}
-</code></pre>
-
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">match</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="n">Op</span>::<span class="n">Lit</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">stack</span><span class="p">.</span><span class="n">push</span><span class="p">((</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="p">).</span><span class="n">clone</span><span class="p">()),</span><span class="w">
+</span><span class="w">    </span><span class="n">Op</span>::<span class="n">PlusOp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">stack_pop</span><span class="p">()</span><span class="o">?</span><span class="p">.</span><span class="n">ensure_number</span><span class="p">()</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">stack_pop</span><span class="p">()</span><span class="o">?</span><span class="p">.</span><span class="n">ensure_number</span><span class="p">()</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w">
+</span><span class="w">        </span><span class="n">frame</span><span class="p">.</span><span class="n">stack</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">data</span>::<span class="n">Literal</span>::<span class="n">Number</span><span class="p">(</span><span class="n">s</span><span class="p">));</span><span class="w">
+</span><span class="w">    </span><span class="p">}</span><span class="w">
+</span><span class="w">    </span><span class="n">Op</span>::<span class="n">ApplyFunction</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">},</span><span class="w">
+</span><span class="w">    </span><span class="n">Op</span>::<span class="n">ReturnOp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">},</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span><span class="w"></span></code></pre></div>
 <p>It&rsquo;s got all the hallmarks: stacks, operations, addition, the works.
 Unfortunately, I started to get excited, and implemented functions next. Not any
 sort of syntax, just raw-built function literals:</p>
-
-<pre><code class="language-rust">#[derive(Debug)]
-pub struct AddOneFunction;
-
-impl LambdaFunction for AddOneFunction {
-    fn get_arity(&amp;self) -&gt; usize {
-        1
-    }
-
-    fn get_instructions(&amp;self) -&gt; Vec&lt;Op&gt; {
-        vec![Op::Lit(data::Literal::Number(1)), Op::PlusOp, Op::ReturnOp]
-    }
-}
-</code></pre>
-
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="cp">#[derive(Debug)]</span><span class="w">
+</span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">AddOneFunction</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">LambdaFunction</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">AddOneFunction</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="k">fn</span> <span class="nf">get_arity</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kt">usize</span> <span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="mi">1</span><span class="w">
+</span><span class="w">    </span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="k">fn</span> <span class="nf">get_instructions</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Op</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="n">vec</span><span class="o">!</span><span class="p">[</span><span class="n">Op</span>::<span class="n">Lit</span><span class="p">(</span><span class="n">data</span>::<span class="n">Literal</span>::<span class="n">Number</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span><span class="w"> </span><span class="n">Op</span>::<span class="n">PlusOp</span><span class="p">,</span><span class="w"> </span><span class="n">Op</span>::<span class="n">ReturnOp</span><span class="p">]</span><span class="w">
+</span><span class="w">    </span><span class="p">}</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span><span class="w"></span></code></pre></div>
 <p>This was combined with a &ldquo;stack frame&rdquo; that held a set of instructions and its
 own personal stack. In a sense, each stack frame was its own stack VM, and
 unlike normal stack machines or concatenative languages, each function had its
@@ -155,25 +149,23 @@ isolated them: this simply wouldn&rsquo;t be a concern assuming the AST produced
 reasonable bytecode. I was briefly thinking of making players execute untrusted
 code for in game reasons which could potentially hurt them in game, but this
 level of security somewhat trivializes that threat.</p>
-
-<pre><code class="language-rust">let function = frame.stack_pop()?;
-
-match function {
-    data::Literal::Builtin(f) =&gt; {
-        f.invoke(&amp;mut frame.stack); /* An earlier and simpler sort of function */
-    },
-    data::Literal::Lambda(f) =&gt; {
-        let mut new_stack: Vec&lt;data::Literal&gt; = Vec::new();
-        for _ in 0..f.get_arity() {
-            new_stack.push(frame.stack_pop()?);
-        }
-        /* new stack, new instruction set, new everything */
-        new_frame = Some(StackFrame::new(f.get_instructions(), new_stack))
-    },
-    _ =&gt; panic!(&quot;Attempted to apply non-function&quot;),
-}
-</code></pre>
-
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="kd">let</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">stack_pop</span><span class="p">()</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">match</span><span class="w"> </span><span class="n">function</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="n">data</span>::<span class="n">Literal</span>::<span class="n">Builtin</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="n">f</span><span class="p">.</span><span class="n">invoke</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">stack</span><span class="p">);</span><span class="w"> </span><span class="cm">/* An earlier and simpler sort of function */</span><span class="w">
+</span><span class="w">    </span><span class="p">},</span><span class="w">
+</span><span class="w">    </span><span class="n">data</span>::<span class="n">Literal</span>::<span class="n">Lambda</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">new_stack</span>: <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">data</span>::<span class="n">Literal</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Vec</span>::<span class="n">new</span><span class="p">();</span><span class="w">
+</span><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="p">..</span><span class="n">f</span><span class="p">.</span><span class="n">get_arity</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">            </span><span class="n">new_stack</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">stack_pop</span><span class="p">()</span><span class="o">?</span><span class="p">);</span><span class="w">
+</span><span class="w">        </span><span class="p">}</span><span class="w">
+</span><span class="w">        </span><span class="cm">/* new stack, new instruction set, new everything */</span><span class="w">
+</span><span class="w">        </span><span class="n">new_frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">StackFrame</span>::<span class="n">new</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">get_instructions</span><span class="p">(),</span><span class="w"> </span><span class="n">new_stack</span><span class="p">))</span><span class="w">
+</span><span class="w">    </span><span class="p">},</span><span class="w">
+</span><span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">panic</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Attempted to apply non-function&#34;</span><span class="p">),</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span><span class="w"></span></code></pre></div>
 <p>I then ran smack dab into the problem of if statements. I hadn&rsquo;t even considered
 them at all: I had no way to represent non-executing chunks of code. I had
 functions, but the potential of doing a full function call (with closures in

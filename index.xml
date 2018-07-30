@@ -20,7 +20,7 @@
       <description>Part 1
 Part 2
 Last time, the conceptual challenges of a the stack VM convinced me it was the wrong approach. In a normal recursive lisp interpreter, code is data, and you have a single evaluator function over every value. Follow along here.
-/// Omni-datatype. Represents both data and code for the lisp VM. #[derive(Debug, Clone)] pub enum Lisp { /// Represents a single u32 number. Num(u32), /// Represents an operation see `Op` for more info.</description>
+/// Omni-datatype. Represents both data and code for the lisp VM. #[derive(Debug, Clone)]pubenum Lisp{/// Represents a single u32 number. Num(u32),/// Represents an operation see `Op` for more info.</description>
     </item>
     
     <item>
