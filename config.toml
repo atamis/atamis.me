@@ -2,9 +2,13 @@ baseURL = "http://atamis.me/"
 languageCode = "en-us"
 title = "Andrew Amis"
 theme = "hugo-xmin"
+pygmentsCodeFences = true
+pygmentsCodefencesGuessSyntax = true
+pygmentsUseClasses = true
 
 [params]
     footer = "&copy; [Andrew Amis](http://atamis.me) --- [Github](http://github.com/atamis) --- 2018"
+    custom_css = ["/css/syntax.css"]
 
 [permalinks]
     post = "/post/:year/:month/:day/:slug/"
