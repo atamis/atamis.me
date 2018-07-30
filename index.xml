@@ -6,10 +6,19 @@
     <description>Recent content on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 29 Jul 2018 10:59:40 -0700</lastBuildDate>
+    <lastBuildDate>Sun, 29 Jul 2018 20:05:19 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>A Hybrid Course</title>
+      <link>http://atamis.me/posts/2018-07-29-a-hybrid-course/</link>
+      <pubDate>Sun, 29 Jul 2018 20:05:19 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-07-29-a-hybrid-course/</guid>
+      <description>I took a lot of interesting courses in college, but I wanted to talk about a particular course that you might call a &amp;ldquo;hybrid course&amp;rdquo;. This particular course was outside my major: I was required to take non-CS courses to get my degree, but by senior year, I had also run out of CS courses to take; what is a man to do? Take a course on Ovid and Medieval Literature.</description>
+    </item>
     
     <item>
       <title>Ironic Space Lisp Part 2</title>
