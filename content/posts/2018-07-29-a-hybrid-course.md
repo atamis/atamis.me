@@ -57,5 +57,5 @@ Ormand][ormand], I highly recommend it.
 
 
 [class]: http://catalog.oberlin.edu/preview_course_nopop.php?catoid=36&coid=85840
-[Brain]: https://www.oberlin.edu/jennifer-bryan
+[bryan]: https://www.oberlin.edu/jennifer-bryan
 [ormand]: https://www.oberlin.edu/kirk-ormand
