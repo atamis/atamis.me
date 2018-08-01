@@ -6,10 +6,20 @@
     <description>Recent content in Posts on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 29 Jul 2018 20:05:19 -0700</lastBuildDate>
+    <lastBuildDate>Wed, 01 Aug 2018 14:02:48 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>I hate Go, and I think it&#39;s really cool</title>
+      <link>http://atamis.me/posts/2018-08-01-golang/</link>
+      <pubDate>Wed, 01 Aug 2018 14:02:48 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-01-golang/</guid>
+      <description>My first impression of Go was, ironically, &amp;ldquo;kinda generic&amp;rdquo;. It&amp;rsquo;s an imperative language from Google inspired by Python (a little generic) and Java (reigning king of generic languages,) so some amount of &amp;ldquo;recognition&amp;rdquo; is due. Go wears its influences proudly on its sleeve, which is a little weird, because it&amp;rsquo;s not a particularly noteworthy heritage.
+The interesting thing (to me at least), is that this is all on purpose. Boring on purpose is an engineering feature, because excessively complicated languages are harder to work on, and produce harder to maintain code.</description>
+    </item>
     
     <item>
       <title>A Hybrid Course</title>

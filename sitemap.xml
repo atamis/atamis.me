@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://atamis.me/posts/2018-08-01-golang/</loc>
+    <lastmod>2018-08-01T14:02:48-07:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://atamis.me/posts/2018-07-29-a-hybrid-course/</loc>
     <lastmod>2018-07-29T20:05:19-07:00</lastmod>
   </url>
@@ -33,7 +38,7 @@
   
   <url>
     <loc>http://atamis.me/</loc>
-    <lastmod>2018-07-29T20:05:19-07:00</lastmod>
+    <lastmod>2018-08-01T14:02:48-07:00</lastmod>
   </url>
   
   <url>
@@ -87,7 +92,7 @@
   
   <url>
     <loc>http://atamis.me/posts/</loc>
-    <lastmod>2018-07-29T20:05:19-07:00</lastmod>
+    <lastmod>2018-08-01T14:02:48-07:00</lastmod>
     <priority>0</priority>
   </url>
   
