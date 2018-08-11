@@ -44,7 +44,7 @@ is the point I decided to implement utilize stack machine VM to enable this sort
 of stepped interpretation.
 
 Given the slightly mental requirements, it was sort of clear I was going to have
-to write my own language. What an amazing opportunity to a new and exciting
+to write my own language. What an amazing opportunity to learn a new and exciting
 language! I know I'm going to be running a game alongside the language, and I
 don't want to use an implementation language that was to slow, so let's use
 Rust, an incredibly complex language that boasts zero-cost abstractions with
