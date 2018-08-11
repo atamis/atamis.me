@@ -8,7 +8,7 @@ Have you ever been working on a project and felt stupid and scared? Not in an
 anxious way, and not in an imposter syndrome way, but in a visceral way, like "I
 don't really know what I'm doing, and I'm not sure I can do this." Some
 languages are so complex and _different_ that, although I know they're full
-feature and turing complete languages, I don't know that I can even write
+feature and Turing complete languages, I don't know that I can even write
 whatever program I'm trying to make. Or at least that I can't write it idiomatically.
 
 On the one hand, this really doesn't feel good. On the other hand, it's a very
@@ -55,7 +55,7 @@ Hours"][haskell_scheme] (which includes the phrase "you'll have to forget most
 of what you already know about programming", which is how you know it's a good
 tutorial). Nystrom's book complicates that slightly by employing the visitor
 pattern to implement evaluation, but I found his justification for it entirely
-convincing, and it really didn't change the performance impliciations of
+convincing, and it really didn't change the performance implications of
 tree-walk. Additionally, my interpreter almost never deals with data values
 directly, they're almost always wrapped in an `Rc`,
 
@@ -74,7 +74,7 @@ immutable, so reference counting the entire thing and directly sharing data and
 code is reasonable semantically speaking (especially for a Lisp), but too much
 indirection is inefficient.
 
-It's worth noting that although the Ironic Space Lisp interpeter isn't a normal
+It's worth noting that although the Ironic Space Lisp interpreter isn't a normal
 tree walk interpreter. The ISL interpreter, as it's implemented on the `master`
 branch right now, reifies the stack frames tracking the recursive descent into
 the AST to permit preemptive pausing. This really doesn't help the locality
@@ -111,7 +111,7 @@ approach to closures.
 
 I'm hoping to make closures serializable, or at least transferrable between
 different VMs with different environments: possible in Java, difficult in PHP,
-involves eval in Ruby, [Erlang][erlang_passing_funs], etc (how crazy is it that
+involves eval in Ruby, possible in [Erlang][erlang_passing_funs], etc (how crazy is it that
 it's possible in _Java_ but not _Ruby_?). In particular, capturing bound values
 and passing them over the wire _with_ the function seems doable, but _weird_.
 I'm not sure I need to serialize closures all the way to strings and send them
@@ -120,8 +120,29 @@ higher order functions from one VM to another seems like a really flexible and
 powerful tool for the languages ultimate purpose.
 
 It's worth nothing that [this presentation][scheme_presentation] was very
-interesting, although it covers a lot of topics that weren't directly relevent
+interesting, although it covers a lot of topics that weren't directly relevant
 to this project.
+
+## Addendum: Tests
+
+_Why haven't you written any tests?_
+
+This is a pretty bad look for me: no tests of any of the implementations. To
+explain, allow me to draw your attention to the phrase "any of the
+implementation". I've written two and a half implementations, and none of them
+have reached any sort of completeness. Between uncertainty over language, API,
+and implementation, the code is changing so fast that tests would be mostly wasted
+effort. I've had very little solid idea of what this project is going to look
+like in the end, and without a solid vision, any tests that get written have a
+very good chance of being abandoned as that code base becomes obsolete. I've
+abandoned the bytecode VM, then picked it up again, but I ended up rewriting it
+substantially, so any existing tests would either restrict me unreasonably or be
+deleted. Certain design decisions in the stepped interpreter made it harder to
+implement the naive tree-walk version, so tests written for that partial
+interpreter would also have been thrown out. The stepped interpreter is very
+complicated with lots of moving parts, but all the parts are very tightly bound,
+which makes testing them independently very difficult, and testing them together
+very difficult too. The VM is easier to write tests for, luckily.
 
 [book]: http://craftinginterpreters.com/
 [haskell_scheme]: https://en.wikibooks.org/wiki/Write_Yourself_a_Scheme_in_48_Hours
