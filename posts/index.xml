@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 01 Aug 2018 14:02:48 -0700</lastBuildDate>
+    <lastBuildDate>Fri, 10 Aug 2018 17:09:28 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ironic Space Lisp Part 3</title>
+      <link>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</link>
+      <pubDate>Fri, 10 Aug 2018 17:09:28 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</guid>
+      <description>Have you ever been working on a project and felt stupid and scared? Not in an anxious way, and not in an imposter syndrome way, but in a visceral way, like &amp;ldquo;I don&amp;rsquo;t really know what I&amp;rsquo;m doing, and I&amp;rsquo;m not sure I can do this.&amp;rdquo; Some languages are so complex and different that, although I know they&amp;rsquo;re full feature and turing complete languages, I don&amp;rsquo;t know that I can even write whatever program I&amp;rsquo;m trying to make.</description>
+    </item>
     
     <item>
       <title>I hate Go, and I think it&#39;s really cool</title>

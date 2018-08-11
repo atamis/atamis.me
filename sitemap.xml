@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</loc>
+    <lastmod>2018-08-10T17:09:28-07:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://atamis.me/posts/2018-08-01-golang/</loc>
     <lastmod>2018-08-01T14:02:48-07:00</lastmod>
   </url>
@@ -38,7 +43,7 @@
   
   <url>
     <loc>http://atamis.me/</loc>
-    <lastmod>2018-08-01T14:02:48-07:00</lastmod>
+    <lastmod>2018-08-10T17:09:28-07:00</lastmod>
   </url>
   
   <url>
@@ -92,7 +97,7 @@
   
   <url>
     <loc>http://atamis.me/posts/</loc>
-    <lastmod>2018-08-01T14:02:48-07:00</lastmod>
+    <lastmod>2018-08-10T17:09:28-07:00</lastmod>
     <priority>0</priority>
   </url>
   
