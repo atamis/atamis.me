@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 15 Aug 2018 16:21:39 -0700</lastBuildDate>
+    <lastBuildDate>Sun, 19 Aug 2018 20:44:24 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ironic Space Lisp Part 5</title>
+      <link>http://atamis.me/posts/2018-08-19-ironic-space-lisp-part-5/</link>
+      <pubDate>Sun, 19 Aug 2018 20:44:24 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-19-ironic-space-lisp-part-5/</guid>
+      <description>Let&amp;rsquo;s talk about environmental bindings. I&amp;rsquo;m taking the unusual (I think) approach of sharing environment bindings code between the VM and the interpreter. Unfortunately, I wrote the environment code at the same time as the VM, and fit the code a little too closely to the requirements of the VM, and didn&amp;rsquo;t think enough about what the interpreter would require. In the process of writing the interpreter, I encountered a strong disconnect between the semantics that I wanted and the semantics I had.</description>
+    </item>
     
     <item>
       <title>Operators</title>
