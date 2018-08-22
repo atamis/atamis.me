@@ -6,10 +6,20 @@
     <description>Recent content on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 19 Aug 2018 20:44:24 -0700</lastBuildDate>
+    <lastBuildDate>Wed, 22 Aug 2018 01:56:10 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ironic Space Lisp Part 6</title>
+      <link>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</link>
+      <pubDate>Wed, 22 Aug 2018 01:56:10 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</guid>
+      <description>Since last time, I did two things: switched from error_chain to failure, and refactored with the visitor pattern. They took about the same amount of time, and the refactor is much more interesting. I briefly touch on an issue I encountered with failure, but I&amp;rsquo;d rather discuss the refactor.
+The Visitor Pattern Calling this the visitor pattern is a bit grand. The visitor pattern has intricacies that aren&amp;rsquo;t entirely relevant in this situation, but I can describe how this visitor works, and why I decided on it.</description>
+    </item>
     
     <item>
       <title>Ironic Space Lisp Part 5</title>
