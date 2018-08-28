@@ -6,10 +6,19 @@
     <description>Recent content on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 22 Aug 2018 01:56:10 -0700</lastBuildDate>
+    <lastBuildDate>Mon, 27 Aug 2018 15:56:11 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ironic Space Lisp Part 7</title>
+      <link>http://atamis.me/posts/2018-08-27-ironic-space-lisp-part-7/</link>
+      <pubDate>Mon, 27 Aug 2018 15:56:11 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-27-ironic-space-lisp-part-7/</guid>
+      <description>Let&amp;rsquo;s talk about the VM internals. I&amp;rsquo;ve written a compiler for ISL, and implemented functions at the same time. This is not a mistake or an over-reach, rather a natural progression. To the VM, what is a function? The VM doesn&amp;rsquo;t have a strong concept of &amp;ldquo;functions&amp;rdquo;, or even of procedures. It has the Call and Return operations. These operations are the only way to manipulate the frame stack in a meaningful way: Call pushes an address to the frame stack, jumping to it, while Return pops an address, returning to the caller.</description>
+    </item>
     
     <item>
       <title>Ironic Space Lisp Part 6</title>
