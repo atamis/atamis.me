@@ -6,10 +6,20 @@
     <description>Recent content in About on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 14 Sep 2018 17:10:34 -0700</lastBuildDate>
+    <lastBuildDate>Thu, 20 Sep 2018 13:21:53 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ironic Space Lisp Part 8</title>
+      <link>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</link>
+      <pubDate>Thu, 20 Sep 2018 13:21:53 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</guid>
+      <description>It&amp;rsquo;s been a while since I posted progress on ISL, and that is mostly my fault. Most of this time was spent making maintenance, like documentation, but also trying to get the self hosted interpreter working and self hosting. That was a challenge, and also my fault.
+&amp;ldquo;Closures&amp;rdquo; So, I had a problem. I&amp;rsquo;m really used to having checks to make sure the code I write is correct. I don&amp;rsquo;t ask for much, but arity checks are nice, and pretty much every language offers them, either at compile or runtime.</description>
+    </item>
     
     <item>
       <title>The Phantom Rejection</title>
