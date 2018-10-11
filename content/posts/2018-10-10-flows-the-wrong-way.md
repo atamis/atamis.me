@@ -64,7 +64,8 @@ read from line by arbitrary line, feeding the system without overwhelming it.
 
 Elixir's IO device type is pretty interesting: it's a departure from the
 traditional Erlang method, and supports pretty rich interaction capable of
-supporting this sort of careful IO work. There are a couple of small problems.
+supporting this sort of careful IO work. There are a couple of small problems,
+and I have a folder full of failed attempts.
 
 # Attempt 0: Streaming compressed data with Erlang
 
@@ -396,6 +397,11 @@ whatever you want, and the flow keeps going.
 Because this solution is so obviously bad, and because I'm clearly missing
 something about `GenStage`, I'm going to continue to think about this problem,
 and ultimately create a better solution. Probably one that still listens on TCP
-sockets, but one that doesn't spinlock.
+sockets, but one that doesn't spinlock. Ultimately, my colleague was happy with
+the solution, the application worked out of the box, and the universal interface
+of plain text JSON objects to a TCP socket was easy for him to understand,
+interact with, and even automate (he has no idea how the Flow application works,
+but he has shell experience and can assemble `ncat` commands.). Spinlocks are
+bad though, and I think throughput can be increased if I write the GenStages right.
 
 [thread]: http://erlang.org/pipermail/erlang-questions/2010-July/052583.html
