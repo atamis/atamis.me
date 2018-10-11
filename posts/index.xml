@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 20 Sep 2018 13:21:53 -0700</lastBuildDate>
+    <lastBuildDate>Wed, 10 Oct 2018 15:41:01 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Flows the Wrong Way: Streaming into Elixir</title>
+      <link>http://atamis.me/posts/2018-10-10-flows-the-wrong-way/</link>
+      <pubDate>Wed, 10 Oct 2018 15:41:01 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-10-10-flows-the-wrong-way/</guid>
+      <description>As part of a new and exciting project, I was faced with the task of ingesting a large amount of more or less homogeneous JSON data into a SQL database for an associate of mine to do some rudimentary business intelligence analysis on it. The context complicated things: the bulk data was a bunch of historical social media data, and in future he would also want to ingest the live API in addition to this archived historical data.</description>
+    </item>
     
     <item>
       <title>Ironic Space Lisp Part 8</title>
