@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 13 Oct 2018 12:36:21 -0700</lastBuildDate>
+    <lastBuildDate>Sat, 03 Nov 2018 19:28:01 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Pipeline Operators</title>
+      <link>http://atamis.me/posts/2018-11-3-pipeline-operators/</link>
+      <pubDate>Sat, 03 Nov 2018 19:28:01 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-11-3-pipeline-operators/</guid>
+      <description>Pipeline &amp;ldquo;operators&amp;rdquo; or &amp;ldquo;threading&amp;rdquo;1 constructs are interesting language constructs. They are an acknowledgement that functional code can be a little obtuse. They reorient (or rewrite) functional code so it looks more like a &amp;ldquo;dataflow&amp;rdquo;. Particularly of Lisps, but also of some other functional languages, execution moves from the inside of expressions to the outside in a way that&amp;rsquo;s not particularly natural feeling. It&amp;rsquo;s a real source of the difficulty people express when reading functional code.</description>
+    </item>
     
     <item>
       <title>Flows the Wrong Way, Part 2: The Right Way</title>
