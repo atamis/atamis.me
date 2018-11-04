@@ -123,7 +123,8 @@ obey the rule that the first argument is the &ldquo;method receiver&rdquo;, so t
 This is adhered to almost to absurdity as seen in <code>Map.merge/2</code>, which takes 2
 arguments, and merges the <em>second</em> map into the <em>first</em>, giving the <em>second</em>
 map&rsquo;s keys precedence in the merged map. I think that <em>first</em> into <em>second</em>
-would be a little more reasonable, but that&rsquo;s the decision they made.</p>
+would be a little more reasonable, but that&rsquo;s the decision they made
+(<code>Enum.into/2</code> can do this, but I digress).</p>
 
 <p>In practice, Elixir code is mostly function calls like above, but not always.
 Elixir also has structs, which are some sugar on top of maps, but which provide
