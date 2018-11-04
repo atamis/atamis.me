@@ -112,7 +112,8 @@ obey the rule that the first argument is the "method receiver", so to speak.
 This is adhered to almost to absurdity as seen in `Map.merge/2`, which takes 2
 arguments, and merges the _second_ map into the _first_, giving the _second_
 map's keys precedence in the merged map. I think that _first_ into _second_
-would be a little more reasonable, but that's the decision they made.
+would be a little more reasonable, but that's the decision they made
+(`Enum.into/2` can do this, but I digress).
 
 In practice, Elixir code is mostly function calls like above, but not always.
 Elixir also has structs, which are some sugar on top of maps, but which provide
