@@ -6,10 +6,20 @@
     <description>Recent content in Posts on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 14 Dec 2018 13:35:11 -0800</lastBuildDate>
+    <lastBuildDate>Mon, 14 Jan 2019 11:58:20 -0800</lastBuildDate>
     
 	<atom:link href="http://atamis.me/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Intentional Limit Breaks in Video Games</title>
+      <link>http://atamis.me/posts/2019-1-04-intentional-limit-breaks-in-video-games/</link>
+      <pubDate>Mon, 14 Jan 2019 11:58:20 -0800</pubDate>
+      
+      <guid>http://atamis.me/posts/2019-1-04-intentional-limit-breaks-in-video-games/</guid>
+      <description>When building consumer software, it&amp;rsquo;s a widely held belief that the software shouldn&amp;rsquo;t crash, shouldn&amp;rsquo;t hang (or ignore user input), and should generally remain &amp;ldquo;in control.&amp;rdquo; Users don&amp;rsquo;t like software that crashes and loses their progress, and they don&amp;rsquo;t react well to software that freezes: they tend to spam buttons, making the problem worse.
+This is just as important and much harder for video games. Video games are among the most complex and demanding software being produced commercially, and they&amp;rsquo;re likely the most complex and demanding software the average consumer will ever run.</description>
+    </item>
     
     <item>
       <title>The Triumvirate of Aberrations</title>
