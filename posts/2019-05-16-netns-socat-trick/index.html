@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Netns socat Trick | Andrew Amis</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/syntax.css">
+
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      <li><a href="/games/">Games</a></li>
+      
+      <li><a href="/pictures/">Pictures</a></li>
+      
+      <li><a href="/downloads/resume.pdf">Resume</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Netns socat Trick</span></h1>
+
+<h2 class="date">2019/05/16</h2>
+</div>
+
+<main>
+
+
+<p>I mostly use this blog for theories, ideas, and think-pieces. But I
+figure I&rsquo;ll return to the <em>roots</em> of blogging, and take the
+opportunity to explain a solution to a technical problem I
+encountered.</p>
+
+<h1 id="the-problem">The Problem</h1>
+
+<p>I have a home lab server I built out old gaming PC. I haven&rsquo;t done
+anything with its mediocre graphics card (so no exciting machine
+learning stuff). I&rsquo;ve used it as a file server and a render box
+(blender&rsquo;s CPU rendering only), but I&rsquo;ve also used it as a VPN client.
+After failing on my own<sup class="footnote-ref" id="fnref:1"><a href="#fn:1">1</a></sup>, I ended up using the excellent
+<a href="https://github.com/slingamn/namespaced-openvpn">namespaced-openvpn</a>
+to set up a Linux net namespace whose only external connection is
+through the VPN, and which fails closed should the VPN be interrupted.
+This makes using applications of any sort (including console
+applications and daemons) very easy, especially compared to other less
+robust solutions rooted in syscall interception, or similar. It&rsquo;s
+frequently easier to work <em>with</em> the kernel than against it.</p>
+
+<p>User interaction with the net namespaces is pretty easy:</p>
+<div class="highlight"><pre class="chroma">ip netns exec vpn bash</pre></div>
+<p>This launches a root bash shell in the namespace. Any child processes
+are also launched in the namespace as well. This namespace technology
+is part of the collection of technologies that make containers
+possible, and <code>namespaced-openvpn</code> implies that it would be possible
+to isolate the VPN user further, configuring an entire container to
+access the outside world exclusively through the VPN. This is
+<em>interesting</em>, particularly if it could be extended to Tor, rather
+than just a VPN, but that&rsquo;s a project for another time.</p>
+
+<p>However, I wanted to be able to run servers inside the namespace. I
+wanted the server to have a VPN only view of the world, but be
+accessible normally (on LAN, etc.). This is prevented by normal usage
+of network namespaces. Services that listen in the namespace simply
+don&rsquo;t listen on open external ports. Search around I found a solution
+that involved even more virtual network configuration, but I mostly
+have that handled by <code>namespaced-openvpn</code>, and messing with
+configuration I don&rsquo;t really understand is a great way to open myself
+up to security holes.</p>
+
+<h1 id="the-solution">The Solution</h1>
+
+<p>The solution is <code>socat</code>, the Multipurpose Relay. <code>socat</code> takes 2 streams
+of any sort and connects them. It has a number of useful adaptors that
+let you read, listen, connect to, etc. 2 things, and then feed bytes
+between them. You can use a command like</p>
+<div class="highlight"><pre class="chroma">socat file:~/.profile STDOUT</pre></div>
+<p>To print a file to standard out (replicating the normal <code>cat</code>)
+program, but you can also use it as a make-shift reverse proxy. If you
+have a local service running on port <code>3000</code>, you can &ldquo;re-listen&rdquo; it
+and proxy it over a UNIX domain socket with this command</p>
+<div class="highlight"><pre class="chroma">socat UNIX-LISTEN:/tmp/socat.sock,fork tcp:127.0.0.1:3000</pre></div>
+<p>This instructs <code>socat</code> to listen on a UNIX socket, and upon receiving
+a connection, to in turn connect to <code>127.0.0.1:3000</code> over TCP. Of
+particular note is the <code>,fork</code> after the UNIX socket. This tells
+<code>socat</code> to fork a process for each connection to the socket, and to
+continue listening. By default, <code>socat</code> will accept one connection, do
+its proxying, and then close, refusing other connections. This
+behavior is undesirable for this purpose as I&rsquo;m intending this server
+for long term use, and it&rsquo;s web server anyway, and rarey does a web
+application need only 1 request: additional assets are usually
+required, not to mention the continued interaction.</p>
+
+<p>This proxy command is run inside the namespace so it has access to the
+server. However, filesystems and UNIX domain sockets <em>aren&rsquo;t</em>
+namespaced, so we can run the following command outside the namespace:</p>
+<div class="highlight"><pre class="chroma">socat TCP-LISTEN:3003,fork UNIX:/tmp/socat.sock</pre></div>
+<p>I chose to listen on <code>:3003</code> because I used <code>3000-3002</code> testing, and
+for some reason I couldn&rsquo;t listen on them again. I assume they got
+released pretty quickly, but I&rsquo;m pretty impatient. This is just like
+the last command, but the inverse. It listens on TCP, forks those
+connections, and proxies them to the socket. This works <em>perfectly</em>.
+It handles multiple connections (although not efficiently:
+process-per-connection should absolutely be avoided in production HTTP
+contexts). It&rsquo;s pretty stable. It&rsquo;s transparent. And it&rsquo;s easy!</p>
+
+<p><code>socat</code> is an incredibly flexible tool, and this is just one of its
+many uses. It&rsquo;s jam packed full of features, and I highly recommend
+its <a href="https://linux.die.net/man/1/socat">man page</a>, <a href="https://github.com/craSH/socat/blob/master/EXAMPLES">this document of
+examples</a>, and
+this <a href="https://medium.com/@copyconstruct/socat-29453e9fc8a6">basic
+introduction</a>.</p>
+<div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1"><p>There are a lot of important details rooted in the internals of
+Linux virtual networking that are easy to miss and compromise your
+security.</p>
+ <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+</ol>
+</div>
+
+</main>
+
+  <footer>
+  
+  
+  <hr/>
+  &copy; <a href="http://atamis.me">Andrew Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2018
+  
+  </footer>
+  </body>
+</html>
+

@@ -6,10 +6,20 @@
     <description>Recent content in About on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 09 May 2019 13:14:25 -0700</lastBuildDate>
+    <lastBuildDate>Thu, 16 May 2019 11:57:15 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Netns socat Trick</title>
+      <link>http://atamis.me/posts/2019-05-16-netns-socat-trick/</link>
+      <pubDate>Thu, 16 May 2019 11:57:15 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2019-05-16-netns-socat-trick/</guid>
+      <description>I mostly use this blog for theories, ideas, and think-pieces. But I figure I&amp;rsquo;ll return to the roots of blogging, and take the opportunity to explain a solution to a technical problem I encountered.
+The Problem I have a home lab server I built out old gaming PC. I haven&amp;rsquo;t done anything with its mediocre graphics card (so no exciting machine learning stuff). I&amp;rsquo;ve used it as a file server and a render box (blender&amp;rsquo;s CPU rendering only), but I&amp;rsquo;ve also used it as a VPN client.</description>
+    </item>
     
     <item>
       <title>Game Idea; Annihilation: God&#39;s Will</title>
