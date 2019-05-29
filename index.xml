@@ -6,10 +6,21 @@
     <description>Recent content in About on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 16 May 2019 11:57:15 -0700</lastBuildDate>
+    <lastBuildDate>Tue, 28 May 2019 17:04:04 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Codegen Loader</title>
+      <link>http://atamis.me/posts/2019-05-28-codegen-loader/</link>
+      <pubDate>Tue, 28 May 2019 17:04:04 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2019-05-28-codegen-loader/</guid>
+      <description>In what is very likely an enormously bad idea, I have built a JVM classloader that can load dynamically load Java source files into memory.
+Why I&amp;rsquo;ve recently been going &amp;ldquo;Full Juxt&amp;rdquo;, using all of Juxt&amp;rsquo;s Clojure libraries, specifically juxt/aero for configuration, juxt/bidi for routing, juxt/yada for endpoint handling, weavejester/integrant for &amp;ldquo;building applications&amp;rdquo; (probably dependency injection), juxt/joplin for database migrations, and juxt/edge to tie it all together.
+All of Juxt&amp;rsquo;s libraries are relentlessly data focused, and use deps.</description>
+    </item>
     
     <item>
       <title>Netns socat Trick</title>
