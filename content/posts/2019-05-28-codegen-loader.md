@@ -238,8 +238,7 @@ context loader, it gets unset immediately for reasons I don't understand.
       (let [[outputs _] (java-compile classname)]
         (if-let [class-file (@outputs classname)]
           (let [buffer (-> class-file .openOutputStream .toByteArray)]
-            (proxy-super defineClass classname buffer nil)
-            )
+            (proxy-super defineClass classname buffer nil))
           (proxy-super findClass classname))))))
 ```
 
@@ -273,7 +272,7 @@ really don't want to _encourage_ people to use this outside its incredibly
 narrow use case. Dynamically compiling missing classes sounds like something
 that people have considered and discarded as a really bad idea. Still, it was a
 fascinating truly misguided dive into the internals of the JVM. You can find the
-code at [`atamis/codegen-loader`](https://github.com/atamis/codegen-loadenoiser)
+code at [`atamis/codegen-loader`](https://github.com/atamis/codegen-loader)
 
 
 [^1]: In truth, my problem was slightly complex, and the Java file lived in a
