@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://atamis.me/posts/2019-5-30-clojures-looping-syntax/</loc>
+    <lastmod>2019-05-30T11:52:59-07:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://atamis.me/posts/2019-05-28-codegen-loader/</loc>
     <lastmod>2019-05-28T17:04:04-07:00</lastmod>
   </url>
@@ -118,7 +123,7 @@
   
   <url>
     <loc>http://atamis.me/</loc>
-    <lastmod>2019-05-28T17:04:04-07:00</lastmod>
+    <lastmod>2019-05-30T11:52:59-07:00</lastmod>
   </url>
   
   <url>
@@ -172,7 +177,7 @@
   
   <url>
     <loc>http://atamis.me/posts/</loc>
-    <lastmod>2019-05-28T17:04:04-07:00</lastmod>
+    <lastmod>2019-05-30T11:52:59-07:00</lastmod>
     <priority>0</priority>
   </url>
   
