@@ -1,6 +1,6 @@
 # https://blog.bramp.net/post/2015/08/01/hugo-makefile/
 
-.PHONY: all clean watch help cv deploy
+.PHONY: all clean watch help cv deploy push
 
 HUGO := hugo
 
@@ -16,6 +16,8 @@ help:
 	@echo "  clean   Cleans all build files"
 	@echo "  server  Runs a webserver on port 1313 to test the final minified result"
 	@echo "  watch   Runs hugo in watch mode, waiting for changes"
+	@echo "  push    push master and gh-pages"
+	@echo "  deploy  commit the compiled blog to the gh-pages branch."
 	@echo ""
 	@echo "New article:"
 	@echo "  hugo new post/the_title"
@@ -74,3 +76,7 @@ deploy:
 	@echo "Updating gh-pages branch"
 	cd public && git add --all && git commit -m "Publishing to gh-pages `date` (Makefile)"
 	cd ..
+
+push:
+	git push origin master
+	git push origin gh-pages
