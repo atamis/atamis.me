@@ -22,4 +22,6 @@ not reflect the views of my employer. Unless I was self employed 🤔.
 
 **[Crossgambling](/crossgambling/)**, analysis of a minigame with Mathematica.
 
+[shaggy.txt](/shaggy.txt)
+
 ## Posts
