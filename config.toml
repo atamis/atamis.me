@@ -34,8 +34,8 @@ project = "projects"
     weight = 3
 
 [[menu.main]]
-    name = "Games"
-    url = "/games/"
+    name = "Projects"
+    url = "/projects/"
     weight = 4
 
 [[menu.main]]

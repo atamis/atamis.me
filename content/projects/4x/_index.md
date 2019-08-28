@@ -1,9 +1,10 @@
----
-title: "4x Game"
-list: false
----
++++
+title = "4x Game"
 
-![An early 4x game](/images/4x/4x_mid.png)
+[header]
+src = "/images/4x/4x_mid.png"
+alt =  "An early 4x game."
++++
 
 This game was made by Nick Care, Andrew Amis, Robert Tomcik, and Kirk Pearson.
 Its design is reminiscent of such games as Civilization and Creeper World. It

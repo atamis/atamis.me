@@ -1,9 +1,11 @@
----
-title: "Planet 5"
-list: false
----
++++
+title = "Planet 5"
+list = false
 
-![Planet 5 Screenshot](/images/planet5_screenshot2.png)
+[header]
+src = "/images/planet5_screenshot2.png"
+alt =  "Planet 5 screenshot"
++++
 
 Planet 5 is slow paced survival RTS. It is set on a hostile alien planet
 populated by murderous aliens trying to kill you. You must defend yourself for

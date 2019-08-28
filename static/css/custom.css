@@ -11,3 +11,12 @@
 .tag:visited {
     color: #00e;
 }
+
+.date {
+    color: darkgrey;
+}
+
+.project-date {
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+}

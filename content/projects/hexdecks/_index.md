@@ -1,9 +1,10 @@
----
-title: "Hexdecks"
-list: false
----
++++
+title =  "Hexdecks"
 
-![An image from the hexdecks game](/images/hexdecks/hexdecks_game.png)
+[header]
+src = "/images/hexdecks/hexdecks_game.png"
+alt =  "An image from the hexdecks tutorial."
++++
 
 This is a deck-based turn-taking puzzle-combat game. Reminiscent of Hoplite, it
 puts the players in the shoes of a warrior making his way through an
