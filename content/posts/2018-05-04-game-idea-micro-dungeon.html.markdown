@@ -1,7 +1,7 @@
 ---
 title: "Game Idea: Compressed Dungeons, pt. 1"
 date: 2018-05-04T09:29:00-00:00
-tags: game-idea
+tags: ["game-idea"]
 ---
 
 __tldr:__ moba keystone dungeons

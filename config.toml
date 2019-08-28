@@ -6,9 +6,13 @@ pygmentsCodeFences = true
 pygmentsCodefencesGuessSyntax = true
 pygmentsUseClasses = true
 
+[taxonomies]
+tag = "tags"
+project = "projects"
+
 [params]
     footer = "&copy; [Andrew Amis](http://atamis.me) --- [Github](http://github.com/atamis) --- 2018"
-    custom_css = ["/css/syntax.css"]
+    custom_css = ["/css/syntax.css", "/css/custom.css"]
 
 [permalinks]
     post = "/post/:year/:month/:day/:slug/"
@@ -25,16 +29,21 @@ pygmentsUseClasses = true
     weight = 2
 
 [[menu.main]]
+    name = "Tags"
+    url = "/tags/"
+    weight = 3
+
+[[menu.main]]
     name = "Games"
     url = "/games/"
-    weight = 3
+    weight = 4
 
 [[menu.main]]
     name = "Pictures"
     url = "/pictures/"
-    weight = 4
+    weight = 5
 
 [[menu.main]]
     name = "Resume"
     url = "/downloads/resume.pdf"
-    weight = 5
+    weight = 6
