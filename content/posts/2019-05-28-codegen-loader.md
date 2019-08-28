@@ -1,6 +1,7 @@
 ---
 title: "Codegen Loader"
 date: 2019-05-28T17:04:04-07:00
+tags: [clojure, code]
 ---
 
 In what is very likely an enormously bad idea, I have built a JVM classloader

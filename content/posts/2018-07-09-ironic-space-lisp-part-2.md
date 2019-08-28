@@ -1,6 +1,8 @@
 ---
 title: "Ironic Space Lisp Part 2"
 date: 2018-07-29T10:59:40-07:00
+tags: ["rust", "code", "language"]
+projects: ["isl"]
 ---
 
 [Part 1](/posts/2018-07-29-ironic-space-lisp/)

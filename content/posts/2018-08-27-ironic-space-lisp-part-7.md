@@ -1,6 +1,8 @@
 ---
 title: "Ironic Space Lisp Part 7"
 date: 2018-08-27T15:56:11-07:00
+tags: ["rust", "code", "language"]
+projects: ["isl"]
 ---
 
 Let's talk about the VM internals. I've written a compiler for ISL, and

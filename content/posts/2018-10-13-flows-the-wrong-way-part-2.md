@@ -1,6 +1,8 @@
 ---
 title: "Flows the Wrong Way, Part 2: The Right Way"
 date: 2018-10-13T12:36:21-07:00
+tags: ["code", "elixir"]
+projects: ["flows"]
 ---
 
 In my [last post][last_post], I covered my first attempt to implement TCP streaming in

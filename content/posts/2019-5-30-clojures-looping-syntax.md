@@ -1,7 +1,7 @@
 ---
 title: "Clojure's Looping Syntax is Surprising"
 date: 2019-05-30T11:52:59-07:00
-tags: ["clojure", "languages"]
+tags: ["clojure", "language"]
 ---
 
 They aren't _super_ popular, but Clojure has a rich set of high level looping

@@ -1,6 +1,8 @@
 ---
 title: "Ironic Space Lisp Part 8"
 date: 2018-09-20T13:21:53-07:00
+tags: ["rust", "code", "language"]
+projects: ["isl"]
 ---
 
 It's been a while since I posted progress on ISL, and that is mostly my fault.

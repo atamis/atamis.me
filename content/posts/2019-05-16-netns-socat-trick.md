@@ -1,6 +1,7 @@
 ---
 title: "Netns socat Trick"
 date: 2019-05-16T11:57:15-07:00
+tags: [linux]
 ---
 
 I mostly use this blog for theories, ideas, and think-pieces. But I

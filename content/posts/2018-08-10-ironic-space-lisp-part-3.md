@@ -2,6 +2,8 @@
 title: "Ironic Space Lisp Part 3"
 date: 2018-08-10T17:09:28-07:00
 draft: false
+tags: ["rust", "code", "language"]
+projects: ["isl"]
 ---
 
 Have you ever been working on a project and felt stupid and scared? Not in an

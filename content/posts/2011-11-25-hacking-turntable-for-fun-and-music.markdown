@@ -1,10 +1,7 @@
 ---
-layout: post
 title: "Hacking Turntable for Fun and Music"
 date: 2011-11-25T15:12:00-00:00
-comments: true
-categories: code
-tags: [node, code]
+tags: [code, javascript]
 ---
 
 Previous Solutions

@@ -2,6 +2,8 @@
 title: "Flows the Wrong Way: Streaming into Elixir"
 date: 2018-10-10T15:41:01-07:00
 draft: false
+tags: ["code", "elixir"]
+projects: ["flows"]
 ---
 
 As part of a new and exciting project, I was faced with the task of ingesting a

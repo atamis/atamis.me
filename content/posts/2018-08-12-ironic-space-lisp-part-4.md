@@ -1,6 +1,8 @@
 ---
 title: "Ironic Space Lisp Part 4"
 date: 2018-08-12T00:41:11-07:00
+tags: ["rust", "code", "language"]
+projects: ["isl"]
 ---
 
 This update is all about parsing, and this ended up being really difficult. Not

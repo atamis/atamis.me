@@ -1,6 +1,7 @@
 ---
 title: "Pipeline Operators"
 date: 2018-11-03T19:28:01-07:00
+tags: ["clojure", "elixir", "code", "rust", "language"]
 ---
 
 Pipeline "operators" or "threading"[^0] constructs are interesting language

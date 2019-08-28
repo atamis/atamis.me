@@ -1,6 +1,8 @@
 ---
 title: "Ironic Space Lisp Part 6"
 date: 2018-08-22T01:56:10-07:00
+tags: ["rust", "code", "language"]
+projects: ["isl"]
 ---
 
 Since last time, I did two things: switched from `error_chain` to `failure`, and

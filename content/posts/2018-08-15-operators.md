@@ -1,6 +1,7 @@
 ---
 title: "Operators"
 date: 2018-08-15T16:21:39-07:00
+tags: ["language", "rust", "clojure"]
 ---
 
 I recently started thinking about operators and math in programming languages.

@@ -1,6 +1,7 @@
 ---
-title: "Game Idea; Annihilation: God's Will"
+title: "Game Idea: \"Annihilation: God's Will\""
 date: 2019-05-09T13:14:25-07:00
+tags: [games, writing]
 ---
 
 >God created this world. Now, he's finished with it.

@@ -1,6 +1,7 @@
 ---
 title: "Intentional Limit Breaks in Video Games"
 date: 2019-01-14T11:58:20-08:00
+tags: [games, writing]
 ---
 
 When building consumer software, it's a widely held belief that the software

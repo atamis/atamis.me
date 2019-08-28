@@ -1,6 +1,7 @@
 ---
 title: "The Triumvirate of Aberrations"
 date: 2018-12-14T13:35:11-08:00
+tags: ["writing"]
 ---
 
 While attending college, for a variety of reasons too tedious to go into, I

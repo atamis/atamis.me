@@ -1,6 +1,8 @@
 ---
 title: "Ironic Space Lisp Part 5"
 date: 2018-08-19T20:44:24-07:00
+tags: ["rust", "code", "language"]
+projects: ["isl"]
 ---
 
 Let's talk about environmental bindings. I'm taking the unusual (I think)
