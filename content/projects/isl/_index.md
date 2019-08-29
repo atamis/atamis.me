@@ -9,4 +9,6 @@ contain deep hooks and callbacks to allow the host program to dynamically
 control fundamental aspects of evaluation. The interpreter is currently under
 development in Rust.
 
+<!--more-->
+
 [Github](https://github.com/atamis/ironic-space-lisp)

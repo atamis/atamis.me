@@ -11,6 +11,7 @@ languages so difficult and alien that the difficulty clearly signified that
 there was something important you could learn from mastering them. I didn't find
 this was the case during this phase of the project.
 
+<!--more-->
 
 ```
 $ cargo run

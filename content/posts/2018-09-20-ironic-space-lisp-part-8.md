@@ -9,7 +9,7 @@ It's been a while since I posted progress on ISL, and that is mostly my fault.
 Most of this time was spent making maintenance, like documentation, but also
 trying to get the self hosted interpreter working and self hosting. That was a
 challenge, and also my fault.
-
+<!--more-->
 # "Closures"
 
 So, I had a problem. I'm really used to having checks to make sure the code I

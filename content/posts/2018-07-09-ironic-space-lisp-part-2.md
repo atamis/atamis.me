@@ -12,7 +12,7 @@ projects: ["isl"]
 Last time, the conceptual challenges of a the stack VM convinced me it was the
 wrong approach. In a normal recursive lisp interpreter, code is data, and you
 have a single evaluator function over every value. [Follow along here][git1].
-
+<!--more-->
 [git1]:https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280
 
 ```rust

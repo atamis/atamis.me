@@ -13,7 +13,7 @@ I recently had a new idea for a space programming game. The idea isn't done,
 although the planning document is getting lengthy. Programming games need
 programming languages, and based on the game design, I had some pretty
 particular specifications for the language.
-
+<!--more-->
 * Sandboxed
 * Concurrent
 * Preemptive

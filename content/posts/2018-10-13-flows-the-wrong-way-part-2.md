@@ -9,7 +9,7 @@ In my [last post][last_post], I covered my first attempt to implement TCP stream
 `Flow`, a data flow library for Elixir. My first attempts involved a bunch of
 failed Unix sockets, and an attempt to implement a `GenStage` that failed for
 reasons I didn't understand. I eventually settled on this:
-
+<!--more-->
 ```Elixir
 Stream.resource(
     fn -> nil end,

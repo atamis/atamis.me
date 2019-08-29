@@ -9,7 +9,7 @@ Since last time, I did two things: switched from `error_chain` to `failure`, and
 refactored with the visitor pattern. They took about the same amount of time, 
 and the refactor is much more interesting. I briefly touch on an issue I
 encountered with `failure`, but I'd rather discuss the refactor.
-
+<!--more-->
 # The Visitor Pattern
 
 Calling this the visitor pattern is a bit grand. The visitor pattern has

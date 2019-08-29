@@ -6,9 +6,10 @@ src = "/images/4x/4x_mid.png"
 alt =  "An early 4x game."
 +++
 
-This game was made by Nick Care, Andrew Amis, Robert Tomcik, and Kirk Pearson.
-Its design is reminiscent of such games as Civilization and Creeper World. It
-was made under a strict deadline between February 10th and March 16th of 2016.
+4x is an unpolished strategy game reminiscent of Civilization and Creeper World.
+Built by Nick Care, Andrew Amis, Robert Tomcik, and Kirk Pearson, it was
+developed under a strict deadline between February 10th and March 16th of 2016.
+<!--more-->
 It was the first game the group made together (see the
 [second](/games/hexdecks)) and does not present an entirely coherent or bug-free
 experience. It also eschews almost all in-game instruction, so I've included the
