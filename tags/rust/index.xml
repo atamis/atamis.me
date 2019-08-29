@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>rust on Andrew Amis</title>
+    <link>http://atamis.me/tags/rust/</link>
+    <description>Recent content in rust on Andrew Amis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 03 Nov 2018 19:28:01 -0700</lastBuildDate>
+    
+	<atom:link href="http://atamis.me/tags/rust/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Pipeline Operators</title>
+      <link>http://atamis.me/posts/2018-11-3-pipeline-operators/</link>
+      <pubDate>Sat, 03 Nov 2018 19:28:01 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-11-3-pipeline-operators/</guid>
+      <description>Pipeline &amp;ldquo;operators&amp;rdquo; or &amp;ldquo;threading&amp;rdquo;1 constructs are interesting language constructs. They are an acknowledgement that functional code can be a little obtuse. They reorient (or rewrite) functional code so it looks more like a &amp;ldquo;dataflow&amp;rdquo;. Particularly of Lisps, but also of some other functional languages, execution moves from the inside of expressions to the outside in a way that&amp;rsquo;s not particularly natural feeling. It&amp;rsquo;s a real source of the difficulty people express when reading functional code.</description>
+    </item>
+    
+    <item>
+      <title>Ironic Space Lisp Part 8</title>
+      <link>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</link>
+      <pubDate>Thu, 20 Sep 2018 13:21:53 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</guid>
+      <description>It&amp;rsquo;s been a while since I posted progress on ISL, and that is mostly my fault. Most of this time was spent making maintenance, like documentation, but also trying to get the self hosted interpreter working and self hosting. That was a challenge, and also my fault.
+&amp;ldquo;Closures&amp;rdquo; So, I had a problem. I&amp;rsquo;m really used to having checks to make sure the code I write is correct. I don&amp;rsquo;t ask for much, but arity checks are nice, and pretty much every language offers them, either at compile or runtime.</description>
+    </item>
+    
+    <item>
+      <title>Ironic Space Lisp Part 7</title>
+      <link>http://atamis.me/posts/2018-08-27-ironic-space-lisp-part-7/</link>
+      <pubDate>Mon, 27 Aug 2018 15:56:11 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-27-ironic-space-lisp-part-7/</guid>
+      <description>Let&amp;rsquo;s talk about the VM internals. I&amp;rsquo;ve written a compiler for ISL, and implemented functions at the same time. This is not a mistake or an over-reach, rather a natural progression. To the VM, what is a function? The VM doesn&amp;rsquo;t have a strong concept of &amp;ldquo;functions&amp;rdquo;, or even of procedures. It has the Call and Return operations. These operations are the only way to manipulate the frame stack in a meaningful way: Call pushes an address to the frame stack, jumping to it, while Return pops an address, returning to the caller.</description>
+    </item>
+    
+    <item>
+      <title>Ironic Space Lisp Part 6</title>
+      <link>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</link>
+      <pubDate>Wed, 22 Aug 2018 01:56:10 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</guid>
+      <description>Since last time, I did two things: switched from error_chain to failure, and refactored with the visitor pattern. They took about the same amount of time, and the refactor is much more interesting. I briefly touch on an issue I encountered with failure, but I&amp;rsquo;d rather discuss the refactor.
+The Visitor Pattern Calling this the visitor pattern is a bit grand. The visitor pattern has intricacies that aren&amp;rsquo;t entirely relevant in this situation, but I can describe how this visitor works, and why I decided on it.</description>
+    </item>
+    
+    <item>
+      <title>Ironic Space Lisp Part 5</title>
+      <link>http://atamis.me/posts/2018-08-19-ironic-space-lisp-part-5/</link>
+      <pubDate>Sun, 19 Aug 2018 20:44:24 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-19-ironic-space-lisp-part-5/</guid>
+      <description>Let&amp;rsquo;s talk about environmental bindings. I&amp;rsquo;m taking the unusual (I think) approach of sharing environment bindings code between the VM and the interpreter. Unfortunately, I wrote the environment code at the same time as the VM, and fit the code a little too closely to the requirements of the VM, and didn&amp;rsquo;t think enough about what the interpreter would require. In the process of writing the interpreter, I encountered a strong disconnect between the semantics that I wanted and the semantics I had.</description>
+    </item>
+    
+    <item>
+      <title>Operators</title>
+      <link>http://atamis.me/posts/2018-08-15-operators/</link>
+      <pubDate>Wed, 15 Aug 2018 16:21:39 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-15-operators/</guid>
+      <description>I recently started thinking about operators and math in programming languages. This is at least partly inspired by the programming language I&amp;rsquo;m making right now, but I&amp;rsquo;ll get to that later. It&amp;rsquo;s also inspired, in some sense, by the tutorials I was reading while trying to successfully parse my programming language. I didn&amp;rsquo;t find a tutorial specifically for what I was trying to do, which was fair, but I did find tutorials on parsing other more &amp;ldquo;normal&amp;rdquo; languages or more C-like languages, and it got me thinking.</description>
+    </item>
+    
+    <item>
+      <title>Ironic Space Lisp Part 4</title>
+      <link>http://atamis.me/posts/2018-08-12-ironic-space-lisp-part-4/</link>
+      <pubDate>Sun, 12 Aug 2018 00:41:11 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-12-ironic-space-lisp-part-4/</guid>
+      <description>This update is all about parsing, and this ended up being really difficult. Not in a good way though. In my last post, I talked about using languages so difficult and alien that the difficulty clearly signified that there was something important you could learn from mastering them. I didn&amp;rsquo;t find this was the case during this phase of the project.
+$ cargo run Compiling ironic-space-lisp v0.1.0 (file:///home/andrew/src/rust/ironic-space-lisp) error: no rules expected the token `,` --&amp;gt; src/parser.</description>
+    </item>
+    
+    <item>
+      <title>Ironic Space Lisp Part 3</title>
+      <link>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</link>
+      <pubDate>Fri, 10 Aug 2018 17:09:28 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</guid>
+      <description>Have you ever been working on a project and felt stupid and scared? Not in an anxious way, and not in an imposter syndrome way, but in a visceral way, like &amp;ldquo;I don&amp;rsquo;t really know what I&amp;rsquo;m doing, and I&amp;rsquo;m not sure I can do this.&amp;rdquo; Some languages are so complex and different that, although I know they&amp;rsquo;re full feature and Turing complete languages, I don&amp;rsquo;t know that I can even write whatever program I&amp;rsquo;m trying to make.</description>
+    </item>
+    
+    <item>
+      <title>Ironic Space Lisp Part 2</title>
+      <link>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</link>
+      <pubDate>Sun, 29 Jul 2018 10:59:40 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</guid>
+      <description>Part 1
+Part 2
+Last time, the conceptual challenges of a the stack VM convinced me it was the wrong approach. In a normal recursive lisp interpreter, code is data, and you have a single evaluator function over every value. Follow along here.
+/// Omni-datatype. Represents both data and code for the lisp VM. #[derive(Debug, Clone)]pubenum Lisp{/// Represents a single u32 number. Num(u32),/// Represents an operation see `Op` for more info.</description>
+    </item>
+    
+    <item>
+      <title>Ironic Space Lisp Part 1</title>
+      <link>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</link>
+      <pubDate>Sun, 29 Jul 2018 02:03:01 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</guid>
+      <description>Part 1
+Part 2
+I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done, although the planning document is getting lengthy. Programming games need programming languages, and based on the game design, I had some pretty particular specifications for the language.
+ Sandboxed Concurrent Preemptive  Although the design hasn&amp;rsquo;t settled fully, I&amp;rsquo;m currently planning on executing code on the server, which means the language needs to be able to be sandboxed in two senses: it shouldn&amp;rsquo;t be able to access the server outside of approved channels, and it shouldn&amp;rsquo;t be able to access other threads outside of approved channels.</description>
+    </item>
+    
+  </channel>
+</rss>

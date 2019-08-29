@@ -6,7 +6,7 @@
     <title>Ironic Space Lisp Part 5 | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
 
   </head>
 
@@ -18,7 +18,9 @@
       
       <li><a href="/posts/">Posts</a></li>
       
-      <li><a href="/games/">Games</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
       
       <li><a href="/pictures/">Pictures</a></li>
       
@@ -69,7 +71,7 @@ but with <code>unsafe</code> blocks, they can be swapped directly.</p>
 </span><span class="w">    </span><span class="n">bindings</span>: <span class="nc">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Rc</span><span class="o">&lt;</span><span class="n">data</span>::<span class="n">Literal</span><span class="o">&gt;&gt;</span><span class="p">,</span><span class="w">
 </span><span class="w">    </span><span class="n">parent</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">Box</span><span class="o">&lt;</span><span class="n">Environment</span><span class="o">&gt;&gt;</span><span class="p">,</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This looks reasonably normal for lexical scoping (sort of). You have local
 bindings in a hashmap of names to values, and a pointer to a parent representing
 higher level bindings. That pointer is a <code>Box</code>, however, which means only 1
@@ -89,7 +91,7 @@ into the local bindings hashmap.</p>
 </span><span class="w">
 </span><span class="w">      </span><span class="nb">Err</span><span class="p">(</span><span class="n">format</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Binding not found for {:}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">).</span><span class="n">into</span><span class="p">())</span><span class="w">
 </span><span class="w">  </span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>The binding hashmap maps strings to reference counted pointers to data, so we
 return a cloned pointer. Additionally, if this environment has a parent (and
 therefor isn&rsquo;t the root environment), we delegate to our parent.</p>
@@ -100,7 +102,7 @@ therefor isn&rsquo;t the root environment), we delegate to our parent.</p>
 </span><span class="w">    </span><span class="o">*</span><span class="bp">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">parent</span><span class="p">;</span><span class="w">
 </span><span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This function first takes ownership of the environment&rsquo;s parent by using
 <code>mem::replace</code> to replace the parent with <code>None</code>, then it sets itself to its
 parent with <code>*self = *parent</code>. In practical terms, this patterns is unknown to
@@ -113,7 +115,7 @@ code would compile.</p>
 </span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span>::<span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w">
 </span><span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="n">p</span><span class="p">));</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This uses <code>mem::replace</code> to execute a sort of bait and switch, replacing
 ourselves with the new empty parent-less environment, then setting ourselves as
 the parent.</p>
@@ -203,7 +205,7 @@ and to produce new hashmaps with new values inserted to use as child
 environments. I don&rsquo;t feel any particular need to wrap the <code>HashMap</code>, so my new
 basic environment data structures is just this:</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">pub</span><span class="w"> </span><span class="k">type</span> <span class="nc">Env</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Rc</span><span class="o">&lt;</span><span class="n">data</span>::<span class="n">Literal</span><span class="o">&gt;&gt;</span><span class="p">;</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>I&rsquo;m continuing to use reference counted pointers to the bound values, but this
 doesn&rsquo;t really agree with my philosophy that <code>Literal</code>s should be either easily
 clonable or reference counted anyway.</p>
@@ -216,7 +218,7 @@ functionality in another type in the <code>environment</code> module, <code>EnvS
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">EnvStack</span><span class="p">{</span><span class="w">
 </span><span class="w">    </span><span class="n">envs</span>: <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Env</span><span class="o">&gt;</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p><code>EnvStack</code> implements many of the old <code>Environment</code> methods, like <code>get</code>, <code>put</code>
 (which <code>Env</code> calls <code>insert</code> or <code>update</code> depending on whether you want to update
 in place or get a new hashmap), <code>push</code>, and <code>pop</code>. Although <code>EnvStack</code> does own
@@ -237,7 +239,7 @@ can&rsquo;t. Finally, <code>push</code> and <code>pop</code> are adorably pedest
 </span><span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">envs</span><span class="p">.</span><span class="n">pop</span><span class="p">().</span><span class="n">ok_or</span><span class="p">(</span><span class="s">&#34;Attempted to pop empty environment stack&#34;</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
 </span><span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>Because the external interface changed, I had to change the test suite
 substantially, and update the VM, but the interpreter was mid-rewrite when I
 realized the need for a new environment implementation, so no interpreter code
@@ -247,6 +249,26 @@ got commited using the old environment before and the new AST.</p>
 the land of the borrow checker, the immutable man is king.&rdquo;</em></p>
 
 </main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/rust">
+                rust
+            </a>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+            <a class="tag" href="/tags/language">
+                language
+            </a>
+        
+    </section>
+
 
   <footer>
   

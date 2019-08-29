@@ -6,7 +6,7 @@
     <title>Ironic Space Lisp Part 7 | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
 
   </head>
 
@@ -18,7 +18,9 @@
       
       <li><a href="/posts/">Posts</a></li>
       
-      <li><a href="/games/">Games</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
       
       <li><a href="/pictures/">Pictures</a></li>
       
@@ -212,7 +214,7 @@ difficulties of <code>JumpCond</code>.</p>
 </span><span class="w">    </span><span class="n">Dup</span><span class="p">,</span><span class="w">
 </span><span class="w">    </span><span class="n">Pop</span><span class="p">,</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This phase of the compiler is implemented as an <code>ASTVisitor&lt;IrChunk&gt;</code>. It walks
 the AST tree and produces a vector of intermediate operations that may point to
 other vectors of intermediate operations. A lot of this phase is just emitting
@@ -290,7 +292,7 @@ get overwritten.</p>
 </span><span class="w">        </span><span class="n">chunk</span><span class="p">[</span><span class="n">len</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IrOp</span>::<span class="n">Jump</span><span class="p">;</span><span class="w">
 </span><span class="w">    </span><span class="p">}</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>It works, but is very tightly bound to the compiler implementation, and if the
 compiler ever gains the ability to elide environments, this will break.</p>
 
@@ -317,6 +319,26 @@ chunks like current one, and deals with &ldquo;first class value functions&rdquo
 literal way.</p>
 
 </main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/rust">
+                rust
+            </a>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+            <a class="tag" href="/tags/language">
+                language
+            </a>
+        
+    </section>
+
 
   <footer>
   

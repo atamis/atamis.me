@@ -1,0 +1,22 @@
+.tag {
+    /* background-color: #c6c6ff; */
+    background-color: #f0f3f3;
+    margin: 0.2em;
+    padding: 0.2em;
+    border-radius: 0.2em;
+    border: 1px solid;
+    border-color: #00e;
+}
+
+.tag:visited {
+    color: #00e;
+}
+
+.date {
+    color: darkgrey;
+}
+
+.project-date {
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+}

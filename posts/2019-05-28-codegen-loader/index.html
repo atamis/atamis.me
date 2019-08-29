@@ -6,7 +6,7 @@
     <title>Codegen Loader | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
 
   </head>
 
@@ -18,7 +18,9 @@
       
       <li><a href="/posts/">Posts</a></li>
       
-      <li><a href="/games/">Games</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
       
       <li><a href="/pictures/">Pictures</a></li>
       
@@ -76,7 +78,7 @@ gist</a>.</p>
 <p>This process works best if your compiler takes a classname rather than a path,
 as it&rsquo;s entirely classpath based. You can get your local Java compiler pretty
 easily with:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">  <span class="p">(</span><span class="nv">javax.tools.ToolProvider/getSystemJavaCompiler</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">  <span class="p">(</span><span class="nf">javax.tools.ToolProvider/getSystemJavaCompiler</span><span class="p">)</span></code></pre></div>
 <p>The Java compiler is <em>reasonably</em> flexible about compilation, but it still has a
 file-and-directory based understanding of code. This means that it&rsquo;s possible to
 do the kind of chicanery we want to do, but the compiler isn&rsquo;t really ready for
@@ -95,17 +97,17 @@ changes, and then pass it to the compiler, which happily lets us temporarily
 inject a new concept of files into it for any particular compilation.</p>
 
 <p>You can get the standard file manager with:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">    <span class="p">(</span><span class="nv">.getStandardFileManager</span> <span class="nv">compiler</span> <span class="nv">nil</span> <span class="nv">nil</span> <span class="nv">nil</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">    <span class="p">(</span><span class="nf">.getStandardFileManager</span> <span class="nv">compiler</span> <span class="nv">nil</span> <span class="nv">nil</span> <span class="nv">nil</span><span class="p">)</span></code></pre></div>
 <p>and we&rsquo;ll use a Clojure proxy to override some of its behavior.</p>
 <div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="kd">defn </span><span class="nv">output-capture-file-manager</span>
   <span class="s">&#34;Creates an output capturing memory backed forwarding file manager. See
 </span><span class="s">  ForwardingJavaFileManager for more details.&#34;</span>
   <span class="p">[</span><span class="nv">file-manager</span><span class="p">]</span>
-  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">outputs</span> <span class="p">(</span><span class="nv">atom</span> <span class="p">{})</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">outputs</span> <span class="p">(</span><span class="nf">atom</span> <span class="p">{})</span>
         <span class="nb">proxy </span><span class="p">(</span><span class="nb">proxy </span><span class="p">[</span><span class="nv">ForwardingJavaFileManager</span><span class="p">]</span> <span class="p">[</span><span class="nv">file-manager</span><span class="p">]</span>
-                <span class="p">(</span><span class="nv">getJavaFileForOutput</span> <span class="p">[</span><span class="nv">location</span> <span class="nv">className</span> <span class="nv">kind</span> <span class="nv">sibling</span><span class="p">]</span>
-                  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">output-file</span> <span class="p">(</span><span class="nv">make-mem-file</span> <span class="nv">className</span> <span class="nv">kind</span><span class="p">)]</span>
-                    <span class="p">(</span><span class="nv">swap!</span> <span class="nv">outputs</span> <span class="nb">assoc </span><span class="nv">className</span> <span class="nv">output-file</span><span class="p">)</span>
+                <span class="p">(</span><span class="nf">getJavaFileForOutput</span> <span class="p">[</span><span class="nv">location</span> <span class="nv">className</span> <span class="nv">kind</span> <span class="nv">sibling</span><span class="p">]</span>
+                  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">output-file</span> <span class="p">(</span><span class="nf">make-mem-file</span> <span class="nv">className</span> <span class="nv">kind</span><span class="p">)]</span>
+                    <span class="p">(</span><span class="nf">swap!</span> <span class="nv">outputs</span> <span class="nb">assoc </span><span class="nv">className</span> <span class="nv">output-file</span><span class="p">)</span>
                     <span class="nv">output-file</span><span class="p">)))]</span>
     <span class="p">[</span><span class="nv">outputs</span> <span class="nv">proxy</span><span class="p">]))</span></code></pre></div>
 <p>Let&rsquo;s break this down. The <code>proxy</code> is a proxy to <code>ForwardingJavaFileManager</code>,
@@ -116,13 +118,13 @@ delegate.</p>
 compiler calls to get a file for output. Rather than interact with the normal
 filesystem, we use a function called <code>make-mem-file</code> (which we&rsquo;ll discuss later)
 to provide a memory backed file instead.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">                <span class="p">(</span><span class="nv">getJavaFileForOutput</span> <span class="p">[</span><span class="nv">location</span> <span class="nv">className</span> <span class="nv">kind</span> <span class="nv">sibling</span><span class="p">]</span>
-                  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">output-file</span> <span class="p">(</span><span class="nv">make-mem-file</span> <span class="nv">className</span> <span class="nv">kind</span><span class="p">)]</span></code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">                <span class="p">(</span><span class="nf">getJavaFileForOutput</span> <span class="p">[</span><span class="nv">location</span> <span class="nv">className</span> <span class="nv">kind</span> <span class="nv">sibling</span><span class="p">]</span>
+                  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">output-file</span> <span class="p">(</span><span class="nf">make-mem-file</span> <span class="nv">className</span> <span class="nv">kind</span><span class="p">)]</span></code></pre></div>
 <p>We capture the file in an atom of outputs for later use, and return it. The atom
 is a mapping between class names and references to the <code>JavaFileObject</code> the
 compiler expects, and because we&rsquo;re living in the Java world, we can use that
 reference to get the compiler&rsquo;s output later.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">                    <span class="p">(</span><span class="nv">swap!</span> <span class="nv">outputs</span> <span class="nb">assoc </span><span class="nv">className</span> <span class="nv">output-file</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">                    <span class="p">(</span><span class="nf">swap!</span> <span class="nv">outputs</span> <span class="nb">assoc </span><span class="nv">className</span> <span class="nv">output-file</span><span class="p">)</span></code></pre></div>
 <p>Then we return the outputs atom and the new file manager.</p>
 
 <p>Let&rsquo;s take a look at <code>make-mem-file</code>.</p>
@@ -131,12 +133,12 @@ reference to get the compiler&rsquo;s output later.</p>
 </span><span class="s">  kind with the uri mem:/// backed by a memory buffer
 </span><span class="s">  (a ByteArrayOutputStream). &#34;</span>
   <span class="p">[</span><span class="nv">class-name</span> <span class="nv">kind</span><span class="p">]</span>
-  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">os</span> <span class="p">(</span><span class="nv">ByteArrayOutputStream.</span><span class="p">)</span>
-        <span class="nv">new-cn</span> <span class="p">(</span><span class="nv">URI/create</span> <span class="p">(</span><span class="nb">str </span><span class="s">&#34;mem:///&#34;</span>
-                                <span class="p">(</span><span class="nv">string/replace</span> <span class="nv">class-name</span> <span class="s">&#34;.&#34;</span> <span class="s">&#34;/&#34;</span><span class="p">)</span>
-                                <span class="p">(</span><span class="nv">.extension</span> <span class="nv">kind</span><span class="p">)))]</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">os</span> <span class="p">(</span><span class="nf">ByteArrayOutputStream.</span><span class="p">)</span>
+        <span class="nv">new-cn</span> <span class="p">(</span><span class="nf">URI/create</span> <span class="p">(</span><span class="nb">str </span><span class="s">&#34;mem:///&#34;</span>
+                                <span class="p">(</span><span class="nf">string/replace</span> <span class="nv">class-name</span> <span class="s">&#34;.&#34;</span> <span class="s">&#34;/&#34;</span><span class="p">)</span>
+                                <span class="p">(</span><span class="nf">.extension</span> <span class="nv">kind</span><span class="p">)))]</span>
     <span class="p">(</span><span class="nb">proxy </span><span class="p">[</span><span class="nv">SimpleJavaFileObject</span><span class="p">]</span> <span class="p">[</span><span class="nv">new-cn</span> <span class="nv">kind</span><span class="p">]</span>
-      <span class="p">(</span><span class="nv">openOutputStream</span> <span class="p">[]</span> <span class="nv">os</span><span class="p">))))</span></code></pre></div>
+      <span class="p">(</span><span class="nf">openOutputStream</span> <span class="p">[]</span> <span class="nv">os</span><span class="p">))))</span></code></pre></div>
 <p>We convert the class name to a reasonable URI with the <code>mem://</code> &ldquo;protocol&rdquo;, and
 make normal <code>SimpleJavaFileObject</code> proxy that returns a byte array backed output
 stream, which we can later read to get the file&rsquo;s contents back.</p>
@@ -147,7 +149,7 @@ findable and readable.</p>
 
 <p>Back to the compiler, we need to get the &ldquo;compilation unit&rdquo;, or the
 <code>JavaFileObject</code> for the source we need to compile.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">        <span class="p">(</span><span class="nv">.getJavaFileForInput</span> <span class="nv">file-manager</span> <span class="nv">StandardLocation/CLASS_PATH</span> <span class="nv">classname</span>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">        <span class="p">(</span><span class="nf">.getJavaFileForInput</span> <span class="nv">file-manager</span> <span class="nv">StandardLocation/CLASS_PATH</span> <span class="nv">classname</span>
                                    <span class="nv">javax.tools.JavaFileObject$Kind/SOURCE</span><span class="p">)</span></code></pre></div>
 <p><code>classname</code> is the parameter, and <code>file-manager</code> is our own memory-backed file
 manager. <code>StandardLocation</code> and <code>JavaFileObject.Kind</code> are enums that took some
@@ -160,7 +162,7 @@ Clojure largely ignores the stereotypical compilation phase, and prefers to only
 deal with the class path, which seems reasonable for this project.</p>
 
 <p>Finally, we can actually do the compilation:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">        <span class="nv">task</span> <span class="p">(</span><span class="nv">.getTask</span> <span class="nv">compiler</span>         <span class="c1">; compiler</span>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">        <span class="nv">task</span> <span class="p">(</span><span class="nf">.getTask</span> <span class="nv">compiler</span>         <span class="c1">; compiler</span>
                        <span class="nv">nil</span>              <span class="c1">; writer out</span>
                        <span class="nv">file-manager</span>     <span class="c1">; file manager</span>
                        <span class="nv">nil</span>              <span class="c1">; diagnostic listener</span>
@@ -168,7 +170,7 @@ deal with the class path, which seems reasonable for this project.</p>
                        <span class="nv">nil</span>              <span class="c1">; classes for annotations</span>
                        <span class="p">[</span><span class="nv">file</span><span class="p">]</span>           <span class="c1">; compilation units</span>
                        <span class="p">)</span>
-        <span class="nv">_</span> <span class="p">(</span><span class="nv">.call</span> <span class="nv">task</span><span class="p">)</span></code></pre></div>
+        <span class="nv">_</span> <span class="p">(</span><span class="nf">.call</span> <span class="nv">task</span><span class="p">)</span></code></pre></div>
 <p>This is a task we can await for the end of the compilation, but it doesn&rsquo;t
 return anything concrete. The Java compiler has just left the compiled bytecode
 where it generated it in the file manager. We&rsquo;ll have to read our atom to get
@@ -182,13 +184,13 @@ atom and the file manager. Putting it all together:</p>
 </span><span class="s">
 </span><span class="s">  You can get the byte contents of the compiled Java class.&#34;</span>
   <span class="p">[</span><span class="nv">classname</span><span class="p">]</span>
-  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">compiler</span> <span class="p">(</span><span class="nv">javax.tools.ToolProvider/getSystemJavaCompiler</span><span class="p">)</span>
-        <span class="p">[</span><span class="nv">outputs</span> <span class="nv">file-manager</span><span class="p">]</span> <span class="p">(</span><span class="nv">output-capture-file-manager</span> <span class="p">(</span><span class="nv">.getStandardFileManager</span> <span class="nv">compiler</span> <span class="nv">nil</span> <span class="nv">nil</span> <span class="nv">nil</span><span class="p">))</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">compiler</span> <span class="p">(</span><span class="nf">javax.tools.ToolProvider/getSystemJavaCompiler</span><span class="p">)</span>
+        <span class="p">[</span><span class="nv">outputs</span> <span class="nv">file-manager</span><span class="p">]</span> <span class="p">(</span><span class="nf">output-capture-file-manager</span> <span class="p">(</span><span class="nf">.getStandardFileManager</span> <span class="nv">compiler</span> <span class="nv">nil</span> <span class="nv">nil</span> <span class="nv">nil</span><span class="p">))</span>
         <span class="c1">;; This is nil if the file wasn&#39;t found.</span>
-        <span class="nv">file</span> <span class="p">(</span><span class="nv">.getJavaFileForInput</span> <span class="nv">file-manager</span> <span class="nv">StandardLocation/CLASS_PATH</span> <span class="nv">classname</span>
+        <span class="nv">file</span> <span class="p">(</span><span class="nf">.getJavaFileForInput</span> <span class="nv">file-manager</span> <span class="nv">StandardLocation/CLASS_PATH</span> <span class="nv">classname</span>
                                    <span class="nv">javax.tools.JavaFileObject$Kind/SOURCE</span>
                                    <span class="p">)</span>
-        <span class="nv">task</span> <span class="p">(</span><span class="nv">.getTask</span> <span class="nv">compiler</span>         <span class="c1">; compiler</span>
+        <span class="nv">task</span> <span class="p">(</span><span class="nf">.getTask</span> <span class="nv">compiler</span>         <span class="c1">; compiler</span>
                        <span class="nv">nil</span>              <span class="c1">; writer out</span>
                        <span class="nv">file-manager</span>     <span class="c1">; file manager</span>
                        <span class="nv">nil</span>              <span class="c1">; diagnostic listener</span>
@@ -196,7 +198,7 @@ atom and the file manager. Putting it all together:</p>
                        <span class="nv">nil</span>              <span class="c1">; classes for annotations</span>
                        <span class="p">[</span><span class="nv">file</span><span class="p">]</span>           <span class="c1">; compilation units</span>
                        <span class="p">)</span>
-        <span class="nv">_</span> <span class="p">(</span><span class="nv">.call</span> <span class="nv">task</span><span class="p">)]</span>
+        <span class="nv">_</span> <span class="p">(</span><span class="nf">.call</span> <span class="nv">task</span><span class="p">)]</span>
     <span class="p">[</span><span class="nv">outputs</span> <span class="nv">file-manager</span><span class="p">]))</span></code></pre></div>
 <p>And there you have it! Largely in-memory Java source compilation. Fully in
 memory source compilation would require a little more work with the file
@@ -223,12 +225,12 @@ context loader, it gets unset immediately for reasons I don&rsquo;t understand.<
 </span><span class="s">  necessary.&#34;</span>
   <span class="p">[]</span>
   <span class="p">(</span><span class="nb">proxy </span><span class="p">[</span><span class="nv">clojure.lang.DynamicClassLoader</span><span class="p">]</span> <span class="p">[]</span>
-    <span class="p">(</span><span class="nv">findClass</span> <span class="p">[</span><span class="nv">classname</span><span class="p">]</span>
-      <span class="p">(</span><span class="k">let </span><span class="p">[[</span><span class="nv">outputs</span> <span class="nv">_</span><span class="p">]</span> <span class="p">(</span><span class="nv">java-compile</span> <span class="nv">classname</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">findClass</span> <span class="p">[</span><span class="nv">classname</span><span class="p">]</span>
+      <span class="p">(</span><span class="k">let </span><span class="p">[[</span><span class="nv">outputs</span> <span class="nv">_</span><span class="p">]</span> <span class="p">(</span><span class="nf">java-compile</span> <span class="nv">classname</span><span class="p">)]</span>
         <span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">class-file</span> <span class="p">(</span><span class="o">@</span><span class="nv">outputs</span> <span class="nv">classname</span><span class="p">)]</span>
           <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">buffer</span> <span class="p">(</span><span class="nb">-&gt; </span><span class="nv">class-file</span> <span class="nv">.openOutputStream</span> <span class="nv">.toByteArray</span><span class="p">)]</span>
-            <span class="p">(</span><span class="nv">proxy-super</span> <span class="nv">defineClass</span> <span class="nv">classname</span> <span class="nv">buffer</span> <span class="nv">nil</span><span class="p">))</span>
-          <span class="p">(</span><span class="nv">proxy-super</span> <span class="nv">findClass</span> <span class="nv">classname</span><span class="p">))))))</span></code></pre></div>
+            <span class="p">(</span><span class="nf">proxy-super</span> <span class="nv">defineClass</span> <span class="nv">classname</span> <span class="nv">buffer</span> <span class="nv">nil</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">proxy-super</span> <span class="nv">findClass</span> <span class="nv">classname</span><span class="p">))))))</span></code></pre></div>
 <p>This overrides <code>findClass</code> and it always attempts to compile a class before
 delegating to the superclass. This uses a slightly different kind of
 <code>defineClass</code> that happens to be public.</p>
@@ -277,6 +279,22 @@ but it works!</p>
 </div>
 
 </main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/clojure">
+                clojure
+            </a>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+    </section>
+
 
   <footer>
   

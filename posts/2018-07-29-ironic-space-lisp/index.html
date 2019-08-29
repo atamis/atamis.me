@@ -6,7 +6,7 @@
     <title>Ironic Space Lisp Part 1 | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
 
   </head>
 
@@ -18,7 +18,9 @@
       
       <li><a href="/posts/">Posts</a></li>
       
-      <li><a href="/games/">Games</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
       
       <li><a href="/pictures/">Pictures</a></li>
       
@@ -123,7 +125,7 @@ addition operator, stuck them in a vector and let it rip.</p>
 </span><span class="w">    </span><span class="n">Op</span>::<span class="n">ApplyFunction</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">},</span><span class="w">
 </span><span class="w">    </span><span class="n">Op</span>::<span class="n">ReturnOp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">},</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>It&rsquo;s got all the hallmarks: stacks, operations, addition, the works.
 Unfortunately, I started to get excited, and implemented functions next. Not any
 sort of syntax, just raw-built function literals:</p>
@@ -139,7 +141,7 @@ sort of syntax, just raw-built function literals:</p>
 </span><span class="w">        </span><span class="n">vec</span><span class="o">!</span><span class="p">[</span><span class="n">Op</span>::<span class="n">Lit</span><span class="p">(</span><span class="n">data</span>::<span class="n">Literal</span>::<span class="n">Number</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span><span class="w"> </span><span class="n">Op</span>::<span class="n">PlusOp</span><span class="p">,</span><span class="w"> </span><span class="n">Op</span>::<span class="n">ReturnOp</span><span class="p">]</span><span class="w">
 </span><span class="w">    </span><span class="p">}</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This was combined with a &ldquo;stack frame&rdquo; that held a set of instructions and its
 own personal stack. In a sense, each stack frame was its own stack VM, and
 unlike normal stack machines or concatenative languages, each function had its
@@ -165,7 +167,7 @@ level of security somewhat trivializes that threat.</p>
 </span><span class="w">    </span><span class="p">},</span><span class="w">
 </span><span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">panic</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Attempted to apply non-function&#34;</span><span class="p">),</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>I then ran smack dab into the problem of if statements. I hadn&rsquo;t even considered
 them at all: I had no way to represent non-executing chunks of code. I had
 functions, but the potential of doing a full function call (with closures in
@@ -188,6 +190,26 @@ not rely on the Rust stack to keep track of evaluation, I would make my own
 stack. Find out more next time.</p>
 
 </main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/rust">
+                rust
+            </a>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+            <a class="tag" href="/tags/language">
+                language
+            </a>
+        
+    </section>
+
 
   <footer>
   

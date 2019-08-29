@@ -6,7 +6,7 @@
     <title>Pipeline Operators | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
 
   </head>
 
@@ -18,7 +18,9 @@
       
       <li><a href="/posts/">Posts</a></li>
       
-      <li><a href="/games/">Games</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
       
       <li><a href="/pictures/">Pictures</a></li>
       
@@ -49,7 +51,7 @@ express when reading functional code.</p>
 <div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="nb">reduce + </span><span class="p">(</span><span class="nb">map </span><span class="o">#</span><span class="p">(</span><span class="nb">+ </span><span class="nv">%</span> <span class="mi">5</span><span class="p">)</span> <span class="p">(</span><span class="nb">filter </span><span class="o">#</span><span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nb">rem </span><span class="nv">%</span> <span class="mi">2</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="nb">range </span><span class="mi">50</span><span class="p">))))</span></code></pre></div>
 <p>So what does this do? It&rsquo;s a little hard to say. Allow me to introduce the
 threaded macro:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="nv">-&gt;&gt;</span>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="nf">-&gt;&gt;</span>
     <span class="p">(</span><span class="nb">range </span><span class="mi">50</span><span class="p">)</span>
     <span class="p">(</span><span class="nb">filter </span><span class="o">#</span><span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nb">rem </span><span class="nv">%</span> <span class="mi">2</span><span class="p">)</span> <span class="mi">0</span><span class="p">))</span>
     <span class="p">(</span><span class="nb">map </span><span class="o">#</span><span class="p">(</span><span class="nb">+ </span><span class="nv">%</span> <span class="mi">5</span><span class="p">))</span>
@@ -202,7 +204,7 @@ looks like:</p>
 </span><span class="w">    </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">times</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">
 </span><span class="w">    </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">[</span><span class="n">to_string</span><span class="p">]</span><span class="w">
 </span><span class="w"></span><span class="p">);</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p><sup class="footnote-ref" id="fnref:3"><a href="#fn:3">6</a></sup></p>
 
 <p>The names in brackets are method calls on the value, <code>times(2)</code> is a function
@@ -213,7 +215,7 @@ lot of attendant syntax to make yourself clear.</p>
 
 <p>You can use <code>pipeline.rs</code> in a monadic style, like in the following snippet:</p>
 <div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="kd">let</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe_res</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;http://rust-lang.org&#34;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">download</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">parse</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_links</span><span class="p">)</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This only calls the next pipe expression if the previous one returned
 <code>Ok(value)</code> and not <code>Err(error)</code>, and calling the next pipe expression with the
 value rather than the value in its monadic wrapper. This sort of monadic
@@ -224,14 +226,14 @@ the error value. It can&rsquo;t be used in functions which don&rsquo;t return <c
 it&rsquo;s a very idiomatic method of handling multiple failable operations in sequence.
 You could write the above code using the <code>?</code> like this:</p>
 <div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="n">get_links</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">download</span><span class="p">(</span><span class="s">&#34;http://rust-lang.org&#34;</span><span class="p">)</span><span class="o">?</span><span class="p">)</span><span class="o">?</span><span class="p">)</span><span class="o">?</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>Which doesn&rsquo;t really solve the readability problem, to be fair. However,
 <code>Result</code> does have method chaining API which can be used like so:</p>
 <div class="highlight"><pre class="chroma"><code class="language-Rust" data-lang="Rust"><span class="nb">Ok</span><span class="p">(</span><span class="s">&#34;http://rust-lang.org&#34;</span><span class="p">)</span><span class="w">
 </span><span class="w">    </span><span class="p">.</span><span class="n">and_then</span><span class="p">(</span><span class="n">download</span><span class="p">)</span><span class="w">
 </span><span class="w">    </span><span class="p">.</span><span class="n">and_then</span><span class="p">(</span><span class="n">parse</span><span class="p">)</span><span class="w">
 </span><span class="w">    </span><span class="p">.</span><span class="n">and_then</span><span class="p">(</span><span class="n">get_links</span><span class="p">)</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p><code>Result.and_then</code> applies a function to the value a <code>Result</code> wraps if and only if the
 result is <code>Ok(value)</code>, and expects that function to return another <code>Result&lt;U, E&gt;</code>, but
 <code>U</code> and <code>E</code> can be unrelated to the types of the original <code>Result</code>.</p>
@@ -314,6 +316,34 @@ threaded code.</p>
 </div>
 
 </main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/clojure">
+                clojure
+            </a>
+        
+            <a class="tag" href="/tags/elixir">
+                elixir
+            </a>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+            <a class="tag" href="/tags/rust">
+                rust
+            </a>
+        
+            <a class="tag" href="/tags/language">
+                language
+            </a>
+        
+    </section>
+
 
   <footer>
   

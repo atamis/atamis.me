@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>elixir on Andrew Amis</title>
+    <link>http://atamis.me/tags/elixir/</link>
+    <description>Recent content in elixir on Andrew Amis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 03 Nov 2018 19:28:01 -0700</lastBuildDate>
+    
+	<atom:link href="http://atamis.me/tags/elixir/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Pipeline Operators</title>
+      <link>http://atamis.me/posts/2018-11-3-pipeline-operators/</link>
+      <pubDate>Sat, 03 Nov 2018 19:28:01 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-11-3-pipeline-operators/</guid>
+      <description>Pipeline &amp;ldquo;operators&amp;rdquo; or &amp;ldquo;threading&amp;rdquo;1 constructs are interesting language constructs. They are an acknowledgement that functional code can be a little obtuse. They reorient (or rewrite) functional code so it looks more like a &amp;ldquo;dataflow&amp;rdquo;. Particularly of Lisps, but also of some other functional languages, execution moves from the inside of expressions to the outside in a way that&amp;rsquo;s not particularly natural feeling. It&amp;rsquo;s a real source of the difficulty people express when reading functional code.</description>
+    </item>
+    
+    <item>
+      <title>Flows the Wrong Way, Part 2: The Right Way</title>
+      <link>http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/</link>
+      <pubDate>Sat, 13 Oct 2018 12:36:21 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/</guid>
+      <description>In my last post, I covered my first attempt to implement TCP streaming in Flow, a data flow library for Elixir. My first attempts involved a bunch of failed Unix sockets, and an attempt to implement a GenStage that failed for reasons I didn&amp;rsquo;t understand. I eventually settled on this:
+Stream.resource( fn -&amp;gt; nil end, fn _ -&amp;gt; { TcpStream.Aggregator.get_buffer(), nil } end, fn _ -&amp;gt; nil end Stream.resource/3 can be converted into a Flow with Flow.</description>
+    </item>
+    
+    <item>
+      <title>Flows the Wrong Way: Streaming into Elixir</title>
+      <link>http://atamis.me/posts/2018-10-10-flows-the-wrong-way/</link>
+      <pubDate>Wed, 10 Oct 2018 15:41:01 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-10-10-flows-the-wrong-way/</guid>
+      <description>As part of a new and exciting project, I was faced with the task of ingesting a large amount of more or less homogeneous JSON data into a SQL database for an associate of mine to do some rudimentary business intelligence analysis on it. The context complicated things: the bulk data was a bunch of historical social media data, and in future he would also want to ingest the live API in addition to this archived historical data.</description>
+    </item>
+    
+  </channel>
+</rss>

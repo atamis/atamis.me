@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>clojure on Andrew Amis</title>
+    <link>http://atamis.me/tags/clojure/</link>
+    <description>Recent content in clojure on Andrew Amis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 30 May 2019 11:52:59 -0700</lastBuildDate>
+    
+	<atom:link href="http://atamis.me/tags/clojure/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Clojure&#39;s Looping Syntax is Surprising</title>
+      <link>http://atamis.me/posts/2019-5-30-clojures-looping-syntax/</link>
+      <pubDate>Thu, 30 May 2019 11:52:59 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2019-5-30-clojures-looping-syntax/</guid>
+      <description>They aren&amp;rsquo;t super popular, but Clojure has a rich set of high level looping macros. You have for for list comprehensions, doseq for imperative looping over sequences, dotimes for an even simpler integer loop, while for raw predicate looping, and loop for any kind of arbitrary recursion-style looping you want to do. However, I&amp;rsquo;m not a huge fan of the exact syntax some of these macros use.
+Let&amp;rsquo;s talk about let, which looks like this:</description>
+    </item>
+    
+    <item>
+      <title>Codegen Loader</title>
+      <link>http://atamis.me/posts/2019-05-28-codegen-loader/</link>
+      <pubDate>Tue, 28 May 2019 17:04:04 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2019-05-28-codegen-loader/</guid>
+      <description>In what is very likely an enormously bad idea, I have built a JVM classloader that can load dynamically load Java source files into memory.
+Why I&amp;rsquo;ve recently been going &amp;ldquo;Full Juxt&amp;rdquo;, using all of Juxt&amp;rsquo;s Clojure libraries, specifically juxt/aero for configuration, juxt/bidi for routing, juxt/yada for endpoint handling, weavejester/integrant for &amp;ldquo;building applications&amp;rdquo; (probably dependency injection), juxt/joplin for database migrations, and juxt/edge to tie it all together.
+All of Juxt&amp;rsquo;s libraries are relentlessly data focused, and use deps.</description>
+    </item>
+    
+    <item>
+      <title>Pipeline Operators</title>
+      <link>http://atamis.me/posts/2018-11-3-pipeline-operators/</link>
+      <pubDate>Sat, 03 Nov 2018 19:28:01 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-11-3-pipeline-operators/</guid>
+      <description>Pipeline &amp;ldquo;operators&amp;rdquo; or &amp;ldquo;threading&amp;rdquo;1 constructs are interesting language constructs. They are an acknowledgement that functional code can be a little obtuse. They reorient (or rewrite) functional code so it looks more like a &amp;ldquo;dataflow&amp;rdquo;. Particularly of Lisps, but also of some other functional languages, execution moves from the inside of expressions to the outside in a way that&amp;rsquo;s not particularly natural feeling. It&amp;rsquo;s a real source of the difficulty people express when reading functional code.</description>
+    </item>
+    
+    <item>
+      <title>Operators</title>
+      <link>http://atamis.me/posts/2018-08-15-operators/</link>
+      <pubDate>Wed, 15 Aug 2018 16:21:39 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-08-15-operators/</guid>
+      <description>I recently started thinking about operators and math in programming languages. This is at least partly inspired by the programming language I&amp;rsquo;m making right now, but I&amp;rsquo;ll get to that later. It&amp;rsquo;s also inspired, in some sense, by the tutorials I was reading while trying to successfully parse my programming language. I didn&amp;rsquo;t find a tutorial specifically for what I was trying to do, which was fair, but I did find tutorials on parsing other more &amp;ldquo;normal&amp;rdquo; languages or more C-like languages, and it got me thinking.</description>
+    </item>
+    
+  </channel>
+</rss>

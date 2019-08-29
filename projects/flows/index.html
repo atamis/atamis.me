@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Elixir Dataflows | Andrew Amis</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
+
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
+      
+      <li><a href="/pictures/">Pictures</a></li>
+      
+      <li><a href="/downloads/resume.pdf">Resume</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+
+
+<h1>Elixir Dataflows</h1>
+
+
+
+
+<main>
+<p>In support of a colleague&rsquo;s data analysis, I built a live online data flow
+application in Elixir to ingest large quantities (100s of gigabytes) of social
+media data, process and filter the data, and load the data into a separate
+database for directy querying. We utilized an iterative, agile methodology to
+development the data processing and filtering techniques. I utilized Elixir for
+its easy parallelism and functional nature.</p>
+
+</main>
+
+
+<div>
+  <h3><a href="http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/">Flows the Wrong Way, Part 2: The Right Way</a></h3>
+
+  
+    <section class="project-date">
+      <span class="date">2018/10/13</span>
+    </section>
+  
+
+  
+
+  <section>
+    In my last post, I covered my first attempt to implement TCP streaming in Flow, a data flow library for Elixir. My first attempts involved a bunch of failed Unix sockets, and an attempt to implement a GenStage that failed for reasons I didn&rsquo;t understand. I eventually settled on this:
+Stream.resource( fn -&gt; nil end, fn _ -&gt; { TcpStream.Aggregator.get_buffer(), nil } end, fn _ -&gt; nil end Stream.resource/3 can be converted into a Flow with Flow.
+  </section>
+</div>
+
+<div>
+  <h3><a href="http://atamis.me/posts/2018-10-10-flows-the-wrong-way/">Flows the Wrong Way: Streaming into Elixir</a></h3>
+
+  
+    <section class="project-date">
+      <span class="date">2018/10/10</span>
+    </section>
+  
+
+  
+
+  <section>
+    As part of a new and exciting project, I was faced with the task of ingesting a large amount of more or less homogeneous JSON data into a SQL database for an associate of mine to do some rudimentary business intelligence analysis on it. The context complicated things: the bulk data was a bunch of historical social media data, and in future he would also want to ingest the live API in addition to this archived historical data.
+  </section>
+</div>
+
+
+  <footer>
+  
+  
+  <hr/>
+  &copy; <a href="http://atamis.me">Andrew Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2018
+  
+  </footer>
+  </body>
+</html>
+

@@ -6,7 +6,7 @@
     <title>Ironic Space Lisp Part 3 | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
 
   </head>
 
@@ -18,7 +18,9 @@
       
       <li><a href="/posts/">Posts</a></li>
       
-      <li><a href="/games/">Games</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
       
       <li><a href="/pictures/">Pictures</a></li>
       
@@ -75,7 +77,7 @@ which in turn point to more heap data.</p>
 </span><span class="w">    </span><span class="n">Op</span><span class="p">(</span><span class="n">Op</span><span class="p">),</span><span class="w">
 </span><span class="w">    </span><span class="n">List</span><span class="p">(</span><span class="n">Rc</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Rc</span><span class="o">&lt;</span><span class="n">Lisp</span><span class="o">&gt;&gt;&gt;</span><span class="p">),</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>A lot of languages make these pointers implicit, like Java, where there are no
 value/stack objects, only heap allocated objects, and everything is a reference.
 Writing a recursive interpreter over a simple tree structure like this is really
@@ -95,7 +97,7 @@ directly, they&rsquo;re almost always wrapped in an <code>Rc</code>,</p>
 </span><span class="w">    </span><span class="n">answer</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Rc</span><span class="o">&lt;</span><span class="n">Lisp</span><span class="o">&gt;&gt;</span><span class="p">,</span><span class="w">
 </span><span class="w">    </span><span class="n">state</span>: <span class="nc">FState</span><span class="p">,</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>primarily to prevent ownership issues. The AST/data are all treated as
 immutable, so reference counting the entire thing and directly sharing data and
 code is reasonable semantically speaking (especially for a Lisp), but too much
@@ -172,6 +174,26 @@ which makes testing them independently very difficult, and testing them together
 very difficult too. The VM is easier to write tests for, luckily.</p>
 
 </main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/rust">
+                rust
+            </a>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+            <a class="tag" href="/tags/language">
+                language
+            </a>
+        
+    </section>
+
 
   <footer>
   

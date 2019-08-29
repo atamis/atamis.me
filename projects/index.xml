@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Andrew Amis</title>
+    <link>http://atamis.me/projects/</link>
+    <description>Recent content in Projects on Andrew Amis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 13 Oct 2018 12:36:21 -0700</lastBuildDate>
+    
+	<atom:link href="http://atamis.me/projects/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Elixir Dataflows</title>
+      <link>http://atamis.me/projects/flows/</link>
+      <pubDate>Sat, 13 Oct 2018 12:36:21 -0700</pubDate>
+      
+      <guid>http://atamis.me/projects/flows/</guid>
+      <description>In support of a colleague&amp;rsquo;s data analysis, I built a live online data flow application in Elixir to ingest large quantities (100s of gigabytes) of social media data, process and filter the data, and load the data into a separate database for directy querying. We utilized an iterative, agile methodology to development the data processing and filtering techniques. I utilized Elixir for its easy parallelism and functional nature.</description>
+    </item>
+    
+    <item>
+      <title>Ironic Space Lisp</title>
+      <link>http://atamis.me/projects/isl/</link>
+      <pubDate>Thu, 20 Sep 2018 13:21:53 -0700</pubDate>
+      
+      <guid>http://atamis.me/projects/isl/</guid>
+      <description>In order to meet some particular requirements for a separate project, I began development on a new programming language based on Lisp and Erlang. Some of the requirements were that the entire environment be pausable and serializable, and contain deep hooks and callbacks to allow the host program to dynamically control fundamental aspects of evaluation. The interpreter is currently under development in Rust.
+Github</description>
+    </item>
+    
+    <item>
+      <title>4x Game</title>
+      <link>http://atamis.me/projects/4x/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://atamis.me/projects/4x/</guid>
+      <description>This game was made by Nick Care, Andrew Amis, Robert Tomcik, and Kirk Pearson. Its design is reminiscent of such games as Civilization and Creeper World. It was made under a strict deadline between February 10th and March 16th of 2016. It was the first game the group made together (see the second) and does not present an entirely coherent or bug-free experience. It also eschews almost all in-game instruction, so I&amp;rsquo;ve included the instruction manual below.</description>
+    </item>
+    
+    <item>
+      <title>Hexdecks</title>
+      <link>http://atamis.me/projects/hexdecks/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://atamis.me/projects/hexdecks/</guid>
+      <description>This is a deck-based turn-taking puzzle-combat game. Reminiscent of Hoplite, it puts the players in the shoes of a warrior making his way through an increasingly blighted landscape. From the idyllic forest of &amp;ldquo;Faerie Forest&amp;rdquo; to hellish &amp;ldquo;Subsea Volcano&amp;rdquo; to the ominous &amp;ldquo;Decrepit Crypt&amp;rdquo;, reach the level ending warpgate through the twin dangers of things trying to kill you and a brutal action economy.
+Click to move or click to attack, but neither you nor your opponents can do both at once, so make sure you aren&amp;rsquo;t in range of an enemy when you end your turn.</description>
+    </item>
+    
+    <item>
+      <title>Planet 5</title>
+      <link>http://atamis.me/projects/planet5/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://atamis.me/projects/planet5/</guid>
+      <description>Planet 5 is slow paced survival RTS. It is set on a hostile alien planet populated by murderous aliens trying to kill you. You must defend yourself for as long as possible. Spread your network across the alien planet with relays, generate and store energy with capacitors and solar farms, research and improve your buildings with the science lab, and defend the rest of your buildings with powerful laser turrets and mortars.</description>
+    </item>
+    
+  </channel>
+</rss>

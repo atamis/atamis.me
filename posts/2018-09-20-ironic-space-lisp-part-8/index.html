@@ -6,7 +6,7 @@
     <title>Ironic Space Lisp Part 8 | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
 
   </head>
 
@@ -18,7 +18,9 @@
       
       <li><a href="/posts/">Posts</a></li>
       
-      <li><a href="/games/">Games</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
       
       <li><a href="/pictures/">Pictures</a></li>
       
@@ -111,7 +113,7 @@ didn&rsquo;t help either), so I had to write a wrapper function to do this prope
 </span><span class="w">
 </span><span class="w">    </span><span class="nb">Ok</span><span class="p">(</span><span class="n">lits</span><span class="p">)</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>Note that this code manually parses single exprs out until the string is empty,
 and totally ignores the <code>many!</code> macro that is supposed to help in this situation.</p>
 
@@ -215,7 +217,7 @@ this:</p>
 </span><span class="w">        </span><span class="n">data</span>::<span class="n">list</span><span class="p">(</span><span class="n">vec</span><span class="o">!</span><span class="p">[]),</span><span class="w">
 </span><span class="w">    </span><span class="p">]),</span><span class="w">
 </span><span class="w"></span><span class="p">]);</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This code is building nested data literals out of raw Rust struct constructors,
 and man is it wordy. This code is particularly bad because it has to preface all
 the structs with the module name, but this is by no means the biggest data
@@ -231,7 +233,7 @@ it makes it that much easier. For example,</p>
 </span><span class="w">        </span><span class="n">Literal</span>::<span class="n">Number</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w">
 </span><span class="w">    </span><span class="p">}</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>Of course, Rust vectors can&rsquo;t be heterogeneously typed, so you can&rsquo;t do
 something like  <code>vec![&quot;keyword&quot;, 1, true].into()</code>, the vector can&rsquo;t be
 represented in Rust, so you can&rsquo;t write a <code>From</code> implementation to convert it.
@@ -263,7 +265,7 @@ converted properly, and then wrap the entire list properly.</p>
 </span><span class="w">        </span><span class="n">l</span><span class="w">
 </span><span class="w">    </span><span class="p">}};</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>The implementation initially relied on the <code>vector![]</code> macro from the <code>im</code> crate
 (which is the container that backs <code>data::Literal::List</code> values), but I had real
 trouble gaining access to the macro from crates that imported
@@ -272,7 +274,7 @@ couldn&rsquo;t even get reasonable access to <code>Vector</code>, a normal struc
 to reexport it from the <code>data</code> module with</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="cp">#[doc(hidden)]</span><span class="w">
 </span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">use</span><span class="w"> </span><span class="n">im</span>::<span class="n">vector</span>::<span class="n">Vector</span><span class="p">;</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>The rest of the implementation is inspired by the implementation details of
 <code>vector![]</code>. I also had trouble figuring out how to trigger Rust&rsquo;s type
 inference to make <code>into()</code> work properly, which is why it has so many reassignments.</p>
@@ -289,6 +291,26 @@ there were, they wouldn&rsquo;t have defined arities, so you couldn&rsquo;t chec
 </div>
 
 </main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/rust">
+                rust
+            </a>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+            <a class="tag" href="/tags/language">
+                language
+            </a>
+        
+    </section>
+
 
   <footer>
   

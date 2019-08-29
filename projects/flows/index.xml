@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Elixir Dataflows on Andrew Amis</title>
+    <link>http://atamis.me/projects/flows/</link>
+    <description>Recent content in Elixir Dataflows on Andrew Amis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 13 Oct 2018 12:36:21 -0700</lastBuildDate>
+    
+	<atom:link href="http://atamis.me/projects/flows/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Flows the Wrong Way, Part 2: The Right Way</title>
+      <link>http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/</link>
+      <pubDate>Sat, 13 Oct 2018 12:36:21 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/</guid>
+      <description>In my last post, I covered my first attempt to implement TCP streaming in Flow, a data flow library for Elixir. My first attempts involved a bunch of failed Unix sockets, and an attempt to implement a GenStage that failed for reasons I didn&amp;rsquo;t understand. I eventually settled on this:
+Stream.resource( fn -&amp;gt; nil end, fn _ -&amp;gt; { TcpStream.Aggregator.get_buffer(), nil } end, fn _ -&amp;gt; nil end Stream.resource/3 can be converted into a Flow with Flow.</description>
+    </item>
+    
+    <item>
+      <title>Flows the Wrong Way: Streaming into Elixir</title>
+      <link>http://atamis.me/posts/2018-10-10-flows-the-wrong-way/</link>
+      <pubDate>Wed, 10 Oct 2018 15:41:01 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2018-10-10-flows-the-wrong-way/</guid>
+      <description>As part of a new and exciting project, I was faced with the task of ingesting a large amount of more or less homogeneous JSON data into a SQL database for an associate of mine to do some rudimentary business intelligence analysis on it. The context complicated things: the bulk data was a bunch of historical social media data, and in future he would also want to ingest the live API in addition to this archived historical data.</description>
+    </item>
+    
+  </channel>
+</rss>

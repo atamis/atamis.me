@@ -6,7 +6,7 @@
     <title>Clojure&#39;s Looping Syntax is Surprising | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
 
   </head>
 
@@ -18,7 +18,9 @@
       
       <li><a href="/posts/">Posts</a></li>
       
-      <li><a href="/games/">Games</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
       
       <li><a href="/pictures/">Pictures</a></li>
       
@@ -92,9 +94,9 @@ same as the above examples, then returns the vector of <code>[x y]</code> we&rsq
 looking for. And what if you didn&rsquo;t want to make the intermediate vectors? Well, then you&rsquo;re back to using <code>loop</code>:</p>
 <div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">loop </span><span class="p">[</span><span class="nv">x</span> <span class="p">(</span><span class="nb">range </span><span class="mi">5</span><span class="p">)</span>
           <span class="nv">y</span> <span class="p">(</span><span class="nb">range </span><span class="mi">5</span><span class="p">)]</span>
-     <span class="p">(</span><span class="nb">when </span><span class="p">(</span><span class="nb">not </span><span class="p">(</span><span class="nv">empty?</span> <span class="nv">x</span><span class="p">))</span>
+     <span class="p">(</span><span class="nb">when </span><span class="p">(</span><span class="nb">not </span><span class="p">(</span><span class="nf">empty?</span> <span class="nv">x</span><span class="p">))</span>
        <span class="p">(</span><span class="nb">println </span><span class="p">[(</span><span class="nb">first </span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">first </span><span class="nv">y</span><span class="p">)])</span>
-       <span class="p">(</span><span class="nv">recur</span> <span class="p">(</span><span class="nb">rest </span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">rest </span><span class="nv">y</span><span class="p">))))</span>
+       <span class="p">(</span><span class="nf">recur</span> <span class="p">(</span><span class="nb">rest </span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">rest </span><span class="nv">y</span><span class="p">))))</span>
 <span class="p">[</span><span class="mi">0</span> <span class="mi">0</span><span class="p">]</span>
 <span class="p">[</span><span class="mi">1</span> <span class="mi">1</span><span class="p">]</span>
 <span class="p">[</span><span class="mi">2</span> <span class="mi">2</span><span class="p">]</span>
@@ -162,7 +164,7 @@ problems.</p>
 </span><span class="w"></span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="w">
 </span><span class="w"></span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w">
 </span><span class="w"></span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>What about Common Lisp?</p>
 
 <blockquote>
@@ -203,6 +205,22 @@ Seibel, 2005. Accessed 2019.</p>
 </div>
 
 </main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/clojure">
+                clojure
+            </a>
+        
+            <a class="tag" href="/tags/language">
+                language
+            </a>
+        
+    </section>
+
 
   <footer>
   

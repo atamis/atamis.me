@@ -6,7 +6,7 @@
     <title>Ironic Space Lisp Part 2 | Andrew Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
 
   </head>
 
@@ -18,7 +18,9 @@
       
       <li><a href="/posts/">Posts</a></li>
       
-      <li><a href="/games/">Games</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
       
       <li><a href="/pictures/">Pictures</a></li>
       
@@ -54,7 +56,7 @@ have a single evaluator function over every value. <a href="https://github.com/a
 </span><span class="w">    </span><span class="sd">/// Represents a list of `Lisp` values. Note that this is reference counted.
 </span><span class="sd"></span><span class="w">    </span><span class="n">List</span><span class="p">(</span><span class="n">Rc</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Lisp</span><span class="o">&gt;&gt;</span><span class="p">),</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p><em>[that Rc pointer to the Vec should have been a hint something was going to go
 wrong.]</em></p>
 
@@ -85,7 +87,7 @@ value.</p>
 </span><span class="w">          </span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">).</span><span class="n">clone</span><span class="p">(),</span><span class="w">
 </span><span class="w">      </span><span class="p">}</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This function is quite simple: if it&rsquo;s a normal value, just clone the value and
 return it. If it&rsquo;s a list, it&rsquo;s a &ldquo;function&rdquo; application which is just the
 addition operation right now, so evaluate all the list items, and sum up the
@@ -149,7 +151,7 @@ wake-on-receive easy.</p>
 </span><span class="w">    </span><span class="c1">// Start to recur on a another piece of lisp code.
 </span><span class="c1"></span><span class="w">    </span><span class="n">Recur</span><span class="p">(</span><span class="n">Lisp</span><span class="p">),</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>Oh boy. Frames need some way to actually call our fake recursive function, and
 then they&rsquo;re just in limbo waiting for that function call to complete. Functions
 that can be called can return, and this is done by returning
@@ -187,7 +189,7 @@ Fragments of <em>what</em>, I&rsquo;m not sure.)</p>
 </span><span class="c1"></span><span class="w">    </span><span class="c1">// fragment.
 </span><span class="c1"></span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">Ok</span><span class="p">(</span><span class="n">FrameStepResult</span>::<span class="n">Recur</span><span class="p">(</span><span class="n">l</span><span class="p">));</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>First, the frame checks to see if there is a return value. This would indicate
 that this isn&rsquo;t the first time this frame has been invoked (because the
 <code>Evaler</code> resets it before recursive calls), and that the return value is the
@@ -239,7 +241,7 @@ a <code>Lisp::List</code>, the values are hidden behind an <code>Rc</code>, whic
 <p>That resulted in this delightful piece of code:</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="c1">// TODO: maybe don&#39;t do this.
 </span><span class="c1"></span><span class="kd">let</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rc</span>::<span class="n">try_unwrap</span><span class="p">(</span><span class="n">l</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This code attempts to take ownership the value from <code>Rc</code> in full, and then
 panics if it can&rsquo;t. I love that comment. I put it there right after writing the
 line of code. I was so close to realizing what an awful idea this model was.</p>
@@ -272,7 +274,7 @@ pass references to it to the frames. Easy. Nope.</p>
 </span><span class="w">    </span><span class="n">data</span>: <span class="nc">Lisp</span><span class="p">,</span><span class="w">
 </span><span class="w">    </span><span class="n">stack</span>: <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Frame</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w"></span></code></pre></div>
+</span></code></pre></div>
 <p>This does not work. The pointer in <code>Lisp</code> needs a lifetime tag. The lifetime
 checker in Rust needs a guarantee that the value the pointer is pointing at will
 live at least as long as itself, and there is no way to guarantee that. Thinking
@@ -298,6 +300,26 @@ Or that the insane way frames have to be written is just untenable. Maybe I can
 solve those with state machines. Maybe I should revisit stacks.</p>
 
 </main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/rust">
+                rust
+            </a>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+            <a class="tag" href="/tags/language">
+                language
+            </a>
+        
+    </section>
+
 
   <footer>
   
