@@ -2,7 +2,7 @@
 
 {{ .Content }}
 
-{{ $dir := .Dir }}
+{{ $dir := .File.Dir }}
 
 {{range .Resources.ByType "image" }}
 {{ $loc := print "/" $dir .Name }}

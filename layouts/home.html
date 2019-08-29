@@ -7,7 +7,7 @@
 {{ .Content }}
 
 <ul>
-  {{ range (where .Data.Pages "Section" "!=" "") }}
+  {{ range (where .Site.RegularPages "Section" "!=" "") }}
     {{ if (ne .Params.list false)}}
       <li>
         <span class="date">{{ .Date.Format "2006/01/02" }}</span>
