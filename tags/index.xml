@@ -6,10 +6,37 @@
     <description>Recent content in Tags on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 30 May 2019 11:52:59 -0700</lastBuildDate>
+    <lastBuildDate>Thu, 29 Aug 2019 14:05:09 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>code</title>
+      <link>http://atamis.me/tags/code/</link>
+      <pubDate>Thu, 29 Aug 2019 14:05:09 -0700</pubDate>
+      
+      <guid>http://atamis.me/tags/code/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>language</title>
+      <link>http://atamis.me/tags/language/</link>
+      <pubDate>Thu, 29 Aug 2019 14:05:09 -0700</pubDate>
+      
+      <guid>http://atamis.me/tags/language/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rust</title>
+      <link>http://atamis.me/tags/rust/</link>
+      <pubDate>Thu, 29 Aug 2019 14:05:09 -0700</pubDate>
+      
+      <guid>http://atamis.me/tags/rust/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>clojure</title>
@@ -17,24 +44,6 @@
       <pubDate>Thu, 30 May 2019 11:52:59 -0700</pubDate>
       
       <guid>http://atamis.me/tags/clojure/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>language</title>
-      <link>http://atamis.me/tags/language/</link>
-      <pubDate>Thu, 30 May 2019 11:52:59 -0700</pubDate>
-      
-      <guid>http://atamis.me/tags/language/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>code</title>
-      <link>http://atamis.me/tags/code/</link>
-      <pubDate>Tue, 28 May 2019 17:04:04 -0700</pubDate>
-      
-      <guid>http://atamis.me/tags/code/</guid>
       <description></description>
     </item>
     
@@ -71,15 +80,6 @@
       <pubDate>Sat, 03 Nov 2018 19:28:01 -0700</pubDate>
       
       <guid>http://atamis.me/tags/elixir/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>rust</title>
-      <link>http://atamis.me/tags/rust/</link>
-      <pubDate>Sat, 03 Nov 2018 19:28:01 -0700</pubDate>
-      
-      <guid>http://atamis.me/tags/rust/</guid>
       <description></description>
     </item>
     

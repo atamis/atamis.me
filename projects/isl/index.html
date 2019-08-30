@@ -46,9 +46,25 @@ control fundamental aspects of evaluation. The interpreter is currently under
 development in Rust.</p>
 
 <p><a href="https://github.com/atamis/ironic-space-lisp">Github</a></p>
-
 </main>
 
+
+<div>
+  <h3><a href="http://atamis.me/posts/2019-08-29-ironic-space-lisp-part-9/">Ironic Space Lisp Part 9</a></h3>
+
+  
+    <section class="project-date">
+      <span class="date">2019/08/29</span>
+    </section>
+  
+
+  
+
+  <section>
+    It&rsquo;s been a long time since I last worked on ISL, mostly because I got distracted by other projects and languages: things like the flows project, or Clojure. Also, writing futures code in Rust is painful. Recently, async-await syntax got released on Rust nightly, which makes async code much easier to write.
+When I was last working on the project, I was working on a local variables feature. VM operations to allow storing and loading local variables linked to the frame stack, and later, support in the compiler.
+  </section>
+</div>
 
 <div>
   <h3><a href="http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/">Ironic Space Lisp Part 8</a></h3>
@@ -62,8 +78,10 @@ development in Rust.</p>
   
 
   <section>
-    It&rsquo;s been a while since I posted progress on ISL, and that is mostly my fault. Most of this time was spent making maintenance, like documentation, but also trying to get the self hosted interpreter working and self hosting. That was a challenge, and also my fault.
-&ldquo;Closures&rdquo; So, I had a problem. I&rsquo;m really used to having checks to make sure the code I write is correct. I don&rsquo;t ask for much, but arity checks are nice, and pretty much every language offers them, either at compile or runtime.
+    <p>It&rsquo;s been a while since I posted progress on ISL, and that is mostly my fault.
+Most of this time was spent making maintenance, like documentation, but also
+trying to get the self hosted interpreter working and self hosting. That was a
+challenge, and also my fault.</p>
   </section>
 </div>
 
@@ -95,8 +113,10 @@ development in Rust.</p>
   
 
   <section>
-    Since last time, I did two things: switched from error_chain to failure, and refactored with the visitor pattern. They took about the same amount of time, and the refactor is much more interesting. I briefly touch on an issue I encountered with failure, but I&rsquo;d rather discuss the refactor.
-The Visitor Pattern Calling this the visitor pattern is a bit grand. The visitor pattern has intricacies that aren&rsquo;t entirely relevant in this situation, but I can describe how this visitor works, and why I decided on it.
+    <p>Since last time, I did two things: switched from <code>error_chain</code> to <code>failure</code>, and
+refactored with the visitor pattern. They took about the same amount of time,
+and the refactor is much more interesting. I briefly touch on an issue I
+encountered with <code>failure</code>, but I&rsquo;d rather discuss the refactor.</p>
   </section>
 </div>
 
@@ -128,8 +148,11 @@ The Visitor Pattern Calling this the visitor pattern is a bit grand. The visitor
   
 
   <section>
-    This update is all about parsing, and this ended up being really difficult. Not in a good way though. In my last post, I talked about using languages so difficult and alien that the difficulty clearly signified that there was something important you could learn from mastering them. I didn&rsquo;t find this was the case during this phase of the project.
-$ cargo run Compiling ironic-space-lisp v0.1.0 (file:///home/andrew/src/rust/ironic-space-lisp) error: no rules expected the token `,` --&gt; src/parser.
+    <p>This update is all about parsing, and this ended up being really difficult. Not
+in a good way though. In my <a href="/posts/2018-08-10-ironic-space-lisp-part-3/">last post</a>, I talked about using
+languages so difficult and alien that the difficulty clearly signified that
+there was something important you could learn from mastering them. I didn&rsquo;t find
+this was the case during this phase of the project.</p>
   </section>
 </div>
 
@@ -161,10 +184,13 @@ $ cargo run Compiling ironic-space-lisp v0.1.0 (file:///home/andrew/src/rust/iro
   
 
   <section>
-    Part 1
-Part 2
-Last time, the conceptual challenges of a the stack VM convinced me it was the wrong approach. In a normal recursive lisp interpreter, code is data, and you have a single evaluator function over every value. Follow along here.
-/// Omni-datatype. Represents both data and code for the lisp VM. #[derive(Debug, Clone)]pubenum Lisp{/// Represents a single u32 number. Num(u32),/// Represents an operation see `Op` for more info.
+    <p><a href="/posts/2018-07-29-ironic-space-lisp/">Part 1</a></p>
+
+<p><a href="/posts/2018-07-09-ironic-space-lisp-part-2/">Part 2</a></p>
+
+<p>Last time, the conceptual challenges of a the stack VM convinced me it was the
+wrong approach. In a normal recursive lisp interpreter, code is data, and you
+have a single evaluator function over every value. <a href="https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280">Follow along here</a>.</p>
   </section>
 </div>
 
@@ -180,10 +206,14 @@ Last time, the conceptual challenges of a the stack VM convinced me it was the w
   
 
   <section>
-    Part 1
-Part 2
-I recently had a new idea for a space programming game. The idea isn&rsquo;t done, although the planning document is getting lengthy. Programming games need programming languages, and based on the game design, I had some pretty particular specifications for the language.
- Sandboxed Concurrent Preemptive  Although the design hasn&rsquo;t settled fully, I&rsquo;m currently planning on executing code on the server, which means the language needs to be able to be sandboxed in two senses: it shouldn&rsquo;t be able to access the server outside of approved channels, and it shouldn&rsquo;t be able to access other threads outside of approved channels.
+    <p><a href="/posts/2018-07-29-ironic-space-lisp/">Part 1</a></p>
+
+<p><a href="/posts/2018-07-09-ironic-space-lisp-part-2/">Part 2</a></p>
+
+<p>I recently had a new idea for a space programming game. The idea isn&rsquo;t done,
+although the planning document is getting lengthy. Programming games need
+programming languages, and based on the game design, I had some pretty
+particular specifications for the language.</p>
   </section>
 </div>
 

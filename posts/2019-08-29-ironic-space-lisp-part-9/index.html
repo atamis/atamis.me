@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ironic Space Lisp Part 9 | Andrew Amis</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
+
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
+      
+      <li><a href="/pictures/">Pictures</a></li>
+      
+      <li><a href="/downloads/resume.pdf">Resume</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Ironic Space Lisp Part 9</span></h1>
+
+<h2 class="date">2019/08/29</h2>
+</div>
+
+<main>
+
+
+<p>It&rsquo;s been a long time since I last worked on ISL, mostly because I got
+distracted by other projects and languages: things like the
+<a href="/projects/flows/">flows</a> project, or Clojure. Also, writing futures code in
+Rust is <em>painful</em>. Recently, async-await syntax got released on Rust nightly,
+which makes async code much easier to write.</p>
+
+<p>When I was last working on the project, I was working on a local variables
+feature. VM operations to allow storing and loading local variables linked to
+the frame stack, and later, support in the compiler. I left this unfinished and
+riddled with errors, so I branched those changes off and committed them as
+broken so I could work on something else.</p>
+
+<h1 id="the-execution-environment">The Execution Environment</h1>
+
+<p>That something else was a new execution environment. I wrote a preliminary
+version an asynchronous execution environment with raw futures before I took the
+break, and the code was messy and heavily nested. The new code is a lot nicer
+and more straightforward, but I encountered some pretty awkward features.</p>
+
+<p>To start with, Rust doesn&rsquo;t have async traits yet. Trait methods cannot be
+asynchronous, but there is a crate to fix this, <a href="https://github.com/dtolnay/async-trait">async-trait</a>. This
+requires that traits and implementations be tagged with a macro, but hopefully
+this will be resolved in Rust core later: this seems awkwardly fundamental not
+to have, although we aren&rsquo;t entirely async yet.</p>
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="sd">/// A trait for interfacing between a [`vm::VM`] and its execution environment.
+</span><span class="sd"></span><span class="cp">#[async_trait]</span><span class="w">
+</span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">ExecHandle</span>: <span class="nb">Send</span> <span class="o">+</span><span class="w"> </span><span class="nb">Sync</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">fmt</span>::<span class="n">Debug</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="sd">/// Return the `Pid`, or unique identifier of the exec handle.
+</span><span class="sd"></span><span class="w">    </span><span class="k">fn</span> <span class="nf">get_pid</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">data</span>::<span class="n">Pid</span><span class="p">;</span><span class="w">
+</span><span class="w">    </span><span class="sd">/// Send a message to a particular `Pid`.
+</span><span class="sd"></span><span class="w">    </span><span class="k">fn</span> <span class="nf">send</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">pid</span>: <span class="nc">data</span>::<span class="n">Pid</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span>: <span class="nc">Literal</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span><span class="p">;</span><span class="w">
+</span><span class="w">    </span><span class="sd">/// Spawn a new `VM`, consuming the `VM` and returning its `Pid`.
+</span><span class="sd"></span><span class="w">    </span><span class="k">fn</span> <span class="nf">spawn</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">vm</span>: <span class="nc">vm</span>::<span class="n">VM</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="n">data</span>::<span class="n">Pid</span><span class="o">&gt;</span><span class="p">;</span><span class="w">
+</span><span class="w">    </span><span class="sd">/// Asynchronously receive a Literal from your inbox.
+</span><span class="sd"></span><span class="w">    </span><span class="n">async</span><span class="w"> </span><span class="k">fn</span> <span class="nf">receive</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Literal</span><span class="o">&gt;</span><span class="p">;</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>This trait defines the 4 methods that the VM, or really any Rust code that wants
+to interact with the ISL execution environment, can use. Each handle has a
+unique PID that is registered with the central router (more on that later), so
+you can get your own pid, send a message to another pid, spawn another VM (more
+on that later too), and an asynchronous method to maybe receive a message on
+your own incoming channel.</p>
+
+<p>This execution environment uses a central router to route incoming messages to
+the right PID. Each handle has a single incoming channel (typed as an ISL
+<code>Literal</code>). This mirrors, at least in functionality, how Erlang works. Each
+process has a single incoming mailbox, and all messages between processes are
+normal Erlang terms.</p>
+
+<p>of course, the BEAM doesn&rsquo;t use a single central router for this, that would be
+slow and stupid, but implementing it in this way made sense for now.</p>
+
+<p>Finally, it&rsquo;s worth noting that the spawn method takes a <code>VM</code>. This is because
+the core of the execution is a function unhelpfully named <code>exec_future</code>, which
+takes , which consumes a <code>VM</code> and returns a future representing the asynchronous
+execution of that VM, and the PID of its router handle. It doesn&rsquo;t schedule it
+(depending on context, either the <code>ExecHandle</code> or <code>Exec</code> itself handles that.)
+Of course, because the router handles are pretty generic, more than one kind of
+ISL executor could run in the same execution environment seamlessly. So, the
+execution environment could be made more generic by instead taking futures
+rather than the pieces necessary to make the futures.</p>
+
+<p>The other issue I encountered (specifically with <code>exec_future</code>) was in trying to
+write a &ldquo;semi-asynchronous&rdquo; function. Under normal circumstances, <code>async</code>
+functions are basically transparent. Here&rsquo;s the implementation of <code>receive</code> for
+for router handle:</p>
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="sd">/// Asynchronously receive a Literal from this channel.
+</span><span class="sd"></span><span class="n">async</span><span class="w"> </span><span class="k">fn</span> <span class="nf">receive</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Literal</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">rx</span><span class="p">.</span><span class="n">next</span><span class="p">().</span><span class="n">await</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>This is when Rust&rsquo;s async await stuff works the best. All <code>Future</code> types are
+hidden by the compiler, asynchronous method calls only need <code>.await</code>, and no
+nesting or callbacks or anything. What if, though, I wanted a function that
+return 2 values, 1 immediately, and one asynchronously? Well, if you&rsquo;re
+returning a value immediately, the function can&rsquo;t be asynchronous, that much is
+clear (or if it isn&rsquo;t, then getting the immediate value becomes much more
+annoying). So we need to return a value (in this case the PID of the newly
+spawned VM), and the VM&rsquo;s actual future. So, we need to actually figure out what
+type an asynchronous function literally returns, so we can also return it from
+this function. The easy part is making the future, which can be done by
+anonymous async closure, which returns a future.</p>
+
+<p>Here&rsquo;s the real signature:</p>
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">fn</span> <span class="nf">exec_future</span><span class="p">(</span><span class="w">
+</span><span class="w">    </span><span class="k">mut</span><span class="w"> </span><span class="n">vm</span>: <span class="nc">vm</span>::<span class="n">VM</span><span class="p">,</span><span class="w">
+</span><span class="w">    </span><span class="n">router</span>: <span class="kp">&amp;</span><span class="nc">RouterChan</span><span class="p">,</span><span class="w">
+</span><span class="w"></span><span class="p">)</span><span class="w"> </span>-&gt; <span class="p">(</span><span class="w">
+</span><span class="w">    </span><span class="n">data</span>::<span class="n">Pid</span><span class="p">,</span><span class="w">
+</span><span class="w">    </span><span class="n">Pin</span><span class="o">&lt;</span><span class="nb">Box</span><span class="o">&lt;</span><span class="k">impl</span><span class="w"> </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">vm</span>::<span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">data</span>::<span class="n">Literal</span><span class="o">&gt;</span><span class="p">)</span><span class="o">&gt;&gt;&gt;</span><span class="p">,</span><span class="w">
+</span><span class="w"></span><span class="p">)</span><span class="w">
+</span></code></pre></div>
+<p>So, the future&rsquo;s output is a tuple of the VM (because <code>exec_future</code> has to take
+ownership of the <code>VM</code>), and the result of its execution, which could be an error.
+The future is boxed because its size can&rsquo;t be determined properly at compile
+time, and it&rsquo;s pinned because I&rsquo;m not sure why. It wouldn&rsquo;t type check
+otherwise, because spawning the future on an executor required it to be pinned.
+Luckily, pinning and boxing the future was as easy as <code>Box::pin(f)</code>, where f is
+the future. I didn&rsquo;t manage to find many helpful resources on this <em>very</em>
+specific subject (async-await is very new), so hopefully this helps someone.</p>
+
+<h1 id="comparison">Comparison</h1>
+
+<p>I want to put a comparison between some old futures code and the new async code.
+The first is <code>exec_future</code>, the beating heart of asynchronous <code>VM</code> execution.</p>
+
+<p>Here&rsquo;s the old version:</p>
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">fn</span> <span class="nf">exec_future</span><span class="p">(</span><span class="w">
+</span><span class="w">    </span><span class="k">mut</span><span class="w"> </span><span class="n">vm</span>: <span class="nc">vm</span>::<span class="n">VM</span><span class="p">,</span><span class="w">
+</span><span class="w">    </span><span class="n">router</span>: <span class="kp">&amp;</span><span class="nc">RouterChan</span><span class="p">,</span><span class="w">
+</span><span class="w"></span><span class="p">)</span><span class="w"> </span>-&gt; <span class="p">(</span><span class="w">
+</span><span class="w">    </span><span class="n">data</span>::<span class="n">Pid</span><span class="p">,</span><span class="w">
+</span><span class="w">    </span><span class="nb">Box</span><span class="o">&lt;</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">Item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">vm</span>::<span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="n">data</span>::<span class="n">Literal</span><span class="p">),</span><span class="w"> </span><span class="n">Error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">failure</span>::<span class="n">Error</span><span class="o">&gt;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">&#39;static</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">Send</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="k">use</span><span class="w"> </span><span class="n">vm</span>::<span class="n">VMState</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RouterHandle</span>::<span class="n">new</span><span class="p">(</span><span class="n">router</span><span class="p">.</span><span class="n">clone</span><span class="p">());</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="kr">proc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">handle</span><span class="p">.</span><span class="n">get_procinfo</span><span class="p">();</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">proc</span><span class="p">.</span><span class="n">pid</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="n">vm</span><span class="p">.</span><span class="kr">proc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="kr">proc</span><span class="p">));</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="n">handle</span><span class="w">
+</span><span class="w">        </span><span class="p">.</span><span class="n">router</span><span class="w">
+</span><span class="w">        </span><span class="p">.</span><span class="n">try_send</span><span class="p">(</span><span class="n">RouterMessage</span>::<span class="nb">Send</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;dummy-message&#34;</span><span class="p">.</span><span class="n">into</span><span class="p">()))</span><span class="w">
+</span><span class="w">        </span><span class="p">.</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">loop_fn</span><span class="p">((</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">),</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="o">|</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="n">ok</span><span class="p">((</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">)).</span><span class="n">and_then</span><span class="p">(</span><span class="w">
+</span><span class="w">            </span><span class="o">|</span><span class="p">(</span><span class="k">mut</span><span class="w"> </span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="o">|</span><span class="w"> </span>-&gt; <span class="nb">Box</span><span class="o">&lt;</span><span class="w">
+</span><span class="w">                </span><span class="n">Future</span><span class="o">&lt;</span><span class="w">
+</span><span class="w">                        </span><span class="n">Item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Loop</span><span class="o">&lt;</span><span class="p">(</span><span class="n">vm</span>::<span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="n">Literal</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">vm</span>::<span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="n">RouterHandle</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span><span class="w">                        </span><span class="n">Error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">failure</span>::<span class="n">Error</span><span class="p">,</span><span class="w">
+</span><span class="w">                    </span><span class="o">&gt;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">Send</span><span class="p">,</span><span class="w">
+</span><span class="w">            </span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                </span><span class="n">vm</span><span class="p">.</span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VMState</span>::<span class="n">RunningUntil</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span><span class="w">
+</span><span class="w">                </span><span class="n">vm</span><span class="p">.</span><span class="n">state_step</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span><span class="w">
+</span><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="n">VMState</span>::<span class="n">Done</span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">state</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                    </span><span class="kd">let</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">state</span><span class="p">.</span><span class="n">get_ret</span><span class="p">().</span><span class="n">unwrap</span><span class="p">()</span><span class="w"> </span><span class="p">};</span><span class="w">
+</span><span class="w">                    </span><span class="n">vm</span><span class="p">.</span><span class="kr">proc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">None</span><span class="p">;</span><span class="w">
+</span><span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="n">ok</span><span class="p">(</span><span class="n">Loop</span>::<span class="n">Break</span><span class="p">((</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">))));</span><span class="w">
+</span><span class="w">                </span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="n">VMState</span>::<span class="n">Stopped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">state</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="n">ok</span><span class="p">(</span><span class="n">Loop</span>::<span class="n">Continue</span><span class="p">((</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">))));</span><span class="w">
+</span><span class="w">                </span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="n">VMState</span>::<span class="n">Waiting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">state</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="n">handle</span><span class="p">.</span><span class="n">receive</span><span class="p">().</span><span class="n">then</span><span class="p">(</span><span class="o">|</span><span class="n">res</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                        </span><span class="kd">let</span><span class="w"> </span><span class="p">(</span><span class="n">opt_lit</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span><span class="w">                        </span><span class="n">vm</span><span class="p">.</span><span class="n">answer_waiting</span><span class="p">(</span><span class="n">opt_lit</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span><span class="w">                        </span><span class="nb">Ok</span><span class="p">(</span><span class="n">Loop</span>::<span class="n">Continue</span><span class="p">((</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">)))</span><span class="w">
+</span><span class="w">                    </span><span class="p">}));</span><span class="w">
+</span><span class="w">                </span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="w">                </span><span class="n">panic</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;VM state not done, stopped, or waiting&#34;</span><span class="p">);</span><span class="w">
+</span><span class="w">            </span><span class="p">},</span><span class="w">
+</span><span class="w">        </span><span class="p">)</span><span class="w">
+</span><span class="w">    </span><span class="p">});</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="p">(</span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="n">f</span><span class="p">))</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Dense, nested, and confusing</p>
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">fn</span> <span class="nf">exec_future</span><span class="p">(</span><span class="w">
+</span><span class="w">    </span><span class="k">mut</span><span class="w"> </span><span class="n">vm</span>: <span class="nc">vm</span>::<span class="n">VM</span><span class="p">,</span><span class="w">
+</span><span class="w">    </span><span class="n">router</span>: <span class="kp">&amp;</span><span class="nc">RouterChan</span><span class="p">,</span><span class="w">
+</span><span class="w"></span><span class="p">)</span><span class="w"> </span>-&gt; <span class="p">(</span><span class="w">
+</span><span class="w">    </span><span class="n">data</span>::<span class="n">Pid</span><span class="p">,</span><span class="w">
+</span><span class="w">    </span><span class="n">Pin</span><span class="o">&lt;</span><span class="nb">Box</span><span class="o">&lt;</span><span class="k">impl</span><span class="w"> </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">vm</span>::<span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">data</span>::<span class="n">Literal</span><span class="o">&gt;</span><span class="p">)</span><span class="o">&gt;&gt;&gt;</span><span class="p">,</span><span class="w">
+</span><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="k">use</span><span class="w"> </span><span class="k">crate</span>::<span class="n">vm</span>::<span class="n">VMState</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RouterHandle</span>::<span class="n">new</span><span class="p">(</span><span class="n">router</span><span class="p">.</span><span class="n">clone</span><span class="p">());</span><span class="w">
+</span><span class="w">    
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">handle</span><span class="p">.</span><span class="n">pid</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="n">vm</span><span class="p">.</span><span class="kr">proc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="n">handle</span><span class="p">));</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">async</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">loop</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="n">vm</span><span class="p">.</span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VMState</span>::<span class="n">RunningUntil</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span><span class="w">
+</span><span class="w">
+</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="nb">Err</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">state_step</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">            </span><span class="n">eprintln</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Encountered error while running vm: {:?} &#34;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span><span class="w">
+</span><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="nb">Err</span><span class="p">(</span><span class="n">e</span><span class="p">));</span><span class="w">
+</span><span class="w">        </span><span class="p">};</span><span class="w">
+</span><span class="w">
+</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="n">VMState</span>::<span class="n">Done</span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">state</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">            </span><span class="kd">let</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">state</span><span class="p">.</span><span class="n">get_ret</span><span class="p">().</span><span class="n">unwrap</span><span class="p">()</span><span class="w"> </span><span class="p">};</span><span class="w">
+</span><span class="w">            </span><span class="n">vm</span><span class="p">.</span><span class="kr">proc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">None</span><span class="p">;</span><span class="w">
+</span><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="nb">Ok</span><span class="p">(</span><span class="n">l</span><span class="p">));</span><span class="w">
+</span><span class="w">        </span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="n">VMState</span>::<span class="n">Waiting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="p">.</span><span class="n">state</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">            </span><span class="kd">let</span><span class="w"> </span><span class="n">opt_lit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm</span><span class="w">
+</span><span class="w">                </span><span class="p">.</span><span class="kr">proc</span><span class="w">
+</span><span class="w">                </span><span class="p">.</span><span class="n">as_mut</span><span class="p">()</span><span class="w">
+</span><span class="w">                </span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="k">move</span><span class="w"> </span><span class="o">|</span><span class="kr">proc</span><span class="o">|</span><span class="w"> </span><span class="kr">proc</span><span class="p">.</span><span class="n">receive</span><span class="p">())</span><span class="w">
+</span><span class="w">                </span><span class="p">.</span><span class="n">unwrap</span><span class="p">()</span><span class="w">
+</span><span class="w">                </span><span class="p">.</span><span class="n">await</span><span class="w">
+</span><span class="w">                </span><span class="p">.</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span><span class="w">            </span><span class="n">vm</span><span class="p">.</span><span class="n">answer_waiting</span><span class="p">(</span><span class="n">opt_lit</span><span class="p">).</span><span class="n">unwrap</span><span class="p">()</span><span class="w">
+</span><span class="w">        </span><span class="p">}</span><span class="w">
+</span><span class="w">    </span><span class="p">};</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="p">(</span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="nb">Box</span>::<span class="n">pin</span><span class="p">(</span><span class="n">f</span><span class="p">()))</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Simpler and cleaner. The control flow in particular is really clear. The entire
+asynchronous closure is one big loop that proceeds in the normal fashion, while
+the old futures code used the <code>loop_fn</code> construct, which took closure which
+<em>returned a loop control value</em>, and would then loop or stop looping based on
+that, making it very confusing, all in all. Like, writing this code wasn&rsquo;t
+terribly hard, nor is reading it, but it requires a lot of special knowledge,
+and I referred to the futures documentation heavily for writing this fairly
+simple looping code. By contrast, to write the async-await code, I merely had to
+refer to the Rust control structures I was already familiar with, and if this
+function hadn&rsquo;t needed to return the VM, then i would have been able to make
+heavy use of the try/<code>?</code> macro to make the code even simpler.</p>
+
+<p>It is worth noting that this code has a lot of raw <code>unwrap</code>s, which are
+dangerous, and I&rsquo;ll replace it with real error handling code later.</p>
+
+<p>Let&rsquo;s take a look at the router. Here&rsquo;s the old:</p>
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="sd">/// Spawn a router on the runtime.
+</span><span class="sd">///
+</span><span class="sd">/// Routers respond to router messages sent on the sender channel this function returns.
+</span><span class="sd"></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">router</span><span class="p">(</span><span class="n">runtime</span>: <span class="kp">&amp;</span><span class="nc">mut</span><span class="w"> </span><span class="n">Runtime</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">mpsc</span>::<span class="n">Sender</span><span class="o">&lt;</span><span class="n">RouterMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="p">(</span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">rx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpsc</span>::<span class="n">channel</span>::<span class="o">&lt;</span><span class="n">RouterMessage</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rx</span><span class="w">
+</span><span class="w">        </span><span class="p">.</span><span class="n">fold</span><span class="p">(</span><span class="n">RouterState</span>::<span class="n">new</span><span class="p">(),</span><span class="w"> </span><span class="o">|</span><span class="k">mut</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">            </span><span class="k">match</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                </span><span class="n">RouterMessage</span>::<span class="n">Close</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                    </span><span class="n">state</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">);</span><span class="w">
+</span><span class="w">                </span><span class="p">}</span><span class="w">
+</span><span class="w">                </span><span class="n">RouterMessage</span>::<span class="n">Register</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                    </span><span class="n">state</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="p">);</span><span class="w">
+</span><span class="w">                </span><span class="p">}</span><span class="w">
+</span><span class="w">                </span><span class="n">RouterMessage</span>::<span class="nb">Send</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">get_mut</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">).</span><span class="n">unwrap</span><span class="p">().</span><span class="n">try_send</span><span class="p">(</span><span class="n">l</span><span class="p">).</span><span class="n">unwrap</span><span class="p">(),</span><span class="w">
+</span><span class="w">            </span><span class="p">};</span><span class="w">
+</span><span class="w">            </span><span class="n">ok</span><span class="p">(</span><span class="n">state</span><span class="p">)</span><span class="w">
+</span><span class="w">        </span><span class="p">})</span><span class="w">
+</span><span class="w">        </span><span class="p">.</span><span class="n">then</span><span class="p">(</span><span class="o">|</span><span class="n">x</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">            </span><span class="n">println</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Router exited: {:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">);</span><span class="w">
+</span><span class="w">            </span><span class="n">ok</span>::<span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="p">()</span><span class="o">&gt;</span><span class="p">(())</span><span class="w">
+</span><span class="w">        </span><span class="p">});</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="n">runtime</span><span class="p">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">f</span><span class="p">);</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="n">tx</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>And here&rsquo;s the new:</p>
+<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="sd">/// Spawn a router on the runtime.
+</span><span class="sd">///
+</span><span class="sd">/// Routers respond to router messages sent on the sender channel this function returns.
+</span><span class="sd"></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">router</span><span class="p">(</span><span class="n">runtime</span>: <span class="kp">&amp;</span><span class="nc">mut</span><span class="w"> </span><span class="n">Runtime</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">mpsc</span>::<span class="n">Sender</span><span class="o">&lt;</span><span class="n">RouterMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="p">(</span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">rx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpsc</span>::<span class="n">channel</span>::<span class="o">&lt;</span><span class="n">RouterMessage</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">async</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">rx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rx</span><span class="p">;</span><span class="w">
+</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RouterState</span>::<span class="n">new</span><span class="p">();</span><span class="w">
+</span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">quitting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w">        </span><span class="k">loop</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">quitting</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">is_empty</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                </span><span class="k">break</span><span class="p">;</span><span class="w">
+</span><span class="w">            </span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="w">            </span><span class="kd">let</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rx</span><span class="p">.</span><span class="n">next</span><span class="p">().</span><span class="n">await</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w">            </span><span class="k">match</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                </span><span class="nb">None</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">break</span><span class="p">,</span><span class="w">
+</span><span class="w">                </span><span class="nb">Some</span><span class="p">(</span><span class="n">RouterMessage</span>::<span class="n">Close</span><span class="p">(</span><span class="n">p</span><span class="p">))</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                    </span><span class="n">state</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">);</span><span class="w">
+</span><span class="w">                </span><span class="p">}</span><span class="w">
+</span><span class="w">                </span><span class="nb">Some</span><span class="p">(</span><span class="n">RouterMessage</span>::<span class="n">Register</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="p">))</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                    </span><span class="n">state</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="p">);</span><span class="w">
+</span><span class="w">                </span><span class="p">}</span><span class="w">
+</span><span class="w">                </span><span class="nb">Some</span><span class="p">(</span><span class="n">RouterMessage</span>::<span class="nb">Send</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">))</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">chan</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">get_mut</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                        </span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="nb">Err</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chan</span><span class="p">.</span><span class="n">try_send</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                            </span><span class="n">eprintln</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Attempted to send on closed channel&#34;</span><span class="w">
+</span><span class="w">                            </span><span class="o">+</span><span class="w"> </span><span class="s">&#34; {:?}, but encountered error: {:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span><span class="w">
+</span><span class="w">                            </span><span class="n">state</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">);</span><span class="w">
+</span><span class="w">                        </span><span class="p">}</span><span class="w">
+</span><span class="w">                    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">                        </span><span class="n">eprintln</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Attempted to send to non-existant pid {:?}: {:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">)</span><span class="w">
+</span><span class="w">                    </span><span class="p">}</span><span class="w">
+</span><span class="w">                </span><span class="p">}</span><span class="w">
+</span><span class="w">                </span><span class="nb">Some</span><span class="p">(</span><span class="n">RouterMessage</span>::<span class="n">Quit</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">quitting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+</span><span class="w">            </span><span class="p">};</span><span class="w">
+</span><span class="w">        </span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="w">        </span><span class="p">()</span><span class="w">
+</span><span class="w">    </span><span class="p">};</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="n">runtime</span><span class="p">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">f</span><span class="p">());</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="n">tx</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>So, we can immediately see that the new code is longer and more complex than the
+old code. However, the old version used a very compact but frankly rather
+confusing technique of <code>fold</code>ing over stream, a concept that <em>sort of</em> makes
+sense in this context, only then to basically ignore the return value? Why were
+we folding over this stream in the first place? The answer to that is that I
+really didn&rsquo;t want to write more code with the <code>loop_fn</code> function, and decided
+to save myself some effort by repurposing a similar but unrelated concept. I
+don&rsquo;t think this code is particularly easy to understand, and it&rsquo;s quite
+brittle. Also, you might have to think about how exactly <code>fold</code> will handle
+errors? If I return an error, what will happen? Maybe I should sidestep the
+issue and just <code>unwrap</code> everything. Also, <code>fold</code> ends its processing immediately
+when the channel closes and drains. This is pretty awkward because it means that
+sometimes the router will shut down before all the handles are done sending
+messages, leading to, in my specific case, tests that <em>sometimes</em> fail, and
+sometimes don&rsquo;t, and that <em>never fail when backtraces are enabled.</em></p>
+
+<p>So, the new code will still immediately stop if its router control channel is
+closed, but that&rsquo;s no longer the recommended way of stopping the router.
+Instead, you send it the quit message, which will cause it to enter a shutdown
+mode, where it will wait for all existing handles to drop before stopping. I
+don&rsquo;t think this is possible in the old implementation because the <code>fold</code> method
+doesn&rsquo;t let you terminate early except in the case of channel closure.</p>
+
+<p>Additionally, the new trades obscure futures-based control flow for bog standard
+Rust control flow in an async anonymous closure, just like <code>exec_future</code>,
+meaning that it&rsquo;s much more readable. Plus, receiving the next message is
+literally just <code>rx.next().await</code>: no callbacks, no messiness.</p>
+
+</main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/rust">
+                rust
+            </a>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+            <a class="tag" href="/tags/language">
+                language
+            </a>
+        
+    </section>
+
+
+  <footer>
+  
+  
+  <hr/>
+  &copy; <a href="http://atamis.me">Andrew Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2018
+  
+  </footer>
+  </body>
+</html>
+

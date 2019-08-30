@@ -60,8 +60,10 @@ its easy parallelism and functional nature.</p>
   
 
   <section>
-    In my last post, I covered my first attempt to implement TCP streaming in Flow, a data flow library for Elixir. My first attempts involved a bunch of failed Unix sockets, and an attempt to implement a GenStage that failed for reasons I didn&rsquo;t understand. I eventually settled on this:
-Stream.resource( fn -&gt; nil end, fn _ -&gt; { TcpStream.Aggregator.get_buffer(), nil } end, fn _ -&gt; nil end Stream.resource/3 can be converted into a Flow with Flow.
+    <p>In my <a href="/posts/2018-10-10-flows-the-wrong-way/">last post</a>, I covered my first attempt to implement TCP streaming in
+<code>Flow</code>, a data flow library for Elixir. My first attempts involved a bunch of
+failed Unix sockets, and an attempt to implement a <code>GenStage</code> that failed for
+reasons I didn&rsquo;t understand. I eventually settled on this:</p>
   </section>
 </div>
 

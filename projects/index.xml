@@ -6,10 +6,24 @@
     <description>Recent content in Projects on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 13 Oct 2018 12:36:21 -0700</lastBuildDate>
+    <lastBuildDate>Thu, 29 Aug 2019 14:05:09 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/projects/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ironic Space Lisp</title>
+      <link>http://atamis.me/projects/isl/</link>
+      <pubDate>Thu, 29 Aug 2019 14:05:09 -0700</pubDate>
+      
+      <guid>http://atamis.me/projects/isl/</guid>
+      <description>&lt;p&gt;In order to meet some particular requirements for a separate project, I began
+development on a new programming language based on Lisp and Erlang. Some of the
+requirements were that the entire environment be pausable and serializable, and
+contain deep hooks and callbacks to allow the host program to dynamically
+control fundamental aspects of evaluation. The interpreter is currently under
+development in Rust.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Elixir Dataflows</title>
@@ -21,22 +35,14 @@
     </item>
     
     <item>
-      <title>Ironic Space Lisp</title>
-      <link>http://atamis.me/projects/isl/</link>
-      <pubDate>Thu, 20 Sep 2018 13:21:53 -0700</pubDate>
-      
-      <guid>http://atamis.me/projects/isl/</guid>
-      <description>In order to meet some particular requirements for a separate project, I began development on a new programming language based on Lisp and Erlang. Some of the requirements were that the entire environment be pausable and serializable, and contain deep hooks and callbacks to allow the host program to dynamically control fundamental aspects of evaluation. The interpreter is currently under development in Rust.
-Github</description>
-    </item>
-    
-    <item>
       <title>4x Game</title>
       <link>http://atamis.me/projects/4x/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>http://atamis.me/projects/4x/</guid>
-      <description>This game was made by Nick Care, Andrew Amis, Robert Tomcik, and Kirk Pearson. Its design is reminiscent of such games as Civilization and Creeper World. It was made under a strict deadline between February 10th and March 16th of 2016. It was the first game the group made together (see the second) and does not present an entirely coherent or bug-free experience. It also eschews almost all in-game instruction, so I&amp;rsquo;ve included the instruction manual below.</description>
+      <description>&lt;p&gt;4x is an unpolished strategy game reminiscent of Civilization and Creeper World.
+Built by Nick Care, Andrew Amis, Robert Tomcik, and Kirk Pearson, it was
+developed under a strict deadline between February 10th and March 16th of 2016.&lt;/p&gt;</description>
     </item>
     
     <item>

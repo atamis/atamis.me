@@ -37,12 +37,11 @@
 </div>
 
 <main>
-
-
 <p>In my <a href="/posts/2018-10-10-flows-the-wrong-way/">last post</a>, I covered my first attempt to implement TCP streaming in
 <code>Flow</code>, a data flow library for Elixir. My first attempts involved a bunch of
 failed Unix sockets, and an attempt to implement a <code>GenStage</code> that failed for
 reasons I didn&rsquo;t understand. I eventually settled on this:</p>
+
 <div class="highlight"><pre class="chroma"><code class="language-Elixir" data-lang="Elixir"><span class="nc">Stream</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span>
     <span class="n">fn</span> <span class="o">-&gt;</span> <span class="n">nil</span> <span class="n">end</span><span class="p">,</span>
     <span class="n">fn</span> <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">{</span> <span class="nc">TcpStream.Aggregator</span><span class="o">.</span><span class="n">get_buffer</span><span class="p">(),</span> <span class="n">nil</span> <span class="p">}</span> <span class="n">end</span><span class="p">,</span>
@@ -432,7 +431,6 @@ obviously cause timeouts in <code>handle_demand/2</code>.</p>
  <a class="footnote-return" href="#fnref:0"><sup>[return]</sup></a></li>
 </ol>
 </div>
-
 </main>
 
 <hr>

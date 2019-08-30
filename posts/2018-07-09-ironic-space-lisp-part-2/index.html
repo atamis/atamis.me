@@ -37,8 +37,6 @@
 </div>
 
 <main>
-
-
 <p><a href="/posts/2018-07-29-ironic-space-lisp/">Part 1</a></p>
 
 <p><a href="/posts/2018-07-09-ironic-space-lisp-part-2/">Part 2</a></p>
@@ -46,6 +44,7 @@
 <p>Last time, the conceptual challenges of a the stack VM convinced me it was the
 wrong approach. In a normal recursive lisp interpreter, code is data, and you
 have a single evaluator function over every value. <a href="https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280">Follow along here</a>.</p>
+
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="sd">/// Omni-datatype. Represents both data and code for the lisp VM.
 </span><span class="sd"></span><span class="cp">#[derive(Debug, Clone)]</span><span class="w">
 </span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">enum</span> <span class="nc">Lisp</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -298,7 +297,6 @@ than the recursive implementation at the top of the article.]</em></p>
 <p>That&rsquo;s all for now. I&rsquo;m a little worried this crazy plan won&rsquo;t end up working.
 Or that the insane way frames have to be written is just untenable. Maybe I can
 solve those with state machines. Maybe I should revisit stacks.</p>
-
 </main>
 
 <hr>

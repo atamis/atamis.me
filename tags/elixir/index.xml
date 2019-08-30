@@ -26,8 +26,10 @@
       <pubDate>Sat, 13 Oct 2018 12:36:21 -0700</pubDate>
       
       <guid>http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/</guid>
-      <description>In my last post, I covered my first attempt to implement TCP streaming in Flow, a data flow library for Elixir. My first attempts involved a bunch of failed Unix sockets, and an attempt to implement a GenStage that failed for reasons I didn&amp;rsquo;t understand. I eventually settled on this:
-Stream.resource( fn -&amp;gt; nil end, fn _ -&amp;gt; { TcpStream.Aggregator.get_buffer(), nil } end, fn _ -&amp;gt; nil end Stream.resource/3 can be converted into a Flow with Flow.</description>
+      <description>&lt;p&gt;In my &lt;a href=&#34;http://atamis.me/posts/2018-10-10-flows-the-wrong-way/&#34;&gt;last post&lt;/a&gt;, I covered my first attempt to implement TCP streaming in
+&lt;code&gt;Flow&lt;/code&gt;, a data flow library for Elixir. My first attempts involved a bunch of
+failed Unix sockets, and an attempt to implement a &lt;code&gt;GenStage&lt;/code&gt; that failed for
+reasons I didn&amp;rsquo;t understand. I eventually settled on this:&lt;/p&gt;</description>
     </item>
     
     <item>

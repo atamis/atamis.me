@@ -6,10 +6,20 @@
     <description>Recent content in Posts on Andrew Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 30 May 2019 11:52:59 -0700</lastBuildDate>
+    <lastBuildDate>Thu, 29 Aug 2019 14:05:09 -0700</lastBuildDate>
     
 	<atom:link href="http://atamis.me/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ironic Space Lisp Part 9</title>
+      <link>http://atamis.me/posts/2019-08-29-ironic-space-lisp-part-9/</link>
+      <pubDate>Thu, 29 Aug 2019 14:05:09 -0700</pubDate>
+      
+      <guid>http://atamis.me/posts/2019-08-29-ironic-space-lisp-part-9/</guid>
+      <description>It&amp;rsquo;s been a long time since I last worked on ISL, mostly because I got distracted by other projects and languages: things like the flows project, or Clojure. Also, writing futures code in Rust is painful. Recently, async-await syntax got released on Rust nightly, which makes async code much easier to write.
+When I was last working on the project, I was working on a local variables feature. VM operations to allow storing and loading local variables linked to the frame stack, and later, support in the compiler.</description>
+    </item>
     
     <item>
       <title>Clojure&#39;s Looping Syntax is Surprising</title>
@@ -87,8 +97,10 @@ This is just as important and much harder for video games. Video games are among
       <pubDate>Sat, 13 Oct 2018 12:36:21 -0700</pubDate>
       
       <guid>http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/</guid>
-      <description>In my last post, I covered my first attempt to implement TCP streaming in Flow, a data flow library for Elixir. My first attempts involved a bunch of failed Unix sockets, and an attempt to implement a GenStage that failed for reasons I didn&amp;rsquo;t understand. I eventually settled on this:
-Stream.resource( fn -&amp;gt; nil end, fn _ -&amp;gt; { TcpStream.Aggregator.get_buffer(), nil } end, fn _ -&amp;gt; nil end Stream.resource/3 can be converted into a Flow with Flow.</description>
+      <description>&lt;p&gt;In my &lt;a href=&#34;http://atamis.me/posts/2018-10-10-flows-the-wrong-way/&#34;&gt;last post&lt;/a&gt;, I covered my first attempt to implement TCP streaming in
+&lt;code&gt;Flow&lt;/code&gt;, a data flow library for Elixir. My first attempts involved a bunch of
+failed Unix sockets, and an attempt to implement a &lt;code&gt;GenStage&lt;/code&gt; that failed for
+reasons I didn&amp;rsquo;t understand. I eventually settled on this:&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -106,8 +118,10 @@ Stream.resource( fn -&amp;gt; nil end, fn _ -&amp;gt; { TcpStream.Aggregator.get
       <pubDate>Thu, 20 Sep 2018 13:21:53 -0700</pubDate>
       
       <guid>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</guid>
-      <description>It&amp;rsquo;s been a while since I posted progress on ISL, and that is mostly my fault. Most of this time was spent making maintenance, like documentation, but also trying to get the self hosted interpreter working and self hosting. That was a challenge, and also my fault.
-&amp;ldquo;Closures&amp;rdquo; So, I had a problem. I&amp;rsquo;m really used to having checks to make sure the code I write is correct. I don&amp;rsquo;t ask for much, but arity checks are nice, and pretty much every language offers them, either at compile or runtime.</description>
+      <description>&lt;p&gt;It&amp;rsquo;s been a while since I posted progress on ISL, and that is mostly my fault.
+Most of this time was spent making maintenance, like documentation, but also
+trying to get the self hosted interpreter working and self hosting. That was a
+challenge, and also my fault.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -135,8 +149,10 @@ I also got a rejection email. Not unusual, some companies decide to let me know 
       <pubDate>Wed, 22 Aug 2018 01:56:10 -0700</pubDate>
       
       <guid>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</guid>
-      <description>Since last time, I did two things: switched from error_chain to failure, and refactored with the visitor pattern. They took about the same amount of time, and the refactor is much more interesting. I briefly touch on an issue I encountered with failure, but I&amp;rsquo;d rather discuss the refactor.
-The Visitor Pattern Calling this the visitor pattern is a bit grand. The visitor pattern has intricacies that aren&amp;rsquo;t entirely relevant in this situation, but I can describe how this visitor works, and why I decided on it.</description>
+      <description>&lt;p&gt;Since last time, I did two things: switched from &lt;code&gt;error_chain&lt;/code&gt; to &lt;code&gt;failure&lt;/code&gt;, and
+refactored with the visitor pattern. They took about the same amount of time,
+and the refactor is much more interesting. I briefly touch on an issue I
+encountered with &lt;code&gt;failure&lt;/code&gt;, but I&amp;rsquo;d rather discuss the refactor.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -163,8 +179,11 @@ The Visitor Pattern Calling this the visitor pattern is a bit grand. The visitor
       <pubDate>Sun, 12 Aug 2018 00:41:11 -0700</pubDate>
       
       <guid>http://atamis.me/posts/2018-08-12-ironic-space-lisp-part-4/</guid>
-      <description>This update is all about parsing, and this ended up being really difficult. Not in a good way though. In my last post, I talked about using languages so difficult and alien that the difficulty clearly signified that there was something important you could learn from mastering them. I didn&amp;rsquo;t find this was the case during this phase of the project.
-$ cargo run Compiling ironic-space-lisp v0.1.0 (file:///home/andrew/src/rust/ironic-space-lisp) error: no rules expected the token `,` --&amp;gt; src/parser.</description>
+      <description>&lt;p&gt;This update is all about parsing, and this ended up being really difficult. Not
+in a good way though. In my &lt;a href=&#34;http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/&#34;&gt;last post&lt;/a&gt;, I talked about using
+languages so difficult and alien that the difficulty clearly signified that
+there was something important you could learn from mastering them. I didn&amp;rsquo;t find
+this was the case during this phase of the project.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -201,10 +220,13 @@ The interesting thing (to me at least), is that this is all on purpose. Boring o
       <pubDate>Sun, 29 Jul 2018 10:59:40 -0700</pubDate>
       
       <guid>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</guid>
-      <description>Part 1
-Part 2
-Last time, the conceptual challenges of a the stack VM convinced me it was the wrong approach. In a normal recursive lisp interpreter, code is data, and you have a single evaluator function over every value. Follow along here.
-/// Omni-datatype. Represents both data and code for the lisp VM. #[derive(Debug, Clone)]pubenum Lisp{/// Represents a single u32 number. Num(u32),/// Represents an operation see `Op` for more info.</description>
+      <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Last time, the conceptual challenges of a the stack VM convinced me it was the
+wrong approach. In a normal recursive lisp interpreter, code is data, and you
+have a single evaluator function over every value. &lt;a href=&#34;https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280&#34;&gt;Follow along here&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -213,10 +235,14 @@ Last time, the conceptual challenges of a the stack VM convinced me it was the w
       <pubDate>Sun, 29 Jul 2018 02:03:01 -0700</pubDate>
       
       <guid>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</guid>
-      <description>Part 1
-Part 2
-I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done, although the planning document is getting lengthy. Programming games need programming languages, and based on the game design, I had some pretty particular specifications for the language.
- Sandboxed Concurrent Preemptive  Although the design hasn&amp;rsquo;t settled fully, I&amp;rsquo;m currently planning on executing code on the server, which means the language needs to be able to be sandboxed in two senses: it shouldn&amp;rsquo;t be able to access the server outside of approved channels, and it shouldn&amp;rsquo;t be able to access other threads outside of approved channels.</description>
+      <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done,
+although the planning document is getting lengthy. Programming games need
+programming languages, and based on the game design, I had some pretty
+particular specifications for the language.&lt;/p&gt;</description>
     </item>
     
     <item>
