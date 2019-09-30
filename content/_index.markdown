@@ -15,8 +15,7 @@ programming language development, data structures, and algorithms.
 You can find my code on my [github](http://github.com/atamis), my projects
 [ here ](/projects) on my site, and my writings below.
 
-I'm currently seeking employment, although if I were employed, this site would
-not reflect the views of my employer. Unless I was self employed 🤔.
+My views on this site are my own, and do not reflect the views of my employer.
 
 ## Miscellaneous
 
