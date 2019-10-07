@@ -364,6 +364,15 @@ you're in uncharged territory. That's really what this is about: a feeling of
 real exploration and novel discovery, of interacting with and considering issues
 that precious few other people have.
 
+[Edit 10/7/2019]. If you can get past the slightly breathless presentation
+[this video](https://www.youtube.com/watch?v=mC8QoRa8y_Q) on second person
+perspectives in video games executes a "limit break" in the game
+_Driver: San Fransisco_ in order to explore a novel game experience for
+longer than the timed mission permits. Although seemingly a glitch, I theorize
+that the developers made this possible on purpose so that exploratory gamers
+could appreciate the incredible work that went into the sophisticated camera
+system that made a second person perspective possible in a racing game.
+
 [^1]: Games tend to lock their game simulation to either the clock or the frame
     count. If locked to the clock, the game moves forward at the same speed
     regardless of the frame rate, producing choppy but playable games. If the
