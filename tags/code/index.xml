@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Thu, 29 Aug 2019 14:05:09 -0700</lastBuildDate>
+    <lastBuildDate>Sun, 03 Nov 2019 20:54:26 +0100</lastBuildDate>
     
 	<atom:link href="http://atamis.me/tags/code/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Monorepo Compromise</title>
+      <link>http://atamis.me/posts/2019-11-03-monorepo-compromise/</link>
+      <pubDate>Sun, 03 Nov 2019 20:54:26 +0100</pubDate>
+      
+      <guid>http://atamis.me/posts/2019-11-03-monorepo-compromise/</guid>
+      <description>I have a modest proposal on repository organization. There are 2 primary archetypes, multiple repositories and the monorepo pattern. In multiple repositories, you have 1 project per repository, binaries requiring internal libraries, and use tools to ensure that you have all the necessary repositories downloaded and up to date (easy with most modern package managers). In a monorepo, all projects are stored directly in the monorepo, as part of a single codebase or project, and all internal dependencies are automatically managed.</description>
+    </item>
     
     <item>
       <title>Ironic Space Lisp Part 9</title>
