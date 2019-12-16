@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Thu, 30 May 2019 11:52:59 -0700</lastBuildDate>
+    <lastBuildDate>Sun, 15 Dec 2019 23:01:08 +0100</lastBuildDate>
     
 	<atom:link href="http://atamis.me/tags/clojure/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>&#34;Interesting&#34; Clojure Macro Interaction</title>
+      <link>http://atamis.me/posts/2019-12-15-clojure-macro-interaction/</link>
+      <pubDate>Sun, 15 Dec 2019 23:01:08 +0100</pubDate>
+      
+      <guid>http://atamis.me/posts/2019-12-15-clojure-macro-interaction/</guid>
+      <description>Clojure&amp;rsquo;s macro system is a little tricky to work with (at least for me), but it&amp;rsquo;s also quite powerful. Being able to rewrite the languages AST at compile time is really cool, and the fact that Clojure&amp;rsquo;s syntax is just the data structures that normal Clojure code operate on makes writing macros a breeze (at least compared to, say, Rust or Javascript).
+Clojure&amp;rsquo;s macro expansion works in dependable way: it keeps apply macros until there are no more macro calls in the code, then compiles the resulting code.</description>
+    </item>
     
     <item>
       <title>Clojure&#39;s Looping Syntax is Surprising</title>

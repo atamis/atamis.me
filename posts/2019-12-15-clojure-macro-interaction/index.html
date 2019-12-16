@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>&#34;Interesting&#34; Clojure Macro Interaction | Andrew Amis</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
+
+
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/projects/">Projects</a></li>
+      
+      <li><a href="/pictures/">Pictures</a></li>
+      
+      <li><a href="/downloads/resume.pdf">Resume</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">&#34;Interesting&#34; Clojure Macro Interaction</span></h1>
+
+<h2 class="date">2019/12/15</h2>
+</div>
+
+<main>
+<p>Clojure&rsquo;s macro system is a little tricky to work with (at least for me), but
+it&rsquo;s also quite powerful. Being able to rewrite the languages AST at compile
+time is really cool, and the fact that Clojure&rsquo;s syntax is just the
+data structures that normal Clojure code operate on makes writing macros a
+breeze (at least compared to, say, Rust or Javascript).</p>
+
+<p>Clojure&rsquo;s macro expansion works in dependable way: it keeps apply macros until
+there are no more macro calls in the code, then compiles the resulting code.
+This means that you can use macros together without worrying (too much) about
+the interaction: it should just work. This is reasonable when the macros are
+depending to be functions, where they&rsquo;re syntactic sugar on top of a normal
+function, or they expand into one or two calls to functions. These macros are
+easy to write and easy to understand, and they let you write &ldquo;functions&rdquo; that
+take their arguments pre-expanded and do interesting things with them.</p>
+
+<p>There are also macros that implement DSLs like <a href="https://github.com/weavejester/compojure">Compojure</a>,
+which is a concise HTTP routing DSL. These are usually inflexible and slightly
+awkward to use. I&rsquo;ve heard it said that DSLs are written to the author&rsquo;s taste,
+and you have to learn the author&rsquo;s taste to use their DSL, which can be pretty
+awkward.</p>
+
+<p>There&rsquo;s another kind of macro that could be labeled a structural macro. These
+are macros that make writing functional code easier. Functional code in Lisp can
+be difficult to read, because execution passes from the inside out. Clojure
+offers the threading macros to make this easier (see <a href="/posts/2018-11-3-pipeline-operators/">my
+article</a> more more context). Threading macros allow you to
+write code that is executed from top to bottom, making it easier to read:</p>
+<div class="highlight"><pre class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="nv">vals</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">inc</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">filter </span><span class="nv">odd?</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">reduce </span><span class="nv">+</span><span class="p">))</span></code></pre></div>
+<p>Expands to:</p>
+<div class="highlight"><pre class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="nb">reduce + </span><span class="p">(</span><span class="nb">filter </span><span class="nv">odd?</span> <span class="p">(</span><span class="nb">map inc </span><span class="nv">vals</span><span class="p">)))</span></code></pre></div>
+<p>Which you have to read inside out when it&rsquo;s really better understood as a linear
+pipeline.</p>
+
+<p>But what if you&rsquo;re doing some work with the <code>core.async</code> libraries?</p>
+<div class="highlight"><pre class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="nf">a/go</span>
+  <span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="nv">urls</span>
+       <span class="p">(</span><span class="nb">map </span><span class="nv">go-make-request</span><span class="p">)</span>
+       <span class="p">(</span><span class="nb">map </span><span class="nv">a/&lt;!</span><span class="p">)</span>
+       <span class="p">(</span><span class="nb">filter </span><span class="nv">success?</span><span class="p">)))</span></code></pre></div>
+<p>This is another pipeline that reads better with a threading macro, but it&rsquo;s
+still equivalent to</p>
+<div class="highlight"><pre class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="nf">a/go</span>
+  <span class="p">(</span><span class="nb">filter </span><span class="nv">success?</span>
+          <span class="p">(</span><span class="nb">map </span><span class="nv">a/&lt;!</span>
+               <span class="p">(</span><span class="nb">map </span><span class="nv">go-make-request</span> <span class="nv">urls</span><span class="p">))))</span></code></pre></div>
+<p>But what&rsquo;s this, we put all the function calls in the pipeline, but left the
+call to <code>a/go</code> outside. This makes sense, because <code>a/go</code> is basically a piece of
+syntax for indicating that these expressions are run in a <code>core.async</code> context
+possibly on another thread. It&rsquo;s like the <code>fn</code> or <code>when</code> syntax. They&rsquo;re still
+expressions that return values, but they also execute multiple expressions and
+only return the last one, and tend to have other varied effects on the
+execution order and location: they clearly don&rsquo;t operate like normal functions.</p>
+
+<p>None of that matters, however, because Clojure does not differentiate between
+them and normal syntax and you can just thread all those expressions together
+like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="nv">urls</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">go-make-request</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">a/&lt;!</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">filter </span><span class="nv">success?</span><span class="p">)</span>
+     <span class="nv">a/go</span><span class="p">)</span></code></pre></div>
+<p>And it totally works. Want to also return the value from this go block to
+non-<code>core.async</code> code?</p>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="nv">urls</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">go-make-request</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">a/&lt;!</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">filter </span><span class="nv">success?</span><span class="p">)</span>
+     <span class="nv">a/go</span>
+     <span class="nv">a/&lt;!!</span><span class="p">)</span></code></pre></div>
+<p>Want to time how long this takes, but still return the value? The <code>time</code> macro to
+the rescue!</p>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="nv">urls</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">go-make-request</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">a/&lt;!</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">filter </span><span class="nv">success?</span><span class="p">)</span>
+     <span class="nv">a/go</span>
+     <span class="nv">a/&lt;!!</span>
+     <span class="nv">time</span><span class="p">)</span></code></pre></div>
+<p>This can get so much worse. What if we only want to go through this pipeline if
+we have some urls? As it is currently, we always launch a go block even if that
+go block will find that <code>urls</code> is empty and immediately return the empty list
+after mapping over nothing twice. We can just skip that if we want.</p>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="nf">-&gt;&gt;</span> <span class="nv">urls</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">go-make-request</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">map </span><span class="nv">a/&lt;!</span><span class="p">)</span>
+     <span class="p">(</span><span class="nb">filter </span><span class="nv">success?</span><span class="p">)</span>
+     <span class="nv">a/go</span>
+     <span class="nv">a/&lt;!!</span>
+     <span class="nv">time</span>
+     <span class="p">(</span><span class="nb">when </span><span class="p">(</span><span class="nb">seq </span><span class="nv">urls</span><span class="p">)))</span></code></pre></div>
+<p>It also works with other non-macro syntax</p>
+<div class="highlight"><pre class="chroma"><code class="language-clojure" data-lang="clojure"><span class="p">((</span><span class="nf">-&gt;&gt;</span> <span class="nv">n</span>
+      <span class="nv">inc</span>
+      <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">(</span><span class="nb">println </span><span class="nv">n</span><span class="p">)))</span>
+ <span class="mi">1</span><span class="p">)</span></code></pre></div>
+<p>Has homoiconicity gone too far?</p>
+
+<p>Yes.</p>
+
+<p>Should Rich Hickey stop?</p>
+
+<p>No.</p>
+
+<p>Should you use this in production?</p>
+
+<p>Yes.</p>
+
+<p>Will your coworkers let you?</p>
+
+<p>No.</p>
+
+</main>
+
+<hr>
+
+
+    <section>
+        
+            <a class="tag" href="/tags/code">
+                code
+            </a>
+        
+            <a class="tag" href="/tags/clojure">
+                clojure
+            </a>
+        
+    </section>
+
+
+  <footer>
+  
+  
+  <hr/>
+  &copy; <a href="http://atamis.me">Andrew Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2018
+  
+  </footer>
+  </body>
+</html>
+

@@ -3,27 +3,37 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://atamis.me/posts/2019-12-15-clojure-macro-interaction/</loc>
+    <lastmod>2019-12-15T23:01:08+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://atamis.me/</loc>
-    <lastmod>2019-11-03T20:54:26+01:00</lastmod>
+    <lastmod>2019-12-15T23:01:08+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/tags/clojure/</loc>
+    <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
   <url>
     <loc>http://atamis.me/tags/code/</loc>
-    <lastmod>2019-11-03T20:54:26+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://atamis.me/posts/2019-11-03-monorepo-compromise/</loc>
-    <lastmod>2019-11-03T20:54:26+01:00</lastmod>
+    <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
   <url>
     <loc>http://atamis.me/posts/</loc>
-    <lastmod>2019-11-03T20:54:26+01:00</lastmod>
+    <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
   <url>
     <loc>http://atamis.me/tags/</loc>
+    <lastmod>2019-12-15T23:01:08+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://atamis.me/posts/2019-11-03-monorepo-compromise/</loc>
     <lastmod>2019-11-03T20:54:26+01:00</lastmod>
   </url>
   
@@ -50,11 +60,6 @@
   <url>
     <loc>http://atamis.me/tags/rust/</loc>
     <lastmod>2019-08-29T14:05:09-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://atamis.me/tags/clojure/</loc>
-    <lastmod>2019-05-30T11:52:59-07:00</lastmod>
   </url>
   
   <url>
