@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Operators | Andrew Amis</title>
+    <title>Operators | Azrea Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
@@ -38,8 +38,6 @@
 </div>
 
 <main>
-
-
 <p>I recently started thinking about operators and math in programming languages.
 This is at least partly inspired by the programming language I&rsquo;m making right
 now, but I&rsquo;ll get to that later. It&rsquo;s also inspired, in some sense, by the
@@ -47,7 +45,6 @@ tutorials I was reading while trying to successfully parse my programming
 language. I didn&rsquo;t find a tutorial specifically for what I was trying to do,
 which was fair, but I did find tutorials on parsing other more &ldquo;normal&rdquo;
 languages or more C-like languages, and it got me thinking.</p>
-
 <p>There&rsquo;s something of a disconnect between the way we use programming languages
 and the focus of the syntax and semantics of languages. In particular, languages
 put enormous effort into making math, specifically arithmetic, very simple. In
@@ -58,7 +55,6 @@ math parlance, it would be written <code>x^2</code>, or <code>x²</code>, if you
 formatting. However, <code>^</code> usually denotes bitwise XOR, and is part of the suite
 of slightly less known bitwise operations which also get their own operators.
 Java gives you <code>Math.pow</code>, and your Java equations start to look a little weird.</p>
-
 <p>My point is that we don&rsquo;t use these mathematical operators very much. They show
 up, on occasion, but most of the programs I write don&rsquo;t really rely on long and
 complex equations as the main business logic, they mostly do delegation,
@@ -68,7 +64,6 @@ string related code somewhat difficult to follow. Even if you are using
 operators, unless your readers know the operator precedence hierarchy well, code
 that relies on precedence to be correct can be very hard for humans to read and
 verify. Programmers frequently add parentheses just for code clarity.</p>
-
 <p>However, operators influence interpreter and compiler design pretty heavily.
 Operators break the normal rules of the language pretty substantially, and these
 programs have to deal with that, somewhere. To start with, they don&rsquo;t look like
@@ -79,7 +74,6 @@ your mathematical equation producing the expected and meaningful answers and it
 totally failing. Assuming you notice, it&rsquo;s the difference between your equations
 looking clean and nice (a major selling point for operators) and your equations
 looking like parenthesis hell (a little like lisp, but we&rsquo;ll get to that later).</p>
-
 <p>So not only does your parser have to know about and understand the fundamental
 nature of operators, it also has to understand their precedence <em>at parse time</em>.
 If you don&rsquo;t handle precedence at parse time, you push the problem down the road
@@ -90,9 +84,7 @@ transformation to turn them into pseudo function calls, making the rest of the
 toolchain operation agnostic. You might want to make optimizations later in the
 toolchain easier, so you leave them in until you hit code generation to make
 selection of the right operations easy.</p>
-
 <h1 id="custom-operators">Custom Operators</h1>
-
 <p>One of the main goals of operators is making equations clearer by representing
 simple operations with simple single character operators. Most of the time,
 however, even if we are using math as a direct part of the program, we aren&rsquo;t
@@ -106,7 +98,6 @@ organize code. Python uses magic methods like <code>__add__</code> and <code>__e
 prepends its operator methods with <code>operator</code> so <code>operator+</code> <code>operator==</code>, Ruby
 just allows methods with operators for names, and Rust has traits for all the
 operations you can implement.</p>
-
 <p>Java, however, doesn&rsquo;t allow operator overloading, and strictly delineates
 between values and objects, so you have to write code like
 <code>vector1.add(vector2).minus(vector3)</code> and regularly have to overload <code>.equals</code>
@@ -116,14 +107,11 @@ immutability of the <code>String</code> class with <code>StringBuilder</code>, b
 functionality to normal users. It does expose that functionality to JVM compiler
 writers (obviously, how would it preclude it), so Scala and Clojure both allow
 operator overloading (although Clojure doesn&rsquo;t necessarily make it easy).</p>
-
 <p>Haskell takes things a step further by allowing fully custom operators, and lets
 you set their precedence in its existing operator hierarchy. I&rsquo;m not
 particularly familiar with Haskell or its implementations and compilers, so I&rsquo;ll
 leave you with <a href="https://csinaction.com/2015/03/31/custom-infix-operators-in-haskell/">this article</a>.</p>
-
 <h1 id="languages-without-operators">Languages without operators</h1>
-
 <p>There are a couple of language families that don&rsquo;t do operator precedence at
 all. One of these is Smalltalk: because it is concerned entirely with objects
 and sending messages to them (but not in an Erlang way), operators are messages
@@ -133,29 +121,23 @@ little like every method is an infix operator (although methods with more than
 one argument look a little strange). Smalltalk doesn&rsquo;t do any operator
 precedence, however, and just sends the messages with their arguments left to
 right, so <code>1 + 2 * 3</code> is <code>9</code>, not <code>7</code>, as normal precedence dictates.</p>
-
 <p>Another example is Lisp, which uses prefix function application. It treats
-operators as normal functions, semantically (if not literally), so <code>(+ 1 (* 2
-3))</code> is <code>7</code>, but <code>(* (+ 1 2) 3)</code> is <code>9</code>. <code>1 + 2 * 3</code> is not syntactically valid
+operators as normal functions, semantically (if not literally), so <code>(+ 1 (* 2 3))</code> is <code>7</code>, but <code>(* (+ 1 2) 3)</code> is <code>9</code>. <code>1 + 2 * 3</code> is not syntactically valid
 outside of quoted lists and macros. Because operators are (semantically)
 functions so they can easily take multiple arguments, like <code>(+ 1 2 3 4)</code>, and
 they are almost always variadic. Arguments are always grouped parentheses, so
 there is no need for additional parentheses for grouping, but variadic functions
 can reduce the cognitive and text load instead. Lisp does have real operators in
-<code>'</code>, <code>`</code>, and <code>,</code>, which represent <code>quote</code>, <code>quasiquote</code>, and <code>unquote</code>.
+<code>'</code>, <code>` </code>, and <code>,</code>, which represent <code>quote</code>, <code>quasiquote</code>, and <code>unquote</code>.
 Some Lisps introduce quite a few different <code>unquote</code> variants. However, in
 normal usage, these operators are essentially unambiguous and unary, so their
 implementation is comparatively simple.</p>
-
-<p>Stack based languages like Forth and its ilk are the same, except prefix, so <code>2
-3 * 1 +</code> is <code>7</code>, and <code>1 2 + 3 *</code>. <code>1 + 2 * 3</code> is syntactically valid, does
+<p>Stack based languages like Forth and its ilk are the same, except prefix, so <code>2 3 * 1 +</code> is <code>7</code>, and <code>1 2 + 3 *</code>. <code>1 + 2 * 3</code> is syntactically valid, does
 something very different: it adds 1 to the top of the stack, then multiplies it
 by 2, then pushes a <code>3</code> onto the stack, leaving a stack of <code>[2 3]</code>. Because the
 syntax lacks an easy way to specify variadicy, functions in these languages have
 fixed arities, so operators are almost always unary or binary.</p>
-
 <h1 id="conclusion">Conclusion</h1>
-
 <p>I find myself unwilling to take a definitive position on this issue, nor do I
 think a definitive position is really necessary. At this stage,
 using operators and operator precedence is, essentially, the default position.
@@ -164,7 +146,6 @@ certainly has operators. This isn&rsquo;t really a <em>problem</em>: large parts
 compiler or interpreter have to know about operators, but we have a lot of
 experience dealing with it, and multiple tools and techniques to simplify the
 problem.</p>
-
 <p>The languages that choose not to have operators seem to be languages
 that have some fundamental priority or goal. Operators can efficiently represent
 mathematical equations, but some languages feel that something else is more
@@ -177,7 +158,6 @@ sure I can speculate on exactly <em>what</em> Forth&rsquo;s is, but it seems to 
 implementation: thanks to the stack, implementation is both straightforward and
 performant. The lack of operators and operator precedence is a natural
 conclusion of building a stack based language.</p>
-
 <p>Smalltalk decided to take object oriented programming to its logical conclusion
 by making everything an object and making every thing you might do in the
 language a method call on some object. However, this is also the semantic
@@ -190,7 +170,6 @@ has been made, and legacy code relies on this admittedly straightforward
 interpretation, it can&rsquo;t very well be changed. Not everybody has comprehensive
 unit tests and a strong desire to translate equations from one operator
 precedence to another.</p>
-
 <p>I hope I&rsquo;ve at least raised some questions in your mind. Operators are clearly
 valuable, but their implementation is fraught and can be hampered in pursuit of
 simplicity, and ultimately they aren&rsquo;t necessary. It&rsquo;s perfectly possible to
@@ -225,7 +204,7 @@ I was floored the first time I saw how Lisp did math. I got over it though.</p>
   
   
   <hr/>
-  &copy; <a href="http://atamis.me">Andrew Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2018
+  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
   
   </footer>
   </body>

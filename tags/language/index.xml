@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>language on Andrew Amis</title>
+    <title>language on Azrea Amis</title>
     <link>http://atamis.me/tags/language/</link>
-    <description>Recent content in language on Andrew Amis</description>
+    <description>Recent content in language on Azrea Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
@@ -131,9 +131,7 @@ The interesting thing (to me at least), is that this is all on purpose. Boring o
       
       <guid>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
-
 &lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
-
 &lt;p&gt;Last time, the conceptual challenges of a the stack VM convinced me it was the
 wrong approach. In a normal recursive lisp interpreter, code is data, and you
 have a single evaluator function over every value. &lt;a href=&#34;https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280&#34;&gt;Follow along here&lt;/a&gt;.&lt;/p&gt;</description>
@@ -146,9 +144,7 @@ have a single evaluator function over every value. &lt;a href=&#34;https://githu
       
       <guid>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
-
 &lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
-
 &lt;p&gt;I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done,
 although the planning document is getting lengthy. Programming games need
 programming languages, and based on the game design, I had some pretty

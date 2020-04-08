@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Codegen Loader | Andrew Amis</title>
+    <title>Codegen Loader | Azrea Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
@@ -38,13 +38,9 @@
 </div>
 
 <main>
-
-
 <p>In what is very likely an enormously bad idea, I have built a JVM classloader
 that can load dynamically load Java source files into memory.</p>
-
 <h1 id="why">Why</h1>
-
 <p>I&rsquo;ve recently been going &ldquo;Full Juxt&rdquo;, using all of Juxt&rsquo;s Clojure libraries,
 specifically <a href="https://github.com/juxt/aero"><code>juxt/aero</code></a> for configuration,
 <a href="https://github.com/juxt/bidi"><code>juxt/bidi</code></a> for routing,
@@ -53,20 +49,16 @@ specifically <a href="https://github.com/juxt/aero"><code>juxt/aero</code></a> f
 &ldquo;building applications&rdquo; (probably dependency injection),
 <a href="https://github.com/juxt/joplin"><code>juxt/joplin</code></a> for database migrations,  and
 <a href="https://github.com/juxt/edge"><code>juxt/edge</code></a> to tie it all together.</p>
-
 <p>All of Juxt&rsquo;s libraries are relentlessly data focused, and use <code>deps.edn</code> for
 dependency management and application launching.</p>
-
 <p>The problem I&rsquo;ve encountered is Java interop with <code>deps.edn</code>. <code>deps.edn</code> <em>only</em>
-loads Clojure code. So if I want to use Java, what do I do?<sup class="footnote-ref" id="fnref:1"><a href="#fn:1">1</a></sup> Do I manually
+loads Clojure code. So if I want to use Java, what do I do?<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> Do I manually
 compile my Java source? Do I abandon <code>deps.edn</code> in favor of a build system, like
 Boot, Gradle, or Leiningen? No. Let&rsquo;s compile the Java at runtime, and
 distribute raw Java source files next to our Clojure source files. What are the
 implications of this decision? Is the rest of the ecosystem even ready for
 uncompiled Java source in Jars? Don&rsquo;t know, don&rsquo;t care. Let&rsquo;s go.</p>
-
 <h1 id="compilation-and-capture">Compilation and Capture</h1>
-
 <p>So our goal, for now, is to be able to load <code>.java</code> source files from the class
 path and compile them to <code>.class</code> definitions in memory. Ideally, we would avoid
 leaving detritus on the filesystem, particularly leaving <code>.class</code> files lying
@@ -75,19 +67,17 @@ We also want to do this in pure Clojure to avoid a chicken and egg problem of
 needing to load a native-Java classloader in order to load Java files
 in the first place. It turns out this is reasonably easy, thanks to <a href="https://gist.github.com/chrisvest/9873843">this
 gist</a>.</p>
-
 <p>This process works best if your compiler takes a classname rather than a path,
 as it&rsquo;s entirely classpath based. You can get your local Java compiler pretty
 easily with:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">  <span class="p">(</span><span class="nf">javax.tools.ToolProvider/getSystemJavaCompiler</span><span class="p">)</span></code></pre></div>
-<p>The Java compiler is <em>reasonably</em> flexible about compilation, but it still has a
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">  <span class="p">(</span><span class="nf">javax.tools.ToolProvider/getSystemJavaCompiler</span><span class="p">)</span>
+</code></pre></div><p>The Java compiler is <em>reasonably</em> flexible about compilation, but it still has a
 file-and-directory based understanding of code. This means that it&rsquo;s possible to
 do the kind of chicanery we want to do, but the compiler isn&rsquo;t really ready for
 it, so we have to do some slight of hand. The compiler isn&rsquo;t as simple as a
 function from Java source to JVM bytecode, its input and output is more
 complicated, and because it&rsquo;s Java, it&rsquo;s all hidden in classes and implicit
 state.</p>
-
 <p>So, we need to be able to capture the compiler&rsquo;s bytecode output, and prevent it
 from reaching the filesystem. This is possible through the compiler&rsquo;s
 <code>JavaFileManager</code>, an interface between the compiler and the filesystem. Because
@@ -96,10 +86,9 @@ we have to inject a delegation object instead. Luckily, they&rsquo;ve already wr
 one called the <code>ForwardingJavaFileManager</code>, which we can just subclass, make our
 changes, and then pass it to the compiler, which happily lets us temporarily
 inject a new concept of files into it for any particular compilation.</p>
-
 <p>You can get the standard file manager with:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">    <span class="p">(</span><span class="nf">.getStandardFileManager</span> <span class="nv">compiler</span> <span class="nv">nil</span> <span class="nv">nil</span> <span class="nv">nil</span><span class="p">)</span></code></pre></div>
-<p>and we&rsquo;ll use a Clojure proxy to override some of its behavior.</p>
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">    <span class="p">(</span><span class="nf">.getStandardFileManager</span> <span class="nv">compiler</span> <span class="nv">nil</span> <span class="nv">nil</span> <span class="nv">nil</span><span class="p">)</span>
+</code></pre></div><p>and we&rsquo;ll use a Clojure proxy to override some of its behavior.</p>
 <div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="kd">defn </span><span class="nv">output-capture-file-manager</span>
   <span class="s">&#34;Creates an output capturing memory backed forwarding file manager. See
 </span><span class="s">  ForwardingJavaFileManager for more details.&#34;</span>
@@ -110,24 +99,23 @@ inject a new concept of files into it for any particular compilation.</p>
                   <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">output-file</span> <span class="p">(</span><span class="nf">make-mem-file</span> <span class="nv">className</span> <span class="nv">kind</span><span class="p">)]</span>
                     <span class="p">(</span><span class="nf">swap!</span> <span class="nv">outputs</span> <span class="nb">assoc </span><span class="nv">className</span> <span class="nv">output-file</span><span class="p">)</span>
                     <span class="nv">output-file</span><span class="p">)))]</span>
-    <span class="p">[</span><span class="nv">outputs</span> <span class="nv">proxy</span><span class="p">]))</span></code></pre></div>
-<p>Let&rsquo;s break this down. The <code>proxy</code> is a proxy to <code>ForwardingJavaFileManager</code>,
+    <span class="p">[</span><span class="nv">outputs</span> <span class="nv">proxy</span><span class="p">]))</span>
+</code></pre></div><p>Let&rsquo;s break this down. The <code>proxy</code> is a proxy to <code>ForwardingJavaFileManager</code>,
 and it passes in the existing file manager, allowing our super class to properly
 delegate.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">        <span class="nb">proxy </span><span class="p">(</span><span class="nb">proxy </span><span class="p">[</span><span class="nv">ForwardingJavaFileManager</span><span class="p">]</span> <span class="p">[</span><span class="nv">file-manager</span><span class="p">]</span></code></pre></div>
-<p>The only method we override is <code>getJavaFileForOutput</code>, which the
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">        <span class="nb">proxy </span><span class="p">(</span><span class="nb">proxy </span><span class="p">[</span><span class="nv">ForwardingJavaFileManager</span><span class="p">]</span> <span class="p">[</span><span class="nv">file-manager</span><span class="p">]</span>
+</code></pre></div><p>The only method we override is <code>getJavaFileForOutput</code>, which the
 compiler calls to get a file for output. Rather than interact with the normal
 filesystem, we use a function called <code>make-mem-file</code> (which we&rsquo;ll discuss later)
 to provide a memory backed file instead.</p>
 <div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">                <span class="p">(</span><span class="nf">getJavaFileForOutput</span> <span class="p">[</span><span class="nv">location</span> <span class="nv">className</span> <span class="nv">kind</span> <span class="nv">sibling</span><span class="p">]</span>
-                  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">output-file</span> <span class="p">(</span><span class="nf">make-mem-file</span> <span class="nv">className</span> <span class="nv">kind</span><span class="p">)]</span></code></pre></div>
-<p>We capture the file in an atom of outputs for later use, and return it. The atom
+                  <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">output-file</span> <span class="p">(</span><span class="nf">make-mem-file</span> <span class="nv">className</span> <span class="nv">kind</span><span class="p">)]</span>
+</code></pre></div><p>We capture the file in an atom of outputs for later use, and return it. The atom
 is a mapping between class names and references to the <code>JavaFileObject</code> the
 compiler expects, and because we&rsquo;re living in the Java world, we can use that
 reference to get the compiler&rsquo;s output later.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">                    <span class="p">(</span><span class="nf">swap!</span> <span class="nv">outputs</span> <span class="nb">assoc </span><span class="nv">className</span> <span class="nv">output-file</span><span class="p">)</span></code></pre></div>
-<p>Then we return the outputs atom and the new file manager.</p>
-
+<div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">                    <span class="p">(</span><span class="nf">swap!</span> <span class="nv">outputs</span> <span class="nb">assoc </span><span class="nv">className</span> <span class="nv">output-file</span><span class="p">)</span>
+</code></pre></div><p>Then we return the outputs atom and the new file manager.</p>
 <p>Let&rsquo;s take a look at <code>make-mem-file</code>.</p>
 <div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure"><span class="p">(</span><span class="kd">defn </span><span class="nv">make-mem-file</span>
   <span class="s">&#34;Creates a new SimpleJavaFileObject for a classname and
@@ -139,20 +127,18 @@ reference to get the compiler&rsquo;s output later.</p>
                                 <span class="p">(</span><span class="nf">string/replace</span> <span class="nv">class-name</span> <span class="s">&#34;.&#34;</span> <span class="s">&#34;/&#34;</span><span class="p">)</span>
                                 <span class="p">(</span><span class="nf">.extension</span> <span class="nv">kind</span><span class="p">)))]</span>
     <span class="p">(</span><span class="nb">proxy </span><span class="p">[</span><span class="nv">SimpleJavaFileObject</span><span class="p">]</span> <span class="p">[</span><span class="nv">new-cn</span> <span class="nv">kind</span><span class="p">]</span>
-      <span class="p">(</span><span class="nf">openOutputStream</span> <span class="p">[]</span> <span class="nv">os</span><span class="p">))))</span></code></pre></div>
-<p>We convert the class name to a reasonable URI with the <code>mem://</code> &ldquo;protocol&rdquo;, and
+      <span class="p">(</span><span class="nf">openOutputStream</span> <span class="p">[]</span> <span class="nv">os</span><span class="p">))))</span>
+</code></pre></div><p>We convert the class name to a reasonable URI with the <code>mem://</code> &ldquo;protocol&rdquo;, and
 make normal <code>SimpleJavaFileObject</code> proxy that returns a byte array backed output
 stream, which we can later read to get the file&rsquo;s contents back.</p>
-
 <p>Putting these 2 proxies and callbacks together, we get a file manager that reads
 source files normally, but captures output files and makes sure they&rsquo;re easily
 findable and readable.</p>
-
 <p>Back to the compiler, we need to get the &ldquo;compilation unit&rdquo;, or the
 <code>JavaFileObject</code> for the source we need to compile.</p>
 <div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">        <span class="p">(</span><span class="nf">.getJavaFileForInput</span> <span class="nv">file-manager</span> <span class="nv">StandardLocation/CLASS_PATH</span> <span class="nv">classname</span>
-                                   <span class="nv">javax.tools.JavaFileObject$Kind/SOURCE</span><span class="p">)</span></code></pre></div>
-<p><code>classname</code> is the parameter, and <code>file-manager</code> is our own memory-backed file
+                                   <span class="nv">javax.tools.JavaFileObject$Kind/SOURCE</span><span class="p">)</span>
+</code></pre></div><p><code>classname</code> is the parameter, and <code>file-manager</code> is our own memory-backed file
 manager. <code>StandardLocation</code> and <code>JavaFileObject.Kind</code> are enums that took some
 experimenting to get right, because they&rsquo;re not particularly transparent about
 the values they actually represent. <code>Kind/SOURCE</code> pretty clearly refers to
@@ -161,7 +147,6 @@ paths, so I tried <code>SOURCE_PATH</code> before <code>CLASS_PATH</code>, which
 but <code>CLASS_PATH</code> did, and is also the path that Clojure loads source from, and
 Clojure largely ignores the stereotypical compilation phase, and prefers to only
 deal with the class path, which seems reasonable for this project.</p>
-
 <p>Finally, we can actually do the compilation:</p>
 <div class="highlight"><pre class="chroma"><code class="language-Clojure" data-lang="Clojure">        <span class="nv">task</span> <span class="p">(</span><span class="nf">.getTask</span> <span class="nv">compiler</span>         <span class="c1">; compiler</span>
                        <span class="nv">nil</span>              <span class="c1">; writer out</span>
@@ -171,8 +156,8 @@ deal with the class path, which seems reasonable for this project.</p>
                        <span class="nv">nil</span>              <span class="c1">; classes for annotations</span>
                        <span class="p">[</span><span class="nv">file</span><span class="p">]</span>           <span class="c1">; compilation units</span>
                        <span class="p">)</span>
-        <span class="nv">_</span> <span class="p">(</span><span class="nf">.call</span> <span class="nv">task</span><span class="p">)</span></code></pre></div>
-<p>This is a task we can await for the end of the compilation, but it doesn&rsquo;t
+        <span class="nv">_</span> <span class="p">(</span><span class="nf">.call</span> <span class="nv">task</span><span class="p">)</span>
+</code></pre></div><p>This is a task we can await for the end of the compilation, but it doesn&rsquo;t
 return anything concrete. The Java compiler has just left the compiled bytecode
 where it generated it in the file manager. We&rsquo;ll have to read our atom to get
 the bytecode, but that&rsquo;s a problem for our caller, so we just return the outputs
@@ -200,13 +185,11 @@ atom and the file manager. Putting it all together:</p>
                        <span class="p">[</span><span class="nv">file</span><span class="p">]</span>           <span class="c1">; compilation units</span>
                        <span class="p">)</span>
         <span class="nv">_</span> <span class="p">(</span><span class="nf">.call</span> <span class="nv">task</span><span class="p">)]</span>
-    <span class="p">[</span><span class="nv">outputs</span> <span class="nv">file-manager</span><span class="p">]))</span></code></pre></div>
-<p>And there you have it! Largely in-memory Java source compilation. Fully in
+    <span class="p">[</span><span class="nv">outputs</span> <span class="nv">file-manager</span><span class="p">]))</span>
+</code></pre></div><p>And there you have it! Largely in-memory Java source compilation. Fully in
 memory source compilation would require a little more work with the file
 manager, but nonetheless, this is what we&rsquo;re looking for.</p>
-
 <h1 id="the-classloader">The Classloader</h1>
-
 <p>This is where the problems start. You&rsquo;d think that compiling would be the hard
 part, but no, it&rsquo;s the class loader. The heart of the whole project is the fact
 that Java gives us the ability to load raw bytecode class definitions directly
@@ -231,17 +214,15 @@ context loader, it gets unset immediately for reasons I don&rsquo;t understand.<
         <span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">class-file</span> <span class="p">(</span><span class="o">@</span><span class="nv">outputs</span> <span class="nv">classname</span><span class="p">)]</span>
           <span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">buffer</span> <span class="p">(</span><span class="nb">-&gt; </span><span class="nv">class-file</span> <span class="nv">.openOutputStream</span> <span class="nv">.toByteArray</span><span class="p">)]</span>
             <span class="p">(</span><span class="nf">proxy-super</span> <span class="nv">defineClass</span> <span class="nv">classname</span> <span class="nv">buffer</span> <span class="nv">nil</span><span class="p">))</span>
-          <span class="p">(</span><span class="nf">proxy-super</span> <span class="nv">findClass</span> <span class="nv">classname</span><span class="p">))))))</span></code></pre></div>
-<p>This overrides <code>findClass</code> and it always attempts to compile a class before
+          <span class="p">(</span><span class="nf">proxy-super</span> <span class="nv">findClass</span> <span class="nv">classname</span><span class="p">))))))</span>
+</code></pre></div><p>This overrides <code>findClass</code> and it always attempts to compile a class before
 delegating to the superclass. This uses a slightly different kind of
 <code>defineClass</code> that happens to be public.</p>
-
 <p>This doesn&rsquo;t work very well for internal classes. Although the Java compiler
 correctly outputs multiple <code>.class</code> files, this code is not well prepared to
 deal with that complexity. It also doesn&rsquo;t share outputs between compilations,
 which <em>I think</em> means that everything gets recompiled every time, which is
 clearly subpar.</p>
-
 <p>A full treatment for this problem (has likely already been done even if I
 couldn&rsquo;t find it) would maintain the same file manager and Java compiler.
 However, my knowledge of the arcane internals of the JVM is lacking, so it&rsquo;s not
@@ -256,28 +237,26 @@ and it&rsquo;s obvious that a poorly written classloader will seriously screw wi
 JVM, not to mention that Clojure is seriously hampered in its ability to
 implement classloaders in native Clojure thanks to the limitations of the
 reflection API, so the entire project is kind of broken in the first place.</p>
-
 <p>That&rsquo;s probably for the best, because &ldquo;if you build it, they will come&rdquo;, and I
 really don&rsquo;t want to <em>encourage</em> people to use this outside its incredibly
 narrow use case. Dynamically compiling missing classes sounds like something
 that people have considered and discarded as a really bad idea. Still, it was a
 fascinating truly misguided dive into the internals of the JVM. You can find the
 code at <a href="https://github.com/atamis/codegen-loader"><code>atamis/codegen-loader</code></a></p>
-<div class="footnotes">
-
-<hr />
-
+<section class="footnotes" role="doc-endnotes">
+<hr>
 <ol>
-<li id="fn:1"><p>In truth, my problem was slightly complex, and the Java file lived in a
+<li id="fn:1" role="doc-endnote">
+<p>In truth, my problem was slightly complex, and the Java file lived in a
 Clojure project that wasn&rsquo;t published to a Maven repository, and I don&rsquo;t
 like local install as part of the development process, so I wanted to use
 <code>:local/root</code> or git dependencies, which leaves me in the same situation.
 My first solution, found in <a href="https://github.com/atamis/noise"><code>noise</code></a>, was
 to commit compiled binary to source control, which is obviously a bad idea,
-but it works!</p>
- <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+but it works! <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
 </ol>
-</div>
+</section>
 
 </main>
 
@@ -301,7 +280,7 @@ but it works!</p>
   
   
   <hr/>
-  &copy; <a href="http://atamis.me">Andrew Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2018
+  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
   
   </footer>
   </body>

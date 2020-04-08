@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ironic Space Lisp Part 2 | Andrew Amis</title>
+    <title>Ironic Space Lisp Part 2 | Azrea Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
     <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
@@ -39,13 +39,10 @@
 
 <main>
 <p><a href="/posts/2018-07-29-ironic-space-lisp/">Part 1</a></p>
-
 <p><a href="/posts/2018-07-09-ironic-space-lisp-part-2/">Part 2</a></p>
-
 <p>Last time, the conceptual challenges of a the stack VM convinced me it was the
 wrong approach. In a normal recursive lisp interpreter, code is data, and you
 have a single evaluator function over every value. <a href="https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280">Follow along here</a>.</p>
-
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="sd">/// Omni-datatype. Represents both data and code for the lisp VM.
 </span><span class="sd"></span><span class="cp">#[derive(Debug, Clone)]</span><span class="w">
 </span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">enum</span> <span class="nc">Lisp</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -56,10 +53,8 @@ have a single evaluator function over every value. <a href="https://github.com/a
 </span><span class="w">    </span><span class="sd">/// Represents a list of `Lisp` values. Note that this is reference counted.
 </span><span class="sd"></span><span class="w">    </span><span class="n">List</span><span class="p">(</span><span class="n">Rc</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Lisp</span><span class="o">&gt;&gt;</span><span class="p">),</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p><em>[that Rc pointer to the Vec should have been a hint something was going to go
+</span></code></pre></div><p><em>[that Rc pointer to the Vec should have been a hint something was going to go
 wrong.]</em></p>
-
 <p>This recursive type mirrors the recursive nature of the language, and can be
 easily consumed with a recursive function to evaluate the code into a single
 value.</p>
@@ -87,15 +82,13 @@ value.</p>
 </span><span class="w">          </span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">).</span><span class="n">clone</span><span class="p">(),</span><span class="w">
 </span><span class="w">      </span><span class="p">}</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>This function is quite simple: if it&rsquo;s a normal value, just clone the value and
+</span></code></pre></div><p>This function is quite simple: if it&rsquo;s a normal value, just clone the value and
 return it. If it&rsquo;s a list, it&rsquo;s a &ldquo;function&rdquo; application which is just the
 addition operation right now, so evaluate all the list items, and sum up the
 <code>rest</code> and return. It&rsquo;s easy to keep track of things in your head, if you add
 more data types and operations, it&rsquo;s easy to just add them. Trying to make an
 entire evaluator in a single function is a bit much, but it&rsquo;s easy enough to
 delegate tasks to other functions that are also <code>(...arguments) -&gt; Lisp</code>.</p>
-
 <p>Probably the most important thing to draw your attention to is the state of
 borrowing in this function. Very soon, the borrowing would become a real problem
 for me, so let&rsquo;s look at this nice simple function and its nice simple borrowing
@@ -103,7 +96,6 @@ rules. The function takes an immutable reference to a Lisp value, so it doesn&rs
 take ownership of it. This means that although we can destructure and recur on
 it, we can&rsquo;t break it apart: we don&rsquo;t own the value. This seems pretty
 reasonable: a lisp evaluator that mangles its code as it runs is pretty weird.</p>
-
 <p>However, in just this simple example alone, we have to <em>return</em> both existing
 values in the code, and new values made by executing the code: both literal
 values and the summed value. If we want to evaluate to a reference, we have a
@@ -112,34 +104,29 @@ to return, and we need to ensure that value will life long enough. If we return
 a reference to it, the value will go out of scope immediately, and won&rsquo;t live
 long enough for the reference to it to stay valid, which runs afoul of Rust&rsquo;s
 lifetime checker.</p>
-
 <p>On the other hand, if we return the value itself, we end up cloning the data
 literals in the code because returning them directly runs afoul of the borrow
 checker: they aren&rsquo;t ours to give, we&rsquo;re just borrowing them from our caller.
 You can&rsquo;t do any real evaluation with making new values (except in some very
 strange languages), so we live with cloning data literals.</p>
-
 <h1 id="the-next-stage">The Next Stage</h1>
-
 <p>So normal recursive lisp evaluators are nice and simple, but they can&rsquo;t be
 paused: they&rsquo;ll just burn through the AST using the program&rsquo;s stack to keep
 track. You can&rsquo;t stop them, and stopping them is exactly what we need to do if
 we want a stepped evaluator.</p>
-
 <p>So normal recursive evaluators destructure the AST in place, then call
 recursively on the component pieces. They keep track of which part of the tree
 they&rsquo;re operating on with a stack and local pointers on the stack.</p>
-
 <p>What if we did that, but instead of using the program stack, we just made our
 own stack, and pushed and popped frames to that, and pretended to be recursive
 when in fact we&rsquo;re some horrible amalgamation of programming concepts built to
 serve a sort of fake purpose? On the plus side, it&rsquo;ll make implementing
 wake-on-receive easy.</p>
-<div class="highlight"><pre class="chroma">trait Frame: fmt::Debug {
+<div class="highlight"><pre class="chroma"><code class="language-fallback" data-lang="fallback">trait Frame: fmt::Debug {
     fn single_step(&amp;mut self, return_val: &amp;mut Option&lt;Lisp&gt;)
       -&gt; Result&lt;FrameStepResult, VmGeneralError&gt;;
-}</pre></div>
-<p>This is one of our stack frames. What&rsquo;s <code>FrameStepResult</code>?</p>
+}
+</code></pre></div><p>This is one of our stack frames. What&rsquo;s <code>FrameStepResult</code>?</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="c1">// Controls flow in evaluation.
 </span><span class="c1"></span><span class="cp">#[derive(Debug)]</span><span class="w">
 </span><span class="w"></span><span class="k">enum</span> <span class="nc">FrameStepResult</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -151,8 +138,7 @@ wake-on-receive easy.</p>
 </span><span class="w">    </span><span class="c1">// Start to recur on a another piece of lisp code.
 </span><span class="c1"></span><span class="w">    </span><span class="n">Recur</span><span class="p">(</span><span class="n">Lisp</span><span class="p">),</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>Oh boy. Frames need some way to actually call our fake recursive function, and
+</span></code></pre></div><p>Oh boy. Frames need some way to actually call our fake recursive function, and
 then they&rsquo;re just in limbo waiting for that function call to complete. Functions
 that can be called can return, and this is done by returning
 <code>FrameStepResult::Return(value)</code> rather than using the mutable pointer to the
@@ -164,7 +150,6 @@ to right after the function call so you can continue with your function. The
 very lack of the capacity is almost why we&rsquo;re in this predicament in the first
 place, so these frames have to return fully every time they want to recur or
 return, so the frames have to be partially reentrant.</p>
-
 <p>Let&rsquo;s look at the <code>ApplicationFrame</code>. The structs for frames represent their
 &ldquo;local variables&rdquo;, so <code>ApplicationFrame</code> holds a vector of lisp terms waiting to
 be evaluated, and a vector of already evaluated terms. Let&rsquo;s look at just that
@@ -189,8 +174,7 @@ Fragments of <em>what</em>, I&rsquo;m not sure.)</p>
 </span><span class="c1"></span><span class="w">    </span><span class="c1">// fragment.
 </span><span class="c1"></span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">Ok</span><span class="p">(</span><span class="n">FrameStepResult</span>::<span class="n">Recur</span><span class="p">(</span><span class="n">l</span><span class="p">));</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>First, the frame checks to see if there is a return value. This would indicate
+</span></code></pre></div><p>First, the frame checks to see if there is a return value. This would indicate
 that this isn&rsquo;t the first time this frame has been invoked (because the
 <code>Evaler</code> resets it before recursive calls), and that the return value is the
 result of evaluating one of our terms. So we want to extract that value and push
@@ -199,7 +183,6 @@ steal it with <code>mem::replace</code>. This should be setting alarm bells off:
 is going wrong. To be clear, alarm bells were going off: the documentation does
 say it outright, but implies <code>mem::replace</code> is something of a hack. It &ldquo;breaks&rdquo;
 borrow rules in a safe and structured way, but it&rsquo;s still worrisome.</p>
-
 <p>Next we check if we still need to evaluate more terms, and if so, we pop one off
 and pass it off for recursion. The fact that we can do this implies this frame
 <strong>owns</strong> those lisp values. The recursive call will do whatever with those
@@ -208,9 +191,7 @@ destructuring the values recursively, but then throwing the code away. The
 <code>Evaler</code> takes ownership of the code, passes it along to its frames, and then
 the code is just gone: the <code>Evaler</code> quite literally consumes it. This means you
 can&rsquo;t reexecute code: the code is gone.</p>
-
 <p>This fact didn&rsquo;t really occur to me. Or didn&rsquo;t concern me. It soon would.</p>
-
 <p>I draw your attention to the small note below the listing for the data type at
 the top of this article, and the particular detail that a <code>Lisp::List</code> is a
 reference counted pointer to a vector. <code>Lisp</code> is an enum, so all its members
@@ -218,50 +199,39 @@ must be <code>Sized</code>, which is a fancy Rust way of saying you have to know
 at compile time. <code>u32</code> and <code>Op</code> both have known sizes, but because vectors can
 and will grow dynamically, their size isn&rsquo;t known, so you need to heap allocate
 them.</p>
-
 <p>The first pointer you reach for is <code>Box</code>, which is a heap allocated value
 that mirrors the normal value semantics: when you <code>clone</code> a <code>Box</code>, the internal
 value must be clonable, because <code>Box</code> clones both itself and the internal value.
 You get a whole new value and box. I wasn&rsquo;t a huge fan: cloning large data
 structures regularly takes of lot of CPU time and massively increases memory
 usage. So instead of using <code>Box</code>, you can use <code>Rc</code>.</p>
-
 <p><code>Rc</code> is reference counted, and when you clone an <code>Rc</code>, you get a new pointer to
 the same object in memory. It&rsquo;s still an immutable pointer: Rust guarantees that
 immutable pointers are actually immutable, the value won&rsquo;t just change on you.
 In particular, it guarantees that there are no mutable pointers lying around to
 change the value your immutable pointer is pointing to. <code>Rc</code> guarantees the same
 thing: you can have multiple immutable pointers, or 1 mutable one.</p>
-
 <p>Allow me to draw your attention to <code>ApplicationFrame</code>, which <em>consumes</em> its lisp
 terms. It must own them, and then pass them on to the next frame. If it receives
 a <code>Lisp::List</code>, the values are hidden behind an <code>Rc</code>, which owns the values. So
 <code>ApplicationFrame</code> takes them from the <code>Rc</code>.</p>
-
 <p>That resulted in this delightful piece of code:</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="c1">// TODO: maybe don&#39;t do this.
 </span><span class="c1"></span><span class="kd">let</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rc</span>::<span class="n">try_unwrap</span><span class="p">(</span><span class="n">l</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
-</span></code></pre></div>
-<p>This code attempts to take ownership the value from <code>Rc</code> in full, and then
+</span></code></pre></div><p>This code attempts to take ownership the value from <code>Rc</code> in full, and then
 panics if it can&rsquo;t. I love that comment. I put it there right after writing the
 line of code. I was so close to realizing what an awful idea this model was.</p>
-
 <p>I wouldn&rsquo;t realize it for a long time.</p>
-
 <h1 id="things-are-going-to-get-worse-before-they-get-better">Things are going to get worse before they get better.</h1>
-
 <p>At this point, the code actually works. It consumes code so it can&rsquo;t be
 reexecuted, but the code does work.</p>
-
 <p>This next part isn&rsquo;t reflected well in the commit history. I&rsquo;m not entirely sure
 what prompted this change, but I was having trouble implementing <code>if</code>. During
 that process, I came to the realization of just what the code was doing, and
 that <strong>consuming</strong> code datums shouldn&rsquo;t be this literal.</p>
-
 <p>So my next step was to replace all the full value passing with internal
 refernces. I figured that the <code>Evaler</code> would hold the code struct, and I&rsquo;d just
 pass references to it to the frames. Easy. Nope.</p>
-
 <p>This is what I was trying to do:</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="cp">#[derive(Debug)]</span><span class="w">
 </span><span class="w"></span><span class="k">enum</span> <span class="nc">Lisp</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -274,8 +244,7 @@ pass references to it to the frames. Easy. Nope.</p>
 </span><span class="w">    </span><span class="n">data</span>: <span class="nc">Lisp</span><span class="p">,</span><span class="w">
 </span><span class="w">    </span><span class="n">stack</span>: <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Frame</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>This does not work. The pointer in <code>Lisp</code> needs a lifetime tag. The lifetime
+</span></code></pre></div><p>This does not work. The pointer in <code>Lisp</code> needs a lifetime tag. The lifetime
 checker in Rust needs a guarantee that the value the pointer is pointing at will
 live at least as long as itself, and there is no way to guarantee that. Thinking
 logically, you can more or less prove that this won&rsquo;t cause problems to
@@ -285,16 +254,12 @@ so this isn&rsquo;t a valid Rust program. Rust sees that the <code>Evaler</code>
 and that the frames might be moved out of the <code>Evaler</code>, and then the <code>Evaler</code>
 freed, and then the frames would have null pointers, and null pointers are a
 compile time error in Rust.</p>
-
 <p>Luckily, the solution is <code>Rc</code>. <code>Rc</code>s everywhere. Shockingly, it just now occurs
 to me that <em>maybe</em> this traditionally garbage collected language of lisp <em>might</em>
 want to at least use reference counted pointers in its evaluation process.</p>
-
 <p><a href="https://github.com/atamis/ironic-space-lisp/commit/7c5fcaad153be67345a25e46901e8deb72ae0489">Witness the carnage.</a></p>
-
 <p><em>[The stepped implementation is 340 lines long. It doesn&rsquo;t have any more features
 than the recursive implementation at the top of the article.]</em></p>
-
 <p>That&rsquo;s all for now. I&rsquo;m a little worried this crazy plan won&rsquo;t end up working.
 Or that the insane way frames have to be written is just untenable. Maybe I can
 solve those with state machines. Maybe I should revisit stacks.</p>
@@ -324,7 +289,7 @@ solve those with state machines. Maybe I should revisit stacks.</p>
   
   
   <hr/>
-  &copy; <a href="http://atamis.me">Andrew Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2018
+  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
   
   </footer>
   </body>

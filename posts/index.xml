@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Andrew Amis</title>
+    <title>Posts on Azrea Amis</title>
     <link>http://atamis.me/posts/</link>
-    <description>Recent content in Posts on Andrew Amis</description>
+    <description>Recent content in Posts on Azrea Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
@@ -99,7 +99,8 @@ This is just as important and much harder for video games. Video games are among
       <pubDate>Fri, 14 Dec 2018 13:35:11 -0800</pubDate>
       
       <guid>http://atamis.me/posts/2018-12-14-triumvirate-of-aberrations/</guid>
-      <description>While attending college, for a variety of reasons too tedious to go into, I frequently dined at my college&amp;rsquo;s dining hall. I dined there on and off for all 4 years, and got to know its quirks: most usefully, what they could cook, and what they couldn&amp;rsquo;t but still attempted. However, I also learned some of the lore of the place, like the tale of The Triumvirate of Aberrations.</description>
+      <description>While attending college, for a variety of reasons too tedious to go into, I frequently dined at my college&amp;rsquo;s dining hall. I dined there on and off for all 4 years, and got to know its quirks: most usefully, what they could cook, and what they couldn&amp;rsquo;t but still attempted. However, I also learned some of the lore of the place, like the tale of The Triumvirate of Aberrations.
+I know these artifacts exist, for I have witnessed them personally.</description>
     </item>
     
     <item>
@@ -241,9 +242,7 @@ The interesting thing (to me at least), is that this is all on purpose. Boring o
       
       <guid>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
-
 &lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
-
 &lt;p&gt;Last time, the conceptual challenges of a the stack VM convinced me it was the
 wrong approach. In a normal recursive lisp interpreter, code is data, and you
 have a single evaluator function over every value. &lt;a href=&#34;https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280&#34;&gt;Follow along here&lt;/a&gt;.&lt;/p&gt;</description>
@@ -256,9 +255,7 @@ have a single evaluator function over every value. &lt;a href=&#34;https://githu
       
       <guid>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
-
 &lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
-
 &lt;p&gt;I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done,
 although the planning document is getting lengthy. Programming games need
 programming languages, and based on the game design, I had some pretty
@@ -281,7 +278,8 @@ Traditional cRPGs are, in general, united by a strong emphasis on character prog
       <pubDate>Fri, 25 Nov 2011 15:12:00 +0000</pubDate>
       
       <guid>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</guid>
-      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.</description>
+      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.
+So, a Greasemonkey script was created to automatically download songs as they were played on Turntable.</description>
     </item>
     
   </channel>
