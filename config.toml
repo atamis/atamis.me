@@ -1,7 +1,7 @@
 baseURL = "http://atamis.me/"
 languageCode = "en-us"
 copyright = "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License."
-title = "Andrew Amis"
+title = "Azrea Amis"
 theme = "hugo-xmin"
 pygmentsCodeFences = true
 pygmentsCodefencesGuessSyntax = true
@@ -12,7 +12,7 @@ tag = "tags"
 project = "projects"
 
 [params]
-    footer = "&copy; [Andrew Amis](http://atamis.me) --- [Github](http://github.com/atamis) --- 2018"
+    footer = "&copy; [Azrea Amis](http://atamis.me) --- [Github](http://github.com/atamis) --- 2020"
     custom_css = ["/css/syntax.css", "/css/custom.css"]
 
 [permalinks]

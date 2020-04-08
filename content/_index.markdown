@@ -2,7 +2,7 @@
 title: "About"
 ---
 
-# Andrew Amis
+# Azrea Amis
 
 Hello, I'm a programmer who specializes in server side programming and DevOps tasks.
 I first started programming at age 9. Since then, I've become a polyglot
@@ -16,6 +16,8 @@ You can find my code on my [github](http://github.com/atamis), my projects
 [ here ](/projects) on my site, and my writings below.
 
 My views on this site are my own, and do not reflect the views of my employer.
+
+Formerly Andrew Amis.
 
 ## Miscellaneous
 

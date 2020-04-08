@@ -4,7 +4,7 @@ LATEXMK=/usr/bin/latexmk
 PDFLATEX=/usr/bin/pdflatex --file-line-error --shell-escape -interaction=nonstopmode
 LATEXMK_OPTS=-pdf -pdflatex="$(PDFLATEX)"
 
-LONGNAME="Andrew Amis CV.pdf"
+LONGNAME="Azrea Amis CV.pdf"
 
 FILES=$(*.tex *.cls *.sty)
 

@@ -21,16 +21,15 @@ offering a solution to the thorny "two enemies in a row" problem, while "Jump"
 lets you jump over obstacles and take another action before your enemies. Every
 time you play a card, you draw a card, keeping your hand full of potential.
 
-Created by Dan Marsh, Nick Care, Andrew Amis, Robert Tomcik, and Dan Karcher.
+Created by Dan Marsh, Nick Care, Azrea Amis, Robert Tomcik, and Dan Karcher.
 
 Can you beat the game without taking damage? We couldn't.
 
 ## <a href="/downloads/hexdecks-windows.zip">Download for Windows</a>
+
 [Github](https://github.com/atamis/hexdecks)
 
 ![Hexdecks' main menu](/images/hexdecks/hexdecks_main_menu.png)
 ![A level-ending warpgate](/images/hexdecks/hexdecks_warpgate.png)
 ![The Subsea Volcano level](/images/hexdecks/hexdecks_subsea_volcano.png)
 ![The Decrepit Crypt level](/images/hexdecks/hexdecks_decrepit_crypt.png)
-
-
