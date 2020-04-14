@@ -3,233 +3,233 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>http://atamis.me/posts/2019-12-15-clojure-macro-interaction/</loc>
+    <loc>/posts/2019-12-15-clojure-macro-interaction/</loc>
     <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/</loc>
+    <loc>/</loc>
     <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/clojure/</loc>
+    <loc>/tags/clojure/</loc>
     <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/code/</loc>
+    <loc>/tags/code/</loc>
     <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/</loc>
+    <loc>/posts/</loc>
     <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/</loc>
+    <loc>/tags/</loc>
     <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2019-11-03-monorepo-compromise/</loc>
+    <loc>/posts/2019-11-03-monorepo-compromise/</loc>
     <lastmod>2019-11-03T20:54:26+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/projects/isl/</loc>
+    <loc>/projects/isl/</loc>
     <lastmod>2019-08-29T14:05:09-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2019-08-29-ironic-space-lisp-part-9/</loc>
+    <loc>/posts/2019-08-29-ironic-space-lisp-part-9/</loc>
     <lastmod>2019-08-29T14:05:09-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/language/</loc>
+    <loc>/tags/language/</loc>
     <lastmod>2019-08-29T14:05:09-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/projects/</loc>
+    <loc>/projects/</loc>
     <lastmod>2019-08-29T14:05:09-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/rust/</loc>
+    <loc>/tags/rust/</loc>
     <lastmod>2019-08-29T14:05:09-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2019-5-30-clojures-looping-syntax/</loc>
+    <loc>/posts/2019-5-30-clojures-looping-syntax/</loc>
     <lastmod>2019-05-30T11:52:59-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2019-05-28-codegen-loader/</loc>
+    <loc>/posts/2019-05-28-codegen-loader/</loc>
     <lastmod>2019-05-28T17:04:04-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/linux/</loc>
+    <loc>/tags/linux/</loc>
     <lastmod>2019-05-16T11:57:15-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2019-05-16-netns-socat-trick/</loc>
+    <loc>/posts/2019-05-16-netns-socat-trick/</loc>
     <lastmod>2019-05-16T11:57:15-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2019-05-9-game-idea-annihilation-gods-will/</loc>
+    <loc>/posts/2019-05-9-game-idea-annihilation-gods-will/</loc>
     <lastmod>2019-05-09T13:14:25-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/games/</loc>
+    <loc>/tags/games/</loc>
     <lastmod>2019-05-09T13:14:25-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/writing/</loc>
+    <loc>/tags/writing/</loc>
     <lastmod>2019-05-09T13:14:25-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2019-1-04-intentional-limit-breaks-in-video-games/</loc>
+    <loc>/posts/2019-1-04-intentional-limit-breaks-in-video-games/</loc>
     <lastmod>2019-01-14T11:58:20-08:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-12-14-triumvirate-of-aberrations/</loc>
+    <loc>/posts/2018-12-14-triumvirate-of-aberrations/</loc>
     <lastmod>2018-12-14T13:35:11-08:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/elixir/</loc>
+    <loc>/tags/elixir/</loc>
     <lastmod>2018-11-03T19:28:01-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-11-3-pipeline-operators/</loc>
+    <loc>/posts/2018-11-3-pipeline-operators/</loc>
     <lastmod>2018-11-03T19:28:01-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/projects/flows/</loc>
+    <loc>/projects/flows/</loc>
     <lastmod>2018-10-13T12:36:21-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/</loc>
+    <loc>/posts/2018-10-13-flows-the-wrong-way-part-2/</loc>
     <lastmod>2018-10-13T12:36:21-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-10-10-flows-the-wrong-way/</loc>
+    <loc>/posts/2018-10-10-flows-the-wrong-way/</loc>
     <lastmod>2018-10-10T15:41:01-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</loc>
+    <loc>/posts/2018-09-20-ironic-space-lisp-part-8/</loc>
     <lastmod>2018-09-20T13:21:53-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-09-14-the-phantom-rejection/</loc>
+    <loc>/posts/2018-09-14-the-phantom-rejection/</loc>
     <lastmod>2018-09-14T17:10:34-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-08-27-ironic-space-lisp-part-7/</loc>
+    <loc>/posts/2018-08-27-ironic-space-lisp-part-7/</loc>
     <lastmod>2018-08-27T15:56:11-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</loc>
+    <loc>/posts/2018-08-22-ironic-space-lisp-part-6/</loc>
     <lastmod>2018-08-22T01:56:10-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-08-19-ironic-space-lisp-part-5/</loc>
+    <loc>/posts/2018-08-19-ironic-space-lisp-part-5/</loc>
     <lastmod>2018-08-19T20:44:24-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-08-15-operators/</loc>
+    <loc>/posts/2018-08-15-operators/</loc>
     <lastmod>2018-08-15T16:21:39-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-08-12-ironic-space-lisp-part-4/</loc>
+    <loc>/posts/2018-08-12-ironic-space-lisp-part-4/</loc>
     <lastmod>2018-08-12T00:41:11-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</loc>
+    <loc>/posts/2018-08-10-ironic-space-lisp-part-3/</loc>
     <lastmod>2018-08-10T17:09:28-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/golang/</loc>
+    <loc>/tags/golang/</loc>
     <lastmod>2018-08-01T14:02:48-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-08-01-golang/</loc>
+    <loc>/posts/2018-08-01-golang/</loc>
     <lastmod>2018-08-01T14:02:48-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-07-29-a-hybrid-course/</loc>
+    <loc>/posts/2018-07-29-a-hybrid-course/</loc>
     <lastmod>2018-07-29T20:05:19-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</loc>
+    <loc>/posts/2018-07-09-ironic-space-lisp-part-2/</loc>
     <lastmod>2018-07-29T10:59:40-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</loc>
+    <loc>/posts/2018-07-29-ironic-space-lisp/</loc>
     <lastmod>2018-07-29T02:03:01-07:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2018-05-04-game-idea-micro-dungeon.html/</loc>
+    <loc>/posts/2018-05-04-game-idea-micro-dungeon.html/</loc>
     <lastmod>2018-05-04T09:29:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</loc>
+    <loc>/posts/2011-11-25-hacking-turntable-for-fun-and-music/</loc>
     <lastmod>2011-11-25T15:12:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/tags/javascript/</loc>
+    <loc>/tags/javascript/</loc>
     <lastmod>2011-11-25T15:12:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>http://atamis.me/projects/4x/</loc>
+    <loc>/projects/4x/</loc>
   </url>
   
   <url>
-    <loc>http://atamis.me/employment/</loc>
+    <loc>/employment/</loc>
   </url>
   
   <url>
-    <loc>http://atamis.me/projects/hexdecks/</loc>
+    <loc>/projects/hexdecks/</loc>
   </url>
   
   <url>
-    <loc>http://atamis.me/pictures/</loc>
+    <loc>/pictures/</loc>
   </url>
   
   <url>
-    <loc>http://atamis.me/projects/planet5/</loc>
+    <loc>/projects/planet5/</loc>
   </url>
   
 </urlset>

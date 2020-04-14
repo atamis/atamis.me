@@ -2,61 +2,61 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>About on Azrea Amis</title>
-    <link>http://atamis.me/</link>
+    <link>/</link>
     <description>Recent content in About on Azrea Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
     <lastBuildDate>Sun, 15 Dec 2019 23:01:08 +0100</lastBuildDate>
     
-	<atom:link href="http://atamis.me/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>&#34;Interesting&#34; Clojure Macro Interaction</title>
-      <link>http://atamis.me/posts/2019-12-15-clojure-macro-interaction/</link>
+      <link>/posts/2019-12-15-clojure-macro-interaction/</link>
       <pubDate>Sun, 15 Dec 2019 23:01:08 +0100</pubDate>
       
-      <guid>http://atamis.me/posts/2019-12-15-clojure-macro-interaction/</guid>
+      <guid>/posts/2019-12-15-clojure-macro-interaction/</guid>
       <description>Clojure&amp;rsquo;s macro system is a little tricky to work with (at least for me), but it&amp;rsquo;s also quite powerful. Being able to rewrite the languages AST at compile time is really cool, and the fact that Clojure&amp;rsquo;s syntax is just the data structures that normal Clojure code operate on makes writing macros a breeze (at least compared to, say, Rust or Javascript).
 Clojure&amp;rsquo;s macro expansion works in dependable way: it keeps apply macros until there are no more macro calls in the code, then compiles the resulting code.</description>
     </item>
     
     <item>
       <title>Monorepo Compromise</title>
-      <link>http://atamis.me/posts/2019-11-03-monorepo-compromise/</link>
+      <link>/posts/2019-11-03-monorepo-compromise/</link>
       <pubDate>Sun, 03 Nov 2019 20:54:26 +0100</pubDate>
       
-      <guid>http://atamis.me/posts/2019-11-03-monorepo-compromise/</guid>
+      <guid>/posts/2019-11-03-monorepo-compromise/</guid>
       <description>I have a modest proposal on repository organization. There are 2 primary archetypes, multiple repositories and the monorepo pattern. In multiple repositories, you have 1 project per repository, binaries requiring internal libraries, and use tools to ensure that you have all the necessary repositories downloaded and up to date (easy with most modern package managers). In a monorepo, all projects are stored directly in the monorepo, as part of a single codebase or project, and all internal dependencies are automatically managed.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 9</title>
-      <link>http://atamis.me/posts/2019-08-29-ironic-space-lisp-part-9/</link>
+      <link>/posts/2019-08-29-ironic-space-lisp-part-9/</link>
       <pubDate>Thu, 29 Aug 2019 14:05:09 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2019-08-29-ironic-space-lisp-part-9/</guid>
+      <guid>/posts/2019-08-29-ironic-space-lisp-part-9/</guid>
       <description>It&amp;rsquo;s been a long time since I last worked on ISL, mostly because I got distracted by other projects and languages: things like the flows project, or Clojure. Also, writing futures code in Rust is painful. Recently, async-await syntax got released on Rust nightly, which makes async code much easier to write.
 When I was last working on the project, I was working on a local variables feature. VM operations to allow storing and loading local variables linked to the frame stack, and later, support in the compiler.</description>
     </item>
     
     <item>
       <title>Clojure&#39;s Looping Syntax is Surprising</title>
-      <link>http://atamis.me/posts/2019-5-30-clojures-looping-syntax/</link>
+      <link>/posts/2019-5-30-clojures-looping-syntax/</link>
       <pubDate>Thu, 30 May 2019 11:52:59 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2019-5-30-clojures-looping-syntax/</guid>
+      <guid>/posts/2019-5-30-clojures-looping-syntax/</guid>
       <description>They aren&amp;rsquo;t super popular, but Clojure has a rich set of high level looping macros. You have for for list comprehensions, doseq for imperative looping over sequences, dotimes for an even simpler integer loop, while for raw predicate looping, and loop for any kind of arbitrary recursion-style looping you want to do. However, I&amp;rsquo;m not a huge fan of the exact syntax some of these macros use.
 Let&amp;rsquo;s talk about let, which looks like this:</description>
     </item>
     
     <item>
       <title>Codegen Loader</title>
-      <link>http://atamis.me/posts/2019-05-28-codegen-loader/</link>
+      <link>/posts/2019-05-28-codegen-loader/</link>
       <pubDate>Tue, 28 May 2019 17:04:04 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2019-05-28-codegen-loader/</guid>
+      <guid>/posts/2019-05-28-codegen-loader/</guid>
       <description>In what is very likely an enormously bad idea, I have built a JVM classloader that can load dynamically load Java source files into memory.
 Why I&amp;rsquo;ve recently been going &amp;ldquo;Full Juxt&amp;rdquo;, using all of Juxt&amp;rsquo;s Clojure libraries, specifically juxt/aero for configuration, juxt/bidi for routing, juxt/yada for endpoint handling, weavejester/integrant for &amp;ldquo;building applications&amp;rdquo; (probably dependency injection), juxt/joplin for database migrations, and juxt/edge to tie it all together.
 All of Juxt&amp;rsquo;s libraries are relentlessly data focused, and use deps.</description>
@@ -64,20 +64,20 @@ All of Juxt&amp;rsquo;s libraries are relentlessly data focused, and use deps.</
     
     <item>
       <title>Netns socat Trick</title>
-      <link>http://atamis.me/posts/2019-05-16-netns-socat-trick/</link>
+      <link>/posts/2019-05-16-netns-socat-trick/</link>
       <pubDate>Thu, 16 May 2019 11:57:15 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2019-05-16-netns-socat-trick/</guid>
+      <guid>/posts/2019-05-16-netns-socat-trick/</guid>
       <description>I mostly use this blog for theories, ideas, and think-pieces. But I figure I&amp;rsquo;ll return to the roots of blogging, and take the opportunity to explain a solution to a technical problem I encountered.
 The Problem I have a home lab server I built out old gaming PC. I haven&amp;rsquo;t done anything with its mediocre graphics card (so no exciting machine learning stuff). I&amp;rsquo;ve used it as a file server and a render box (blender&amp;rsquo;s CPU rendering only), but I&amp;rsquo;ve also used it as a VPN client.</description>
     </item>
     
     <item>
       <title>Game Idea: &#34;Annihilation: God&#39;s Will&#34;</title>
-      <link>http://atamis.me/posts/2019-05-9-game-idea-annihilation-gods-will/</link>
+      <link>/posts/2019-05-9-game-idea-annihilation-gods-will/</link>
       <pubDate>Thu, 09 May 2019 13:14:25 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2019-05-9-game-idea-annihilation-gods-will/</guid>
+      <guid>/posts/2019-05-9-game-idea-annihilation-gods-will/</guid>
       <description>God created this world. Now, he&amp;rsquo;s finished with it.
  I&amp;rsquo;m not entirely sure what medium best fits this story, but the idea started live as a story driven cRPG, so I&amp;rsquo;ll explain it like that first.
 Story The story begins in the holy city of Kalstar, rumored to the oldest city in the world, and home to the God&amp;rsquo;s Grand Temple. In the final chapter of God&amp;rsquo;s bible, He states that the world will end precisely 1000 years after it started.</description>
@@ -85,40 +85,39 @@ Story The story begins in the holy city of Kalstar, rumored to the oldest city i
     
     <item>
       <title>Intentional Limit Breaks in Video Games</title>
-      <link>http://atamis.me/posts/2019-1-04-intentional-limit-breaks-in-video-games/</link>
+      <link>/posts/2019-1-04-intentional-limit-breaks-in-video-games/</link>
       <pubDate>Mon, 14 Jan 2019 11:58:20 -0800</pubDate>
       
-      <guid>http://atamis.me/posts/2019-1-04-intentional-limit-breaks-in-video-games/</guid>
+      <guid>/posts/2019-1-04-intentional-limit-breaks-in-video-games/</guid>
       <description>When building consumer software, it&amp;rsquo;s a widely held belief that the software shouldn&amp;rsquo;t crash, shouldn&amp;rsquo;t hang (or ignore user input), and should generally remain &amp;ldquo;in control.&amp;rdquo; Users don&amp;rsquo;t like software that crashes and loses their progress, and they don&amp;rsquo;t react well to software that freezes: they tend to spam buttons, making the problem worse.
 This is just as important and much harder for video games. Video games are among the most complex and demanding software being produced commercially, and they&amp;rsquo;re likely the most complex and demanding software the average consumer will ever run.</description>
     </item>
     
     <item>
       <title>The Triumvirate of Aberrations</title>
-      <link>http://atamis.me/posts/2018-12-14-triumvirate-of-aberrations/</link>
+      <link>/posts/2018-12-14-triumvirate-of-aberrations/</link>
       <pubDate>Fri, 14 Dec 2018 13:35:11 -0800</pubDate>
       
-      <guid>http://atamis.me/posts/2018-12-14-triumvirate-of-aberrations/</guid>
-      <description>While attending college, for a variety of reasons too tedious to go into, I frequently dined at my college&amp;rsquo;s dining hall. I dined there on and off for all 4 years, and got to know its quirks: most usefully, what they could cook, and what they couldn&amp;rsquo;t but still attempted. However, I also learned some of the lore of the place, like the tale of The Triumvirate of Aberrations.
-I know these artifacts exist, for I have witnessed them personally.</description>
+      <guid>/posts/2018-12-14-triumvirate-of-aberrations/</guid>
+      <description>While attending college, for a variety of reasons too tedious to go into, I frequently dined at my college&amp;rsquo;s dining hall. I dined there on and off for all 4 years, and got to know its quirks: most usefully, what they could cook, and what they couldn&amp;rsquo;t but still attempted. However, I also learned some of the lore of the place, like the tale of The Triumvirate of Aberrations.</description>
     </item>
     
     <item>
       <title>Pipeline Operators</title>
-      <link>http://atamis.me/posts/2018-11-3-pipeline-operators/</link>
+      <link>/posts/2018-11-3-pipeline-operators/</link>
       <pubDate>Sat, 03 Nov 2018 19:28:01 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-11-3-pipeline-operators/</guid>
+      <guid>/posts/2018-11-3-pipeline-operators/</guid>
       <description>Pipeline &amp;ldquo;operators&amp;rdquo; or &amp;ldquo;threading&amp;rdquo;1 constructs are interesting language constructs. They are an acknowledgement that functional code can be a little obtuse. They reorient (or rewrite) functional code so it looks more like a &amp;ldquo;dataflow&amp;rdquo;. Particularly of Lisps, but also of some other functional languages, execution moves from the inside of expressions to the outside in a way that&amp;rsquo;s not particularly natural feeling. It&amp;rsquo;s a real source of the difficulty people express when reading functional code.</description>
     </item>
     
     <item>
       <title>Flows the Wrong Way, Part 2: The Right Way</title>
-      <link>http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/</link>
+      <link>/posts/2018-10-13-flows-the-wrong-way-part-2/</link>
       <pubDate>Sat, 13 Oct 2018 12:36:21 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-10-13-flows-the-wrong-way-part-2/</guid>
-      <description>&lt;p&gt;In my &lt;a href=&#34;http://atamis.me/posts/2018-10-10-flows-the-wrong-way/&#34;&gt;last post&lt;/a&gt;, I covered my first attempt to implement TCP streaming in
+      <guid>/posts/2018-10-13-flows-the-wrong-way-part-2/</guid>
+      <description>&lt;p&gt;In my &lt;a href=&#34;/posts/2018-10-10-flows-the-wrong-way/&#34;&gt;last post&lt;/a&gt;, I covered my first attempt to implement TCP streaming in
 &lt;code&gt;Flow&lt;/code&gt;, a data flow library for Elixir. My first attempts involved a bunch of
 failed Unix sockets, and an attempt to implement a &lt;code&gt;GenStage&lt;/code&gt; that failed for
 reasons I didn&amp;rsquo;t understand. I eventually settled on this:&lt;/p&gt;</description>
@@ -126,19 +125,19 @@ reasons I didn&amp;rsquo;t understand. I eventually settled on this:&lt;/p&gt;</
     
     <item>
       <title>Flows the Wrong Way: Streaming into Elixir</title>
-      <link>http://atamis.me/posts/2018-10-10-flows-the-wrong-way/</link>
+      <link>/posts/2018-10-10-flows-the-wrong-way/</link>
       <pubDate>Wed, 10 Oct 2018 15:41:01 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-10-10-flows-the-wrong-way/</guid>
+      <guid>/posts/2018-10-10-flows-the-wrong-way/</guid>
       <description>As part of a new and exciting project, I was faced with the task of ingesting a large amount of more or less homogeneous JSON data into a SQL database for an associate of mine to do some rudimentary business intelligence analysis on it. The context complicated things: the bulk data was a bunch of historical social media data, and in future he would also want to ingest the live API in addition to this archived historical data.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 8</title>
-      <link>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</link>
+      <link>/posts/2018-09-20-ironic-space-lisp-part-8/</link>
       <pubDate>Thu, 20 Sep 2018 13:21:53 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</guid>
+      <guid>/posts/2018-09-20-ironic-space-lisp-part-8/</guid>
       <description>&lt;p&gt;It&amp;rsquo;s been a while since I posted progress on ISL, and that is mostly my fault.
 Most of this time was spent making maintenance, like documentation, but also
 trying to get the self hosted interpreter working and self hosting. That was a
@@ -147,29 +146,29 @@ challenge, and also my fault.&lt;/p&gt;</description>
     
     <item>
       <title>The Phantom Rejection</title>
-      <link>http://atamis.me/posts/2018-09-14-the-phantom-rejection/</link>
+      <link>/posts/2018-09-14-the-phantom-rejection/</link>
       <pubDate>Fri, 14 Sep 2018 17:10:34 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-09-14-the-phantom-rejection/</guid>
+      <guid>/posts/2018-09-14-the-phantom-rejection/</guid>
       <description>I&amp;rsquo;m unemployed, so I&amp;rsquo;m constantly applying to jobs, and have posted my resume to a couple of job boards, attempting to prompt semi-cold calls from recruiters. And it&amp;rsquo;s worked, to an extent. I haven&amp;rsquo;t got a job, but I&amp;rsquo;ve gotten a couple emails from recruiters.
 I also got a rejection email. Not unusual, some companies decide to let me know that I&amp;rsquo;m no longer being considered for a position. But I never applied to this company.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 7</title>
-      <link>http://atamis.me/posts/2018-08-27-ironic-space-lisp-part-7/</link>
+      <link>/posts/2018-08-27-ironic-space-lisp-part-7/</link>
       <pubDate>Mon, 27 Aug 2018 15:56:11 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-27-ironic-space-lisp-part-7/</guid>
+      <guid>/posts/2018-08-27-ironic-space-lisp-part-7/</guid>
       <description>Let&amp;rsquo;s talk about the VM internals. I&amp;rsquo;ve written a compiler for ISL, and implemented functions at the same time. This is not a mistake or an over-reach, rather a natural progression. To the VM, what is a function? The VM doesn&amp;rsquo;t have a strong concept of &amp;ldquo;functions&amp;rdquo;, or even of procedures. It has the Call and Return operations. These operations are the only way to manipulate the frame stack in a meaningful way: Call pushes an address to the frame stack, jumping to it, while Return pops an address, returning to the caller.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 6</title>
-      <link>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</link>
+      <link>/posts/2018-08-22-ironic-space-lisp-part-6/</link>
       <pubDate>Wed, 22 Aug 2018 01:56:10 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</guid>
+      <guid>/posts/2018-08-22-ironic-space-lisp-part-6/</guid>
       <description>&lt;p&gt;Since last time, I did two things: switched from &lt;code&gt;error_chain&lt;/code&gt; to &lt;code&gt;failure&lt;/code&gt;, and
 refactored with the visitor pattern. They took about the same amount of time,
 and the refactor is much more interesting. I briefly touch on an issue I
@@ -178,30 +177,30 @@ encountered with &lt;code&gt;failure&lt;/code&gt;, but I&amp;rsquo;d rather disc
     
     <item>
       <title>Ironic Space Lisp Part 5</title>
-      <link>http://atamis.me/posts/2018-08-19-ironic-space-lisp-part-5/</link>
+      <link>/posts/2018-08-19-ironic-space-lisp-part-5/</link>
       <pubDate>Sun, 19 Aug 2018 20:44:24 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-19-ironic-space-lisp-part-5/</guid>
+      <guid>/posts/2018-08-19-ironic-space-lisp-part-5/</guid>
       <description>Let&amp;rsquo;s talk about environmental bindings. I&amp;rsquo;m taking the unusual (I think) approach of sharing environment bindings code between the VM and the interpreter. Unfortunately, I wrote the environment code at the same time as the VM, and fit the code a little too closely to the requirements of the VM, and didn&amp;rsquo;t think enough about what the interpreter would require. In the process of writing the interpreter, I encountered a strong disconnect between the semantics that I wanted and the semantics I had.</description>
     </item>
     
     <item>
       <title>Operators</title>
-      <link>http://atamis.me/posts/2018-08-15-operators/</link>
+      <link>/posts/2018-08-15-operators/</link>
       <pubDate>Wed, 15 Aug 2018 16:21:39 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-15-operators/</guid>
+      <guid>/posts/2018-08-15-operators/</guid>
       <description>I recently started thinking about operators and math in programming languages. This is at least partly inspired by the programming language I&amp;rsquo;m making right now, but I&amp;rsquo;ll get to that later. It&amp;rsquo;s also inspired, in some sense, by the tutorials I was reading while trying to successfully parse my programming language. I didn&amp;rsquo;t find a tutorial specifically for what I was trying to do, which was fair, but I did find tutorials on parsing other more &amp;ldquo;normal&amp;rdquo; languages or more C-like languages, and it got me thinking.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 4</title>
-      <link>http://atamis.me/posts/2018-08-12-ironic-space-lisp-part-4/</link>
+      <link>/posts/2018-08-12-ironic-space-lisp-part-4/</link>
       <pubDate>Sun, 12 Aug 2018 00:41:11 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-12-ironic-space-lisp-part-4/</guid>
+      <guid>/posts/2018-08-12-ironic-space-lisp-part-4/</guid>
       <description>&lt;p&gt;This update is all about parsing, and this ended up being really difficult. Not
-in a good way though. In my &lt;a href=&#34;http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/&#34;&gt;last post&lt;/a&gt;, I talked about using
+in a good way though. In my &lt;a href=&#34;/posts/2018-08-10-ironic-space-lisp-part-3/&#34;&gt;last post&lt;/a&gt;, I talked about using
 languages so difficult and alien that the difficulty clearly signified that
 there was something important you could learn from mastering them. I didn&amp;rsquo;t find
 this was the case during this phase of the project.&lt;/p&gt;</description>
@@ -209,40 +208,42 @@ this was the case during this phase of the project.&lt;/p&gt;</description>
     
     <item>
       <title>Ironic Space Lisp Part 3</title>
-      <link>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</link>
+      <link>/posts/2018-08-10-ironic-space-lisp-part-3/</link>
       <pubDate>Fri, 10 Aug 2018 17:09:28 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</guid>
+      <guid>/posts/2018-08-10-ironic-space-lisp-part-3/</guid>
       <description>Have you ever been working on a project and felt stupid and scared? Not in an anxious way, and not in an imposter syndrome way, but in a visceral way, like &amp;ldquo;I don&amp;rsquo;t really know what I&amp;rsquo;m doing, and I&amp;rsquo;m not sure I can do this.&amp;rdquo; Some languages are so complex and different that, although I know they&amp;rsquo;re full feature and Turing complete languages, I don&amp;rsquo;t know that I can even write whatever program I&amp;rsquo;m trying to make.</description>
     </item>
     
     <item>
       <title>I hate Go, and I think it&#39;s really cool</title>
-      <link>http://atamis.me/posts/2018-08-01-golang/</link>
+      <link>/posts/2018-08-01-golang/</link>
       <pubDate>Wed, 01 Aug 2018 14:02:48 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-01-golang/</guid>
+      <guid>/posts/2018-08-01-golang/</guid>
       <description>My first impression of Go was, ironically, &amp;ldquo;kinda generic&amp;rdquo;. It&amp;rsquo;s an imperative language from Google inspired by Python (a little generic) and Java (reigning king of generic languages,) so some amount of &amp;ldquo;recognition&amp;rdquo; is due. Go wears its influences proudly on its sleeve, which is a little weird, because it&amp;rsquo;s not a particularly noteworthy heritage.
 The interesting thing (to me at least), is that this is all on purpose. Boring on purpose is an engineering feature, because excessively complicated languages are harder to work on, and produce harder to maintain code.</description>
     </item>
     
     <item>
       <title>A Hybrid Course</title>
-      <link>http://atamis.me/posts/2018-07-29-a-hybrid-course/</link>
+      <link>/posts/2018-07-29-a-hybrid-course/</link>
       <pubDate>Sun, 29 Jul 2018 20:05:19 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-07-29-a-hybrid-course/</guid>
+      <guid>/posts/2018-07-29-a-hybrid-course/</guid>
       <description>I took a lot of interesting courses in college, but I wanted to talk about a particular course that you might call a &amp;ldquo;hybrid course&amp;rdquo;. This particular course was outside my major: I was required to take non-CS courses to get my degree, but by senior year, I had also run out of CS courses to take; what is a man to do? Take a course on Ovid and Medieval Literature.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 2</title>
-      <link>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</link>
+      <link>/posts/2018-07-09-ironic-space-lisp-part-2/</link>
       <pubDate>Sun, 29 Jul 2018 10:59:40 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+      <guid>/posts/2018-07-09-ironic-space-lisp-part-2/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+
 &lt;p&gt;Last time, the conceptual challenges of a the stack VM convinced me it was the
 wrong approach. In a normal recursive lisp interpreter, code is data, and you
 have a single evaluator function over every value. &lt;a href=&#34;https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280&#34;&gt;Follow along here&lt;/a&gt;.&lt;/p&gt;</description>
@@ -250,12 +251,14 @@ have a single evaluator function over every value. &lt;a href=&#34;https://githu
     
     <item>
       <title>Ironic Space Lisp Part 1</title>
-      <link>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</link>
+      <link>/posts/2018-07-29-ironic-space-lisp/</link>
       <pubDate>Sun, 29 Jul 2018 02:03:01 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+      <guid>/posts/2018-07-29-ironic-space-lisp/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+
 &lt;p&gt;I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done,
 although the planning document is getting lengthy. Programming games need
 programming languages, and based on the game design, I had some pretty
@@ -264,30 +267,29 @@ particular specifications for the language.&lt;/p&gt;</description>
     
     <item>
       <title>Game Idea: Compressed Dungeons, pt. 1</title>
-      <link>http://atamis.me/posts/2018-05-04-game-idea-micro-dungeon.html/</link>
+      <link>/posts/2018-05-04-game-idea-micro-dungeon.html/</link>
       <pubDate>Fri, 04 May 2018 09:29:00 +0000</pubDate>
       
-      <guid>http://atamis.me/posts/2018-05-04-game-idea-micro-dungeon.html/</guid>
+      <guid>/posts/2018-05-04-game-idea-micro-dungeon.html/</guid>
       <description>tldr: moba keystone dungeons
 Traditional cRPGs are, in general, united by a strong emphasis on character progression. By playing the game, and completing challenges, your character gains experience, sometimes represented by literal experience points, and becomes stronger, more capable, and better equipped for even more challenging encounters. This is frequently associated with numerical increases (allowing you to crush old content with pure numerical advantage), and in many cases, although you grow stronger your enemies do to at a carefully controlled rate that matches yours, and in some cases comparatively exceeds yours, making later enemies harder and harder to kill so the gameplay still has a positive difficulty curve.</description>
     </item>
     
     <item>
       <title>Hacking Turntable for Fun and Music</title>
-      <link>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</link>
+      <link>/posts/2011-11-25-hacking-turntable-for-fun-and-music/</link>
       <pubDate>Fri, 25 Nov 2011 15:12:00 +0000</pubDate>
       
-      <guid>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</guid>
-      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.
-So, a Greasemonkey script was created to automatically download songs as they were played on Turntable.</description>
+      <guid>/posts/2011-11-25-hacking-turntable-for-fun-and-music/</guid>
+      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.</description>
     </item>
     
     <item>
       <title>Employment</title>
-      <link>http://atamis.me/employment/</link>
+      <link>/employment/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://atamis.me/employment/</guid>
+      <guid>/employment/</guid>
       <description>Download my resume</description>
     </item>
     

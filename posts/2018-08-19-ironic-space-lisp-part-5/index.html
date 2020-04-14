@@ -38,6 +38,8 @@
 </div>
 
 <main>
+
+
 <p>Let&rsquo;s talk about environmental bindings. I&rsquo;m taking the unusual (I think)
 approach of sharing environment bindings code between the VM and the interpreter.
 Unfortunately, I wrote the environment code at the same time as the VM, and
@@ -49,28 +51,34 @@ environment used <code>mem::replace</code>. <code>mem::replace</code> is weird, 
 of times, but mostly as a sort of band-aid, and I&rsquo;ve always ended up refactoring
 code away from it. It&rsquo;s ended up being a personal code smell of sorts. Luckily,
 the new version doesn&rsquo;t use it.</p>
+
 <p><code>mem::replace</code> can sometimes seem like a way to get around borrow restrictions.
 It takes a mutable reference, and a value, and swaps the old value for the new,
 returning the old value. It doesn&rsquo;t violate the borrow checker, but it bends it,
 and you can feel the <code>unsafe</code> blocks lurking in the background. It&rsquo;s based on
 the <code>swap&lt;T&gt;(x: &amp;mut T, y: &amp;mut T)</code> function, which</p>
+
 <blockquote>
 <p>Swaps the values at two mutable locations, without deinitializing either one.</p>
 </blockquote>
+
 <p>This is noteworthy because it can do this to types which don&rsquo;t implement <code>Copy</code>.
 It uses unsafe blocks to bypass the borrow checker. Under normal circumstances,
 I think the function would have to take ownership of the values to swap them,
 but with <code>unsafe</code> blocks, they can be swapped directly.</p>
+
 <h1 id="the-old-version">The Old Version</h1>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">Environment</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span><span class="w">    </span><span class="n">bindings</span>: <span class="nc">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Rc</span><span class="o">&lt;</span><span class="n">data</span>::<span class="n">Literal</span><span class="o">&gt;&gt;</span><span class="p">,</span><span class="w">
 </span><span class="w">    </span><span class="n">parent</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">Box</span><span class="o">&lt;</span><span class="n">Environment</span><span class="o">&gt;&gt;</span><span class="p">,</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div><p>This looks reasonably normal for lexical scoping (sort of). You have local
+</span></code></pre></div>
+<p>This looks reasonably normal for lexical scoping (sort of). You have local
 bindings in a hashmap of names to values, and a pointer to a parent representing
 higher level bindings. That pointer is a <code>Box</code>, however, which means only 1
 pointer to this parent environment can really exist. <code>Box</code> is less a pointer and
 more a value in heap memory: cloning the box will clone the inner value and box it.</p>
+
 <p>This value represents a particular environment, so <code>put</code> just inserts directly
 into the local bindings hashmap.</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="w">  </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">get</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">k</span>: <span class="kp">&amp;</span><span class="nb">String</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="n">Rc</span><span class="o">&lt;</span><span class="n">data</span>::<span class="n">Literal</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -84,8 +92,8 @@ into the local bindings hashmap.</p>
 </span><span class="w">
 </span><span class="w">      </span><span class="nb">Err</span><span class="p">(</span><span class="n">format</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Binding not found for {:}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">).</span><span class="n">into</span><span class="p">())</span><span class="w">
 </span><span class="w">  </span><span class="p">}</span><span class="w">
-</span><span class="w">
-</span></code></pre></div><p>The binding hashmap maps strings to reference counted pointers to data, so we
+</span></code></pre></div>
+<p>The binding hashmap maps strings to reference counted pointers to data, so we
 return a cloned pointer. Additionally, if this environment has a parent (and
 therefor isn&rsquo;t the root environment), we delegate to our parent.</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">pop</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -95,7 +103,8 @@ therefor isn&rsquo;t the root environment), we delegate to our parent.</p>
 </span><span class="w">    </span><span class="o">*</span><span class="bp">self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">parent</span><span class="p">;</span><span class="w">
 </span><span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div><p>This function first takes ownership of the environment&rsquo;s parent by using
+</span></code></pre></div>
+<p>This function first takes ownership of the environment&rsquo;s parent by using
 <code>mem::replace</code> to replace the parent with <code>None</code>, then it sets itself to its
 parent with <code>*self = *parent</code>. In practical terms, this patterns is unknown to
 me. Although the practice of replacing yourself makes sense if you&rsquo;re writing
@@ -107,18 +116,22 @@ code would compile.</p>
 </span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span>::<span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w">
 </span><span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="n">p</span><span class="p">));</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div><p>This uses <code>mem::replace</code> to execute a sort of bait and switch, replacing
+</span></code></pre></div>
+<p>This uses <code>mem::replace</code> to execute a sort of bait and switch, replacing
 ourselves with the new empty parent-less environment, then setting ourselves as
 the parent.</p>
+
 <p>This upshot of all this swapping is that the user of this struct sees what
 appears to be a normal linked-list type of environment binding, but calling push
 and pop swaps the value in place, so the <code>Environment</code> struct acts more like a
 container for all those nested environments, simultaneously managing the pushing
 and popping of the Environments, and the looking up.</p>
+
 <p>This works pretty well for the VM implementation. It only has to keep track of
 one environment, and it only pushes and pops the environment stack in response
 to instructions: it&rsquo;s someone else&rsquo;s job to push and pop environments at the
 right time.</p>
+
 <p>It didn&rsquo;t make quite as much sense for the interpreter. In the <code>let</code>
 interpretation, the interpreter should make a new environment parented to its
 own environment, load the local bindings into the new environment, then evaluate
@@ -134,7 +147,9 @@ down the environment stack, and the struct points to environments evaluating
 deep in the AST. As long as the environment doesn&rsquo;t get &ldquo;overpopped&rdquo;, it won&rsquo;t
 <em>break</em>, but the substantial difference between these two uses felt like a hint
 that I was missing an important difference in my data model.</p>
+
 <h1 id="the-new-version">The New Version</h1>
+
 <p>This particular technique has been on my mind for a while. In the simplest
 self-hosting lisp interpreters, environment bindings are implemented with
 &ldquo;assoc&rdquo; lists: lists of cons of keys and values <code>((a . 1) (b . 2) (c . 3))</code>,
@@ -148,6 +163,7 @@ head of your environment bindings, and generate child environments by consing
 additional pairs on without risking mutating to your pointer and without copying
 data needlessly. It also let you keep track of the child environments over the
 long term, making lexical lambda bindings very easy to implement.</p>
+
 <p>I obviously want to avoid the <code>O(n)</code> lookup times, so I want to stick with
 hashmaps for the bindings themselves. I don&rsquo;t want to copy large environments
 regularly, so I want to let child environments share parent environments too.
@@ -164,6 +180,7 @@ environments like this steadily lose their performance advantage as you&rsquo;re
 forced to check a longer and longer linked list of hash maps. We&rsquo;d be
 introducing a new child binding to be the new global binding with every local
 environment, and we&rsquo;d need to do it at non-local levels too.</p>
+
 <p>This is getting cumbersome, but it&rsquo;s also beginning to remind me of immutable
 data structures. Immutable data structures are data structures that implement
 mostly normal data structure semantics, but in an immutable way. They are
@@ -182,15 +199,18 @@ but I always envisioned ISL without mutability, in much the same way as Erlang
 avoids mutability, and immutable data structures seem like a great way to do that
 without being horribly inefficient and copying everything around, or attempting
 to implement my own bad versions of existing immutable data structures.</p>
-<p>Anyway, back to environments. <code>im-rs</code>'s <code>HashMap</code> matches the semantics I want
+
+<p>Anyway, back to environments. <code>im-rs</code>&rsquo;s <code>HashMap</code> matches the semantics I want
 for environments pretty perfectly: hash maps with the option to insert &ldquo;mutably&rdquo;
 and to produce new hashmaps with new values inserted to use as child
 environments. I don&rsquo;t feel any particular need to wrap the <code>HashMap</code>, so my new
 basic environment data structures is just this:</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">pub</span><span class="w"> </span><span class="k">type</span> <span class="nc">Env</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Rc</span><span class="o">&lt;</span><span class="n">data</span>::<span class="n">Literal</span><span class="o">&gt;&gt;</span><span class="p">;</span><span class="w">
-</span></code></pre></div><p>I&rsquo;m continuing to use reference counted pointers to the bound values, but this
+</span></code></pre></div>
+<p>I&rsquo;m continuing to use reference counted pointers to the bound values, but this
 doesn&rsquo;t really agree with my philosophy that <code>Literal</code>s should be either easily
 clonable or reference counted anyway.</p>
+
 <p>This single type isn&rsquo;t entirely sufficient, though. Although the interpreter
 keeps track of nested environments with its rust-level program stack, the VM
 doesn&rsquo;t do that. I wasn&rsquo;t particularly eager to implement the environment stack
@@ -199,7 +219,8 @@ functionality in another type in the <code>environment</code> module, <code>EnvS
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">EnvStack</span><span class="p">{</span><span class="w">
 </span><span class="w">    </span><span class="n">envs</span>: <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Env</span><span class="o">&gt;</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div><p><code>EnvStack</code> implements many of the old <code>Environment</code> methods, like <code>get</code>, <code>put</code>
+</span></code></pre></div>
+<p><code>EnvStack</code> implements many of the old <code>Environment</code> methods, like <code>get</code>, <code>put</code>
 (which <code>Env</code> calls <code>insert</code> or <code>update</code> depending on whether you want to update
 in place or get a new hashmap), <code>push</code>, and <code>pop</code>. Although <code>EnvStack</code> does own
 all the <code>Env</code>s, it does let its users borrow the top of the stack with <code>peek</code>,
@@ -219,12 +240,14 @@ can&rsquo;t. Finally, <code>push</code> and <code>pop</code> are adorably pedest
 </span><span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">envs</span><span class="p">.</span><span class="n">pop</span><span class="p">().</span><span class="n">ok_or</span><span class="p">(</span><span class="s">&#34;Attempted to pop empty environment stack&#34;</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
 </span><span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div><p>Because the external interface changed, I had to change the test suite
+</span></code></pre></div>
+<p>Because the external interface changed, I had to change the test suite
 substantially, and update the VM, but the interpreter was mid-rewrite when I
 realized the need for a new environment implementation, so no interpreter code
 got commited using the old environment before and the new AST.</p>
+
 <p>In lieu of any serious conclusion, I&rsquo;ll leave you with a mangled proverb: <em>&ldquo;In
-the land of the borrow checker, the immutable man is king.&quot;</em></p>
+the land of the borrow checker, the immutable man is king.&rdquo;</em></p>
 
 </main>
 
@@ -252,7 +275,7 @@ the land of the borrow checker, the immutable man is king.&quot;</em></p>
   
   
   <hr/>
-  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
+  &copy; <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
   
   </footer>
   </body>

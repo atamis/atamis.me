@@ -2,24 +2,23 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>javascript on Azrea Amis</title>
-    <link>http://atamis.me/tags/javascript/</link>
+    <link>/tags/javascript/</link>
     <description>Recent content in javascript on Azrea Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
     <lastBuildDate>Fri, 25 Nov 2011 15:12:00 +0000</lastBuildDate>
     
-	<atom:link href="http://atamis.me/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Hacking Turntable for Fun and Music</title>
-      <link>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</link>
+      <link>/posts/2011-11-25-hacking-turntable-for-fun-and-music/</link>
       <pubDate>Fri, 25 Nov 2011 15:12:00 +0000</pubDate>
       
-      <guid>http://atamis.me/posts/2011-11-25-hacking-turntable-for-fun-and-music/</guid>
-      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.
-So, a Greasemonkey script was created to automatically download songs as they were played on Turntable.</description>
+      <guid>/posts/2011-11-25-hacking-turntable-for-fun-and-music/</guid>
+      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.</description>
     </item>
     
   </channel>

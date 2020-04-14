@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>writing on Azrea Amis</title>
-    <link>http://atamis.me/tags/writing/</link>
+    <link>/tags/writing/</link>
     <description>Recent content in writing on Azrea Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
     <lastBuildDate>Thu, 09 May 2019 13:14:25 -0700</lastBuildDate>
     
-	<atom:link href="http://atamis.me/tags/writing/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/writing/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Game Idea: &#34;Annihilation: God&#39;s Will&#34;</title>
-      <link>http://atamis.me/posts/2019-05-9-game-idea-annihilation-gods-will/</link>
+      <link>/posts/2019-05-9-game-idea-annihilation-gods-will/</link>
       <pubDate>Thu, 09 May 2019 13:14:25 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2019-05-9-game-idea-annihilation-gods-will/</guid>
+      <guid>/posts/2019-05-9-game-idea-annihilation-gods-will/</guid>
       <description>God created this world. Now, he&amp;rsquo;s finished with it.
  I&amp;rsquo;m not entirely sure what medium best fits this story, but the idea started live as a story driven cRPG, so I&amp;rsquo;ll explain it like that first.
 Story The story begins in the holy city of Kalstar, rumored to the oldest city in the world, and home to the God&amp;rsquo;s Grand Temple. In the final chapter of God&amp;rsquo;s bible, He states that the world will end precisely 1000 years after it started.</description>
@@ -25,30 +25,29 @@ Story The story begins in the holy city of Kalstar, rumored to the oldest city i
     
     <item>
       <title>Intentional Limit Breaks in Video Games</title>
-      <link>http://atamis.me/posts/2019-1-04-intentional-limit-breaks-in-video-games/</link>
+      <link>/posts/2019-1-04-intentional-limit-breaks-in-video-games/</link>
       <pubDate>Mon, 14 Jan 2019 11:58:20 -0800</pubDate>
       
-      <guid>http://atamis.me/posts/2019-1-04-intentional-limit-breaks-in-video-games/</guid>
+      <guid>/posts/2019-1-04-intentional-limit-breaks-in-video-games/</guid>
       <description>When building consumer software, it&amp;rsquo;s a widely held belief that the software shouldn&amp;rsquo;t crash, shouldn&amp;rsquo;t hang (or ignore user input), and should generally remain &amp;ldquo;in control.&amp;rdquo; Users don&amp;rsquo;t like software that crashes and loses their progress, and they don&amp;rsquo;t react well to software that freezes: they tend to spam buttons, making the problem worse.
 This is just as important and much harder for video games. Video games are among the most complex and demanding software being produced commercially, and they&amp;rsquo;re likely the most complex and demanding software the average consumer will ever run.</description>
     </item>
     
     <item>
       <title>The Triumvirate of Aberrations</title>
-      <link>http://atamis.me/posts/2018-12-14-triumvirate-of-aberrations/</link>
+      <link>/posts/2018-12-14-triumvirate-of-aberrations/</link>
       <pubDate>Fri, 14 Dec 2018 13:35:11 -0800</pubDate>
       
-      <guid>http://atamis.me/posts/2018-12-14-triumvirate-of-aberrations/</guid>
-      <description>While attending college, for a variety of reasons too tedious to go into, I frequently dined at my college&amp;rsquo;s dining hall. I dined there on and off for all 4 years, and got to know its quirks: most usefully, what they could cook, and what they couldn&amp;rsquo;t but still attempted. However, I also learned some of the lore of the place, like the tale of The Triumvirate of Aberrations.
-I know these artifacts exist, for I have witnessed them personally.</description>
+      <guid>/posts/2018-12-14-triumvirate-of-aberrations/</guid>
+      <description>While attending college, for a variety of reasons too tedious to go into, I frequently dined at my college&amp;rsquo;s dining hall. I dined there on and off for all 4 years, and got to know its quirks: most usefully, what they could cook, and what they couldn&amp;rsquo;t but still attempted. However, I also learned some of the lore of the place, like the tale of The Triumvirate of Aberrations.</description>
     </item>
     
     <item>
       <title>A Hybrid Course</title>
-      <link>http://atamis.me/posts/2018-07-29-a-hybrid-course/</link>
+      <link>/posts/2018-07-29-a-hybrid-course/</link>
       <pubDate>Sun, 29 Jul 2018 20:05:19 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-07-29-a-hybrid-course/</guid>
+      <guid>/posts/2018-07-29-a-hybrid-course/</guid>
       <description>I took a lot of interesting courses in college, but I wanted to talk about a particular course that you might call a &amp;ldquo;hybrid course&amp;rdquo;. This particular course was outside my major: I was required to take non-CS courses to get my degree, but by senior year, I had also run out of CS courses to take; what is a man to do? Take a course on Ovid and Medieval Literature.</description>
     </item>
     

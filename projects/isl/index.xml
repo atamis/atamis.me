@@ -2,32 +2,32 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Ironic Space Lisp on Azrea Amis</title>
-    <link>http://atamis.me/projects/isl/</link>
+    <link>/projects/isl/</link>
     <description>Recent content in Ironic Space Lisp on Azrea Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
     <lastBuildDate>Thu, 29 Aug 2019 14:05:09 -0700</lastBuildDate>
     
-	<atom:link href="http://atamis.me/projects/isl/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/projects/isl/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Ironic Space Lisp Part 9</title>
-      <link>http://atamis.me/posts/2019-08-29-ironic-space-lisp-part-9/</link>
+      <link>/posts/2019-08-29-ironic-space-lisp-part-9/</link>
       <pubDate>Thu, 29 Aug 2019 14:05:09 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2019-08-29-ironic-space-lisp-part-9/</guid>
+      <guid>/posts/2019-08-29-ironic-space-lisp-part-9/</guid>
       <description>It&amp;rsquo;s been a long time since I last worked on ISL, mostly because I got distracted by other projects and languages: things like the flows project, or Clojure. Also, writing futures code in Rust is painful. Recently, async-await syntax got released on Rust nightly, which makes async code much easier to write.
 When I was last working on the project, I was working on a local variables feature. VM operations to allow storing and loading local variables linked to the frame stack, and later, support in the compiler.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 8</title>
-      <link>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</link>
+      <link>/posts/2018-09-20-ironic-space-lisp-part-8/</link>
       <pubDate>Thu, 20 Sep 2018 13:21:53 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-09-20-ironic-space-lisp-part-8/</guid>
+      <guid>/posts/2018-09-20-ironic-space-lisp-part-8/</guid>
       <description>&lt;p&gt;It&amp;rsquo;s been a while since I posted progress on ISL, and that is mostly my fault.
 Most of this time was spent making maintenance, like documentation, but also
 trying to get the self hosted interpreter working and self hosting. That was a
@@ -36,19 +36,19 @@ challenge, and also my fault.&lt;/p&gt;</description>
     
     <item>
       <title>Ironic Space Lisp Part 7</title>
-      <link>http://atamis.me/posts/2018-08-27-ironic-space-lisp-part-7/</link>
+      <link>/posts/2018-08-27-ironic-space-lisp-part-7/</link>
       <pubDate>Mon, 27 Aug 2018 15:56:11 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-27-ironic-space-lisp-part-7/</guid>
+      <guid>/posts/2018-08-27-ironic-space-lisp-part-7/</guid>
       <description>Let&amp;rsquo;s talk about the VM internals. I&amp;rsquo;ve written a compiler for ISL, and implemented functions at the same time. This is not a mistake or an over-reach, rather a natural progression. To the VM, what is a function? The VM doesn&amp;rsquo;t have a strong concept of &amp;ldquo;functions&amp;rdquo;, or even of procedures. It has the Call and Return operations. These operations are the only way to manipulate the frame stack in a meaningful way: Call pushes an address to the frame stack, jumping to it, while Return pops an address, returning to the caller.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 6</title>
-      <link>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</link>
+      <link>/posts/2018-08-22-ironic-space-lisp-part-6/</link>
       <pubDate>Wed, 22 Aug 2018 01:56:10 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-22-ironic-space-lisp-part-6/</guid>
+      <guid>/posts/2018-08-22-ironic-space-lisp-part-6/</guid>
       <description>&lt;p&gt;Since last time, I did two things: switched from &lt;code&gt;error_chain&lt;/code&gt; to &lt;code&gt;failure&lt;/code&gt;, and
 refactored with the visitor pattern. They took about the same amount of time,
 and the refactor is much more interesting. I briefly touch on an issue I
@@ -57,21 +57,21 @@ encountered with &lt;code&gt;failure&lt;/code&gt;, but I&amp;rsquo;d rather disc
     
     <item>
       <title>Ironic Space Lisp Part 5</title>
-      <link>http://atamis.me/posts/2018-08-19-ironic-space-lisp-part-5/</link>
+      <link>/posts/2018-08-19-ironic-space-lisp-part-5/</link>
       <pubDate>Sun, 19 Aug 2018 20:44:24 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-19-ironic-space-lisp-part-5/</guid>
+      <guid>/posts/2018-08-19-ironic-space-lisp-part-5/</guid>
       <description>Let&amp;rsquo;s talk about environmental bindings. I&amp;rsquo;m taking the unusual (I think) approach of sharing environment bindings code between the VM and the interpreter. Unfortunately, I wrote the environment code at the same time as the VM, and fit the code a little too closely to the requirements of the VM, and didn&amp;rsquo;t think enough about what the interpreter would require. In the process of writing the interpreter, I encountered a strong disconnect between the semantics that I wanted and the semantics I had.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 4</title>
-      <link>http://atamis.me/posts/2018-08-12-ironic-space-lisp-part-4/</link>
+      <link>/posts/2018-08-12-ironic-space-lisp-part-4/</link>
       <pubDate>Sun, 12 Aug 2018 00:41:11 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-12-ironic-space-lisp-part-4/</guid>
+      <guid>/posts/2018-08-12-ironic-space-lisp-part-4/</guid>
       <description>&lt;p&gt;This update is all about parsing, and this ended up being really difficult. Not
-in a good way though. In my &lt;a href=&#34;http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/&#34;&gt;last post&lt;/a&gt;, I talked about using
+in a good way though. In my &lt;a href=&#34;/posts/2018-08-10-ironic-space-lisp-part-3/&#34;&gt;last post&lt;/a&gt;, I talked about using
 languages so difficult and alien that the difficulty clearly signified that
 there was something important you could learn from mastering them. I didn&amp;rsquo;t find
 this was the case during this phase of the project.&lt;/p&gt;</description>
@@ -79,21 +79,23 @@ this was the case during this phase of the project.&lt;/p&gt;</description>
     
     <item>
       <title>Ironic Space Lisp Part 3</title>
-      <link>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</link>
+      <link>/posts/2018-08-10-ironic-space-lisp-part-3/</link>
       <pubDate>Fri, 10 Aug 2018 17:09:28 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-08-10-ironic-space-lisp-part-3/</guid>
+      <guid>/posts/2018-08-10-ironic-space-lisp-part-3/</guid>
       <description>Have you ever been working on a project and felt stupid and scared? Not in an anxious way, and not in an imposter syndrome way, but in a visceral way, like &amp;ldquo;I don&amp;rsquo;t really know what I&amp;rsquo;m doing, and I&amp;rsquo;m not sure I can do this.&amp;rdquo; Some languages are so complex and different that, although I know they&amp;rsquo;re full feature and Turing complete languages, I don&amp;rsquo;t know that I can even write whatever program I&amp;rsquo;m trying to make.</description>
     </item>
     
     <item>
       <title>Ironic Space Lisp Part 2</title>
-      <link>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</link>
+      <link>/posts/2018-07-09-ironic-space-lisp-part-2/</link>
       <pubDate>Sun, 29 Jul 2018 10:59:40 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+      <guid>/posts/2018-07-09-ironic-space-lisp-part-2/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+
 &lt;p&gt;Last time, the conceptual challenges of a the stack VM convinced me it was the
 wrong approach. In a normal recursive lisp interpreter, code is data, and you
 have a single evaluator function over every value. &lt;a href=&#34;https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280&#34;&gt;Follow along here&lt;/a&gt;.&lt;/p&gt;</description>
@@ -101,12 +103,14 @@ have a single evaluator function over every value. &lt;a href=&#34;https://githu
     
     <item>
       <title>Ironic Space Lisp Part 1</title>
-      <link>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</link>
+      <link>/posts/2018-07-29-ironic-space-lisp/</link>
       <pubDate>Sun, 29 Jul 2018 02:03:01 -0700</pubDate>
       
-      <guid>http://atamis.me/posts/2018-07-29-ironic-space-lisp/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;http://atamis.me/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+      <guid>/posts/2018-07-29-ironic-space-lisp/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;/posts/2018-07-29-ironic-space-lisp/&#34;&gt;Part 1&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;/posts/2018-07-09-ironic-space-lisp-part-2/&#34;&gt;Part 2&lt;/a&gt;&lt;/p&gt;
+
 &lt;p&gt;I recently had a new idea for a space programming game. The idea isn&amp;rsquo;t done,
 although the planning document is getting lengthy. Programming games need
 programming languages, and based on the game design, I had some pretty

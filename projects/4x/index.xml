@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>4x Game on Azrea Amis</title>
-    <link>http://atamis.me/projects/4x/</link>
+    <link>/projects/4x/</link>
     <description>Recent content in 4x Game on Azrea Amis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
     
-	<atom:link href="http://atamis.me/projects/4x/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/projects/4x/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>
