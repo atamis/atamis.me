@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sun, 15 Dec 2019 23:01:08 +0100</lastBuildDate>
+    <lastBuildDate>Mon, 20 Jul 2020 16:03:35 +0200</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Nomad on ARM64: Cannot Join Network</title>
+      <link>/posts/2020-07-20-nomad-on-arm64-cannot-join-network/</link>
+      <pubDate>Mon, 20 Jul 2020 16:03:35 +0200</pubDate>
+      
+      <guid>/posts/2020-07-20-nomad-on-arm64-cannot-join-network/</guid>
+      <description>I recently got a Raspberry Pi 4 model B, and I wanted to do the usual &amp;ldquo;deploy container orchestrator&amp;rdquo; thing, but I didn&amp;rsquo;t really want to do a full Kubernetes cluster because that seemed like overkill for such a small computer. I&amp;rsquo;d lose a lot of capacity to Kubernetes services even if I used a small distro like k3s. For the lower overhead and easier setup, I decided to go with Hashicorp Nomad instead, targeting a single node cluster with for now.</description>
+    </item>
     
     <item>
       <title>&#34;Interesting&#34; Clojure Macro Interaction</title>

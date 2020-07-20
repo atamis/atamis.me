@@ -3,12 +3,32 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/posts/2019-12-15-clojure-macro-interaction/</loc>
-    <lastmod>2019-12-15T23:01:08+01:00</lastmod>
+    <loc>/</loc>
+    <lastmod>2020-07-20T16:03:35+02:00</lastmod>
   </url>
   
   <url>
-    <loc>/</loc>
+    <loc>/tags/cloud/</loc>
+    <lastmod>2020-07-20T16:03:35+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/posts/2020-07-20-nomad-on-arm64-cannot-join-network/</loc>
+    <lastmod>2020-07-20T16:03:35+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/posts/</loc>
+    <lastmod>2020-07-20T16:03:35+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2020-07-20T16:03:35+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/posts/2019-12-15-clojure-macro-interaction/</loc>
     <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
@@ -19,16 +39,6 @@
   
   <url>
     <loc>/tags/code/</loc>
-    <lastmod>2019-12-15T23:01:08+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/posts/</loc>
-    <lastmod>2019-12-15T23:01:08+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/</loc>
     <lastmod>2019-12-15T23:01:08+01:00</lastmod>
   </url>
   
