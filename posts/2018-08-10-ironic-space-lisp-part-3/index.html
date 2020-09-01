@@ -6,7 +6,7 @@
     <title>Ironic Space Lisp Part 3 | Azrea Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/pride_helper.css">
 
 
   </head>
@@ -38,28 +38,23 @@
 </div>
 
 <main>
-
-
 <p>Have you ever been working on a project and felt stupid and scared? Not in an
 anxious way, and not in an imposter syndrome way, but in a visceral way, like &ldquo;I
 don&rsquo;t really know what I&rsquo;m doing, and I&rsquo;m not sure I can do this.&rdquo; Some
 languages are so complex and <em>different</em> that, although I know they&rsquo;re full
 feature and Turing complete languages, I don&rsquo;t know that I can even write
 whatever program I&rsquo;m trying to make. Or at least that I can&rsquo;t write it idiomatically.</p>
-
 <p>On the one hand, this really doesn&rsquo;t feel good. On the other hand, it&rsquo;s a very
 strong sign that I&rsquo;m actually learning something. Right now, I&rsquo;m only scared of
 2 languages: Rust and Haskell. On this side of the learning curve, I can&rsquo;t say
 with total confidence exactly what I&rsquo;m learning from them, but I&rsquo;m very much
 learning <em>something</em>.</p>
-
 <p>Rust&rsquo;s really mind bending parts are mostly the type system differentiating
 between stack and heap data, the lifetime system, and the borrow checker.
 Luckily, writing a lisp interpreter is a good way of really exploring those
 systems. Haskell enforces radical functional purity at a level I haven&rsquo;t really
 encountered in any other language, despite my experience with other functional
 languages.</p>
-
 <p>Anyway, my practice of having 1000+ tabs open paid of once again when I noticed
 Bob Nystrom&rsquo;s book, <a href="http://craftinginterpreters.com/">&ldquo;Crafting Interpreters&rdquo;</a> in my browser. &ldquo;Hey, that&rsquo;s
 what I&rsquo;m doing,&rdquo; I thought, stupidly. One the book&rsquo;s main points was that
@@ -68,7 +63,6 @@ subsequent paragraphs), it&rsquo;s fairly obvious. Modern CPUs are optimized for
 fast loops over linear data. One of their main &ldquo;bottlenecks&rdquo; is pointers:
 dereferencing pointers into uncached memory is really slow (almost guaranteed to
 generate a cache miss).</p>
-
 <p>As it turns out, tree walk interpreters dereference pointers constantly. Because
 AST trees are inherently recursive, and structs can&rsquo;t be of indeterminant size,
 all child nodes in ASTs must be pointers, and usually pointers to heap data,
@@ -78,8 +72,7 @@ which in turn point to more heap data.</p>
 </span><span class="w">    </span><span class="n">Op</span><span class="p">(</span><span class="n">Op</span><span class="p">),</span><span class="w">
 </span><span class="w">    </span><span class="n">List</span><span class="p">(</span><span class="n">Rc</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Rc</span><span class="o">&lt;</span><span class="n">Lisp</span><span class="o">&gt;&gt;&gt;</span><span class="p">),</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>A lot of languages make these pointers implicit, like Java, where there are no
+</span></code></pre></div><p>A lot of languages make these pointers implicit, like Java, where there are no
 value/stack objects, only heap allocated objects, and everything is a reference.
 Writing a recursive interpreter over a simple tree structure like this is really
 easy, and it&rsquo;s the go to technique for &ldquo;writing your first interpreter&rdquo;
@@ -98,12 +91,10 @@ directly, they&rsquo;re almost always wrapped in an <code>Rc</code>,</p>
 </span><span class="w">    </span><span class="n">answer</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Rc</span><span class="o">&lt;</span><span class="n">Lisp</span><span class="o">&gt;&gt;</span><span class="p">,</span><span class="w">
 </span><span class="w">    </span><span class="n">state</span>: <span class="nc">FState</span><span class="p">,</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>primarily to prevent ownership issues. The AST/data are all treated as
+</span></code></pre></div><p>primarily to prevent ownership issues. The AST/data are all treated as
 immutable, so reference counting the entire thing and directly sharing data and
 code is reasonable semantically speaking (especially for a Lisp), but too much
 indirection is inefficient.</p>
-
 <p>It&rsquo;s worth noting that although the Ironic Space Lisp interpreter isn&rsquo;t a normal
 tree walk interpreter. The ISL interpreter, as it&rsquo;s implemented on the <code>master</code>
 branch right now, reifies the stack frames tracking the recursive descent into
@@ -113,7 +104,6 @@ thought that reifing the frame stack would assist in implementing Tail Call
 Optimization (an important part of the language), I subsequently realized it
 wouldn&rsquo;t: it would be mildly easier than in a normal recurse tree-walk
 implementation, but still wouldn&rsquo;t be easy.</p>
-
 <p>By contrast, in a bytecode VM, implementing TCO is easy, and can be done both at code
 generation and at runtime in the VM. Nystrom also convincingly claims that
 bytecode VMs are much faster than treewalk interpreters, and not much harder to
@@ -121,7 +111,6 @@ write. I find myself convinced by these arguments (and the ever increasing
 complexity of the frame code, see <a href="https://github.com/atamis/ironic-space-lisp/blob/6151575b11165807cc256a4198a9aea8fbe95bd2/src/frames/if_frame.rs"><code>if_frame.rs</code></a>), and I&rsquo;ve
 restarted work on the stack VM in the ISL repo. It&rsquo;s still in the <code>old_stack</code>
 branch.</p>
-
 <p>It isn&rsquo;t substantially smaller than the stepped interpreter, but it&rsquo;s a
 fair amount simpler, partially because it&rsquo;s just a VM. It does have nested
 environments and bindings before the stepped interpreter, but doesn&rsquo;t have
@@ -131,14 +120,12 @@ of externals to the user is something that <em>might</em> have interesting gamep
 implications. It might also be relevant if I want to implement some other type
 of language on the bytecode VM, but that seems less likely, particularly because
 I&rsquo;ve already implemented environment bindings <em>in the VM</em>.</p>
-
 <p>In the end, Nystrom baited me: he&rsquo;s completed the section on the tree-walk
 interpreter, but his chapter on the bytecode VM ends at compiling
 expressions, leaving such topics as &ldquo;local variables&rdquo;, &ldquo;calls and functions&rdquo;,
 &ldquo;closures&rdquo;, and &ldquo;garbage collection&rdquo; incomplete. I think I&rsquo;ll be alright: I can
 see how to implement all of these, although I&rsquo;m particularly interested in his
 approach to closures.</p>
-
 <p>I&rsquo;m hoping to make closures serializable, or at least transferrable between
 different VMs with different environments: possible in Java, difficult in PHP,
 involves eval in Ruby, possible in <a href="http://www.javalimit.com/2010/05/passing-funs-to-other-erlang-nodes.html">Erlang</a>, etc (how crazy is it that
@@ -148,15 +135,11 @@ I&rsquo;m not sure I need to serialize closures all the way to strings and send 
 over the network, but copying/moving functions made from and parameterized by
 higher order functions from one VM to another seems like a really flexible and
 powerful tool for the languages ultimate purpose.</p>
-
 <p>It&rsquo;s worth nothing that <a href="http://www.call-with-current-continuation.org/scheme-implementation-techniques.pdf">this presentation</a> was very
 interesting, although it covers a lot of topics that weren&rsquo;t directly relevant
 to this project.</p>
-
 <h2 id="addendum-tests">Addendum: Tests</h2>
-
 <p><em>Why haven&rsquo;t you written any tests?</em></p>
-
 <p>This is a pretty bad look for me: no tests of any of the implementations. To
 explain, allow me to draw your attention to the phrase &ldquo;any of the
 implementation&rdquo;. I&rsquo;ve written two and a half implementations, and none of them
@@ -197,10 +180,11 @@ very difficult too. The VM is easier to write tests for, luckily.</p>
 
 
   <footer>
-  
+  <div class="pride-strip pride-strip-position" ></div>
+
   
   <hr/>
-  &copy; <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
+  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
   
   </footer>
   </body>

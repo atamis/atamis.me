@@ -6,7 +6,7 @@
     <title>The Phantom Rejection | Azrea Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/pride_helper.css">
 
 
   </head>
@@ -38,37 +38,28 @@
 </div>
 
 <main>
-
-
 <p>I&rsquo;m unemployed, so I&rsquo;m constantly applying to jobs, and have posted my resume to
 a couple of job boards, attempting to prompt semi-cold calls from recruiters.
 And it&rsquo;s worked, to an extent. I haven&rsquo;t got a job, but I&rsquo;ve gotten a couple
 emails from recruiters.</p>
-
 <p>I also got a rejection email. Not unusual, some companies decide to let me know
 that I&rsquo;m no longer being considered for a position. But I never applied to this
 company. I&rsquo;d never heard of this company, and I wouldn&rsquo;t have applied to the job
 because I lack relevant experience.</p>
-
 <p>So what happened? Let&rsquo;s speculate.</p>
-
 <h1 id="the-bug-conspiracy">The Bug Conspiracy</h1>
-
 <p>Let&rsquo;s say you&rsquo;re a medium sized corporation, and you&rsquo;re hiring pretty much all
 the time, so you have an internal recruiting department. Not large, probably 1
 team, that interfaces with hiring managers, supplying them with candidates in
 the form of resumes to evaluate.</p>
-
 <p>The team screens resumes for specific keywords and general red flags, like Comic
 Sans and obvious serial killers. The hiring manager gets cleared resumes, and
 evaluates the skills and experience of the candidate with greater specificity,
 and either decides to move forward with the interview process, or reject them.</p>
-
 <p>This system sounds pretty resume-centric, but it doesn&rsquo;t have to be: the resumes
 could be actual resumes, but they could be some internal standardized format to
 make evaluation, storage, and querying easier. PDFs bad, relational DBs good, so
 to speak.</p>
-
 <p>So the company has these people all operating on this shared database, but
 things are getting a little hectic, so they decide to systematize. They
 establish procedure, either with code or bureaucracy, to manage the lifecycle of
@@ -81,7 +72,6 @@ to scale, so they can hire very large numbers of employees in roughly the same
 way. They see these bulk employees as cogs in the machine, and it only makes
 sense to these companies to systematize the acquisition of new cogs, so to
 speak</p>
-
 <p>That description is unnecessarily dry, however, and some companies may
 see the value of systematization in its clarity to both &ldquo;clients&rdquo; of the
 recruitment process. Clarifying to hiring managers exactly who is applying, and
@@ -94,8 +84,7 @@ liability, and can&rsquo;t be provided. However, knowing the length of the proce
 how many interviews to expect, who&rsquo;s responsible for the decisions, and most
 importantly, which part of the interview process they&rsquo;re in can be very helpful. The system can also
 keep track of whether candidates have failed out, and send an email informing
-the candidate of that, regardless of how far into the process they got<sup class="footnote-ref" id="fnref:0"><a href="#fn:0">1</a></sup>.</p>
-
+the candidate of that, regardless of how far into the process they got<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
 <p>So let&rsquo;s say the company discovers public job boards, which would be better
 called candidate boards, from the perspective of the company. These boards allow
 the company to filter resumes based on a few attributes, like skills and
@@ -105,7 +94,6 @@ evaluating each resume would not be particularly profitable. &ldquo;But we alrea
 a system in place,&rdquo; the company thinks, &ldquo;we can load these resumes into the
 system, evaluate them with whatever automation we have already in place, and
 efficiently find great new talent!&rdquo;</p>
-
 <p>So what does the system do when someone inevitably fails one of the system&rsquo;s
 filters? Should the system send that person an email that they aren&rsquo;t in
 consideration for the position? No, but is the emailing component aware of the
@@ -116,13 +104,10 @@ familiar with the system to notice the issue. Maybe the recruiting team started
 loading the job board resumes into the system without telling any programmers,
 and without the full knowledge of the system themselves. Maybe they fired the
 programmers.</p>
-
 <p>The end result is that the system starts emailing random people from the job
 board that they&rsquo;ve been rejected from a job they <strong>never applied to</strong> at a company
 <strong>they&rsquo;ve never heard of</strong>.</p>
-
 <h1 id="the-third-party">The Third Party</h1>
-
 <p>So let&rsquo;s say you&rsquo;re a third party recruiter. Let&rsquo;s say you&rsquo;re a particularly
 <em>unscrupulous</em> third party recruiter. And things aren&rsquo;t going great. You have
 access to the same resume list as the first party recruiters, but you don&rsquo;t have
@@ -136,49 +121,42 @@ grabbing resumes, grabbing job listings, and just jamming them together. You
 have to go fast, so you only take a cursory glance at the keywords. You apply to
 a lot of different resumes to a lot of different positions, hoping one of them
 will stick.</p>
-
 <p>At this point things get a little hazy. The recruiter is going to want credit
 for making the match, so they probably put their own email on the application.
 So why did I get the email? Perhaps the company picked my email up from my
 resume, or maybe this random third party recruiter mistakenly applied with my
 email instead of their own.</p>
-
 <h1 id="conclusion">Conclusion</h1>
-
 <p>So what actually happened? No idea, I never bothered to follow up. There are a
 couple of reasons why this happened (including me forgetting that I applied,
 which seems unlikely given the positions requirements), and although these
 explanations seem <em>plausible</em>, actually figuring out what happened would be a
 lot of work, and I don&rsquo;t really have the training or experience to do that sort
 of investigative journalism.</p>
-
 <p>I&rsquo;m also not particularly angry at this situation. I&rsquo;ve gotten plenty of
 rejection letters; the novelty of getting one for a job I didn&rsquo;t apply to made
 up for the fact it was another rejection letter. In fact, this article is almost
 an apologia for this company, because sending an unprompted rejection letter is
 <em>pretty rude</em>. Just imagine if, while looking through job listings, I emailed
 the company of every listing I didn&rsquo;t apply to.</p>
-
 <blockquote>
 <p>Hello, I appreciate the interest your job listing for &ldquo;Full Stack Developer&rdquo;
 expressed, but I don&rsquo;t think I&rsquo;m a great fit for the position. However,</p>
 </blockquote>
-
 <p>I wouldn&rsquo;t get any emails back, but I&rsquo;d be roundly mocked by the HR department.</p>
-<div class="footnotes">
-
-<hr />
-
+<section class="footnotes" role="doc-endnotes">
+<hr>
 <ol>
-<li id="fn:0"><p>I recently received a rejection email from a company I applied to and was
+<li id="fn:1" role="doc-endnote">
+<p>I recently received a rejection email from a company I applied to and was
 rejected from <strong>6 months</strong> after I interviewed and got an email that they
 weren&rsquo;t going to hire me. Their system must have a hard deadline of 6
 months, after which candidates are automatically failed, and the hiring
 manager or recruiting team failed to properly reject me in the system when
-they actually made the decision.</p>
- <a class="footnote-return" href="#fnref:0"><sup>[return]</sup></a></li>
+they actually made the decision. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
 </ol>
-</div>
+</section>
 
 </main>
 
@@ -187,10 +165,11 @@ they actually made the decision.</p>
 
 
   <footer>
-  
+  <div class="pride-strip pride-strip-position" ></div>
+
   
   <hr/>
-  &copy; <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
+  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
   
   </footer>
   </body>

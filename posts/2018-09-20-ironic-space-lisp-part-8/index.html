@@ -6,7 +6,7 @@
     <title>Ironic Space Lisp Part 8 | Azrea Amis</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/pride_helper.css">
 
 
   </head>
@@ -42,9 +42,7 @@
 Most of this time was spent making maintenance, like documentation, but also
 trying to get the self hosted interpreter working and self hosting. That was a
 challenge, and also my fault.</p>
-
 <h1 id="closures">&ldquo;Closures&rdquo;</h1>
-
 <p>So, I had a problem. I&rsquo;m really used to having checks to make sure the code I
 write is correct. I don&rsquo;t ask for much, but arity checks are nice, and pretty
 much every language offers them, either at compile or runtime. Unfortunately, I
@@ -56,13 +54,11 @@ machine, so there isn&rsquo;t even an indication of how many items a function is
 to take off the stack, making arity double impossible. It&rsquo;s theoretically
 possible for the <code>function_lifter</code> pass or the compiler to arity check new code
 against itself, but not against old code.</p>
-
 <p>As far as I can tell, most VMs don&rsquo;t store bytecode like the ISL compiler
 does, and instead keep track of more runtime information so you can arity and
 type check. When the ISL VM didn&rsquo;t, it failed silently, and consumed the
 arguments <em>from the next function call</em>, resulting in runtime type errors if
 you&rsquo;re lucky, stack popping errors far from the actual error if you aren&rsquo;t.</p>
-
 <p>So I added a new system for functions. I added a new data type, <code>Closure</code>, which
 stores function arity and an address. The <code>function_lifter</code> pass, which does
 have access to arity information, now replaces functions with <code>Closures</code> rather
@@ -77,11 +73,8 @@ work properly with either addresses or closures. <code>Call</code> never checks 
 <code>CallArity</code> only checks arity with closures, and acts just like <code>Call</code> when
 passed a raw address. This is to permit strict arity code to interact with less
 strictly compiled code, although this doesn&rsquo;t have a use case yet.</p>
-
-<p>Syscalls have been updated to work with arities where possible<sup class="footnote-ref" id="fnref:0"><a href="#fn:0">1</a></sup>.</p>
-
+<p>Syscalls have been updated to work with arities where possible<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
 <h1 id="a-new-parser">A new parser</h1>
-
 <p>I was having an issue where <code>cargo</code> was printing compilation errors twice. I
 thought it was related to <code>lalrpop</code>, the parser generator I was using. Also, I
 had had some time away from it, so I wanted to try <code>nom</code> again. It turns out
@@ -112,35 +105,28 @@ didn&rsquo;t help either), so I had to write a wrapper function to do this prope
 </span><span class="w">
 </span><span class="w">    </span><span class="nb">Ok</span><span class="p">(</span><span class="n">lits</span><span class="p">)</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>Note that this code manually parses single exprs out until the string is empty,
+</span></code></pre></div><p>Note that this code manually parses single exprs out until the string is empty,
 and totally ignores the <code>many!</code> macro that is supposed to help in this situation.</p>
-
 <p>I&rsquo;m thinking of rewriting the parser by hand for better error reporting, but the
 whole string parser and AST parser suffer very poor usability, mostly because
 they&rsquo;re blind to file locations, so they can&rsquo;t report targeted errors. That&rsquo;s
 why AST parser error messages contain context information like &ldquo;While parsing
 multi expression 3&rdquo;, so you have to <em>count by hand</em> down your <code>do</code> expression or
 whatever.</p>
-
 <p>I don&rsquo;t think Rust has a really strong language grammar parser that really
 closely fits my needs, but I&rsquo;m not sure if I want to invest more time here. To
 me, it&rsquo;s not the interesting part of the project, and it&rsquo;s &ldquo;good enough&rdquo;, in the
 sense that it no longer silently eats errors.</p>
-
 <h1 id="the-self-hosted-interpreter">The self hosted interpreter.</h1>
-
 <p>The good news is that the self hosted interpreter can interpret itself fully,
 and can easily be extended to support new language features. It&rsquo;s obviously very
 slow, but there are some <em>very</em> obvious inefficiencies in the implementation,
-like the use of <a href="https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node153.html">assoc lists</a> for environment bindings, full
+like the use of [assoc lists][cmu_assoc] for environment bindings, full
 structural recursion, and the manual implementations of <code>map</code>, <code>foldl</code>, and
 <code>filter</code> (although higher order sycalls are still an unsolved problem).</p>
-
 <p>First, a note on tool quality. I didn&rsquo;t want to learn how to write language
 modes in emacs (and every other tool), so I was using <code>clojure-mode</code> for syntax
-highlighting and indentation. From <a href="https://github.com/atamis/ironic-space-lisp/commit/d9dfc3afc1ef689bf83b6da2c8f2292c3bb5b0d7#diff-c15ada9c0ecb840fd46058dd72987586"><code>d9dfc3a</code></a>&rsquo;s commit message,</p>
-
+highlighting and indentation. From [<code>d9dfc3a</code>][cloj_commit]&lsquo;s commit message,</p>
 <blockquote>
 <p>I also discovered that <code>clojure-mode</code> in emacs is the best way to format ISL
 code, but that it&rsquo;s very particular in its indenting. If <code>let</code> bindings aren&rsquo;t
@@ -149,18 +135,15 @@ acceptable delimiters. Also, <code>lambda</code> doesn&rsquo;t exist in Clojure,
 and <code>clojure-mode</code> formats <code>fn</code> differently from other function applications, so
 I aliased <code>fn</code> in the <em>AST</em> parser. Nowhere else though.</p>
 </blockquote>
-
 <p>It&rsquo;s really not my intent to imitate Clojure so much. Although it&rsquo;s a major
 inspiration, and I&rsquo;m a big Clojure fan, ISL has very different goals. These are
 good changes, I was going to add more permitted delimiters, and Rich Hickey has
 great ideas,  but I don&rsquo;t want to look like a stalker fanboy.</p>
-
 <p>After mostly implementing the interpreter, and testing it on a few small code
 chunks, I decided to throw the entire itself at itself, just to see what would
 happened. I meant it as a joke, but I then seriously attempted to debug the
 interpreter while it was running its own code, and without fully verifying it
 worked.</p>
-
 <p>The main problem was that the interpreter was fundamentally broken, and did
 <em>hilariously</em> wrong things, but I didn&rsquo;t write enough tests to figure that out.
 Instead, I would observe that the output of the VM&rsquo;s tests and the self-hosted
@@ -182,10 +165,9 @@ print expressions as triggered by the interpreted code, but sometimes I would
 accidentally pass a really big environment to <code>print</code> instead of a smaller
 value, and massive <code>sexprs</code> would vomit onto my terminal. It turns out sticking
 an entire interpreter and all its supporting functions (see
-<a href="https://github.com/atamis/ironic-space-lisp/blob/2ee301cf23103b1c796e5b03828ff6a2c42457e0/examples/lisp.isl"><code>examples/lisp.isl</code></a> to see all the &ldquo;library&rdquo; functions and &ldquo;structs&rdquo;
+[<code>examples/lisp.isl</code>][lisp_isl] to see all the &ldquo;library&rdquo; functions and &ldquo;structs&rdquo;
 I had to implement by hand) results in a lot of code heavily nested and entirely
 unreadable <code>sexprs</code>.</p>
-
 <p>Although verifying the several different language implementations with a strict
 suite of test cases would be a good idea (and fixing the Rust interpreter in
 turn), and would reveal vagaries in the existing language design (and just how
@@ -198,9 +180,7 @@ finally working on the VM. Almost all the implementations make certain
 assumptions about how environment bindings work that the absolutely shouldn&rsquo;t,
 and although I think fixing them in the interpreter will be easiest, I think the
 VM will require some major changes.</p>
-
 <h1 id="language-leverage">Language Leverage</h1>
-
 <p>The <code>data</code> module was probably the first code I wrote in this project, as befits
 a data oriented programming style. Since that day, I&rsquo;ve been writing code like
 this:</p>
@@ -216,13 +196,11 @@ this:</p>
 </span><span class="w">        </span><span class="n">data</span>::<span class="n">list</span><span class="p">(</span><span class="n">vec</span><span class="o">!</span><span class="p">[]),</span><span class="w">
 </span><span class="w">    </span><span class="p">]),</span><span class="w">
 </span><span class="w"></span><span class="p">]);</span><span class="w">
-</span></code></pre></div>
-<p>This code is building nested data literals out of raw Rust struct constructors,
+</span></code></pre></div><p>This code is building nested data literals out of raw Rust struct constructors,
 and man is it wordy. This code is particularly bad because it has to preface all
 the structs with the module name, but this is by no means the biggest data
 literal in the codebase. Although much of this code was in tests, it made the
 tests <em>very</em> difficult to read, and difficult to read means difficult to verify.</p>
-
 <p>I eventually remembered that you can implement <code>From</code> to allow for
 near-automatic type conversion, and decided to implement a bunch of them for the
 single field <code>Literal</code> structs. It was a pretty boilerplate chunk of code, but
@@ -232,8 +210,7 @@ it makes it that much easier. For example,</p>
 </span><span class="w">        </span><span class="n">Literal</span>::<span class="n">Number</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w">
 </span><span class="w">    </span><span class="p">}</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>Of course, Rust vectors can&rsquo;t be heterogeneously typed, so you can&rsquo;t do
+</span></code></pre></div><p>Of course, Rust vectors can&rsquo;t be heterogeneously typed, so you can&rsquo;t do
 something like  <code>vec![&quot;keyword&quot;, 1, true].into()</code>, the vector can&rsquo;t be
 represented in Rust, so you can&rsquo;t write a <code>From</code> implementation to convert it.
 You would have to do <code>vec![&quot;keyword&quot;.into(), 1.into(), true.into()].into()</code>,
@@ -264,8 +241,7 @@ converted properly, and then wrap the entire list properly.</p>
 </span><span class="w">        </span><span class="n">l</span><span class="w">
 </span><span class="w">    </span><span class="p">}};</span><span class="w">
 </span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div>
-<p>The implementation initially relied on the <code>vector![]</code> macro from the <code>im</code> crate
+</span></code></pre></div><p>The implementation initially relied on the <code>vector![]</code> macro from the <code>im</code> crate
 (which is the container that backs <code>data::Literal::List</code> values), but I had real
 trouble gaining access to the macro from crates that imported
 <code>ironic_space_lisp</code> but not <code>im</code>. It doesn&rsquo;t seem to be directly possible, and I
@@ -273,21 +249,22 @@ couldn&rsquo;t even get reasonable access to <code>Vector</code>, a normal struc
 to reexport it from the <code>data</code> module with</p>
 <div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="cp">#[doc(hidden)]</span><span class="w">
 </span><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">use</span><span class="w"> </span><span class="n">im</span>::<span class="n">vector</span>::<span class="n">Vector</span><span class="p">;</span><span class="w">
-</span></code></pre></div>
-<p>The rest of the implementation is inspired by the implementation details of
+</span></code></pre></div><p>The rest of the implementation is inspired by the implementation details of
 <code>vector![]</code>. I also had trouble figuring out how to trigger Rust&rsquo;s type
 inference to make <code>into()</code> work properly, which is why it has so many reassignments.</p>
-<div class="footnotes">
-
-<hr />
-
+<section class="footnotes" role="doc-endnotes">
+<hr>
 <ol>
-<li id="fn:0"><p>Some syscalls are &ldquo;stack&rdquo; syscalls which don&rsquo;t specify an arity and push
+<li id="fn:1" role="doc-endnote">
+<p>Some syscalls are &ldquo;stack&rdquo; syscalls which don&rsquo;t specify an arity and push
 and pop the stack as they please. There are none of them right now, but if
-there were, they wouldn&rsquo;t have defined arities, so you couldn&rsquo;t check their arity.</p>
- <a class="footnote-return" href="#fnref:0"><sup>[return]</sup></a></li>
+there were, they wouldn&rsquo;t have defined arities, so you couldn&rsquo;t check their arity.
+[cmu_assoc]: <a href="https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node153.html">https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node153.html</a>
+[cloj_commit]: <a href="https://github.com/atamis/ironic-space-lisp/commit/d9dfc3afc1ef689bf83b6da2c8f2292c3bb5b0d7#diff-c15ada9c0ecb840fd46058dd72987586">https://github.com/atamis/ironic-space-lisp/commit/d9dfc3afc1ef689bf83b6da2c8f2292c3bb5b0d7#diff-c15ada9c0ecb840fd46058dd72987586</a>
+[lisp_isl]: <a href="https://github.com/atamis/ironic-space-lisp/blob/2ee301cf23103b1c796e5b03828ff6a2c42457e0/examples/lisp.isl">https://github.com/atamis/ironic-space-lisp/blob/2ee301cf23103b1c796e5b03828ff6a2c42457e0/examples/lisp.isl</a> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
 </ol>
-</div>
+</section>
 </main>
 
 <hr>
@@ -311,10 +288,11 @@ there were, they wouldn&rsquo;t have defined arities, so you couldn&rsquo;t chec
 
 
   <footer>
-  
+  <div class="pride-strip pride-strip-position" ></div>
+
   
   <hr/>
-  &copy; <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
+  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
   
   </footer>
   </body>

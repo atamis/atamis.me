@@ -18,7 +18,8 @@
       <pubDate>Fri, 25 Nov 2011 15:12:00 +0000</pubDate>
       
       <guid>/posts/2011-11-25-hacking-turntable-for-fun-and-music/</guid>
-      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.</description>
+      <description>Previous Solutions Turntable is a collaborative DJ website that lets people play music to an online audience. Turntable, by default, doesn&amp;rsquo;t let you download the music you hear. If you hover over the track name in the UI, you can scrobble the track to Last.fm, find it in Spotify or Rdio, etc. Some people (myself included, but we&amp;rsquo;ll get to that later) wanted to download the files being played.
+So, a Greasemonkey script was created to automatically download songs as they were played on Turntable.</description>
     </item>
     
   </channel>
