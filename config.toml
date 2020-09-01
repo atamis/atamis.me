@@ -13,7 +13,7 @@ project = "projects"
 
 [params]
     footer = "&copy; [Azrea Amis](http://atamis.me) --- [Github](http://github.com/atamis) --- 2020"
-    custom_css = ["/css/syntax.css", "/css/custom.css"]
+    custom_css = ["/css/syntax.css", "/css/custom.css", "/css/pride_helper.css"]
 
 [permalinks]
     post = "/post/:year/:month/:day/:slug/"
