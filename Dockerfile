@@ -34,7 +34,7 @@ COPY --from=resume-builder /work/main.pdf /site/static/downloads/resume.pdf
 RUN cd /site && /usr/bin/hugo
 
 # Final NGINX container
-FROM nginx
+FROM nginx:alpine
 
 COPY --from=site-builder /site/public /usr/share/nginx/html
 
