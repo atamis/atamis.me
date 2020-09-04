@@ -1,6 +1,10 @@
-{{ range .Site.Params.custom_css -}}
-  <link rel="stylesheet" href="{{ . | relURL }}">
-{{- end }}
+{{ $syntax := resources.Get "css/syntax.css" | minify}}
+{{ $custom := resources.Get "css/custom.css" | minify }}
+{{ $pride := resources.Get "css/pride_helper.css" | minify }}
+
+{{ $css := slice $syntax $custom $pride | resources.Concat "css/bundle.css"}}
+
+<link rel="stylesheet" href="{{ $css.Permalink }}">
 
 {{ range .AlternativeOutputFormats -}}
     {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}

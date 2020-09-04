@@ -42,7 +42,7 @@ cv:
 # Below are file based targets
 public: $(FILES) cv config.toml
 	git submodule update --recursive
-	$(HUGO)
+	$(HUGO) --minify
 
 	# Post process some files (to make the HTML more bootstrap friendly)
 	# Add a table class to all tables
