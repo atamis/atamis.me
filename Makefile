@@ -30,7 +30,7 @@ clean:
 	-make -C cv clean
 
 server: public
-	cd public && python -m SimpleHTTPServer 1313
+	cd public && python3 -m http.server 1313
 
 watch: clean
 	$(HUGO) server -w
