@@ -29,11 +29,11 @@ jobs:
         registry: docker.pkg.github.com
         snapshot: true
 
-    - name: Publish to Ava Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: atamis.me
-        username: ${{ secrets.AVA_DOCKER_USERNAME }}
-        password: ${{ secrets.AVA_DOCKER_PASSWORD }}
-        registry: reg.ava.azrea.me
-        snapshot: true
+    # - name: Publish to Ava Registry
+    #   uses: elgohr/Publish-Docker-Github-Action@master
+    #   with:
+    #     name: atamis.me
+    #     username: ${{ secrets.AVA_DOCKER_USERNAME }}
+    #     password: ${{ secrets.AVA_DOCKER_PASSWORD }}
+    #     registry: reg.ava.azrea.me
+    #     snapshot: true
