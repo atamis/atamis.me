@@ -1,63 +1,17 @@
-<!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Monorepo Compromise | Azrea Amis</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/pride_helper.css">
-
-
-  </head>
-
-  <body>
-    <nav>
-    <ul class="menu">
-      
-      <li><a href="/">Home</a></li>
-      
-      <li><a href="/posts/">Posts</a></li>
-      
-      <li><a href="/tags/">Tags</a></li>
-      
-      <li><a href="/projects/">Projects</a></li>
-      
-      <li><a href="/pictures/">Pictures</a></li>
-      
-      <li><a href="/downloads/resume.pdf">Resume</a></li>
-      
-    </ul>
-    <hr/>
-    </nav>
-
-<div class="article-meta">
-<h1><span class="title">Monorepo Compromise</span></h1>
-
-<h2 class="date">2019/11/03</h2>
-</div>
-
-<main>
-<p>I have a modest proposal on repository organization. There are 2 primary
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Monorepo Compromise | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Monorepo Compromise</span></h1><h2 class=date>2019/11/03</h2></div><main><p>I have a modest proposal on repository organization. There are 2 primary
 archetypes, multiple repositories and the monorepo pattern. In multiple
 repositories, you have 1 project per repository, binaries requiring internal
 libraries, and use tools to ensure that you have all the necessary repositories
 downloaded and up to date (easy with most modern package managers). In a
 monorepo, all projects are stored directly in the monorepo, as part of a single
-codebase or project, and all internal dependencies are automatically managed.</p>
-<p>Each archetype has its own challenges (multi-repository PRs, space
+codebase or project, and all internal dependencies are automatically managed.</p><p>Each archetype has its own challenges (multi-repository PRs, space
 consideration, compartmentalization, CI), but I&rsquo;d like to propose a third
-solution that solves none of these issues and is really dumb</p>
-<h1 id="hydra-repositories">Hydra Repositories</h1>
-<p>In git, you can create a branch in a repository with no connection to the
-existing history: an orphan branch.</p>
-<p>Per <a href="https://stackoverflow.com/a/4288660">this</a> SO answer,</p>
-<div class="highlight"><pre class="chroma"><code class="language-fallback" data-lang="fallback">git checkout --orphan newbranch
+solution that solves none of these issues and is really dumb</p><h1 id=hydra-repositories>Hydra Repositories</h1><p>In git, you can create a branch in a repository with no connection to the
+existing history: an orphan branch.</p><p>Per <a href=https://stackoverflow.com/a/4288660>this</a> SO answer,</p><div class=highlight><pre class=chroma><code class=language-fallback data-lang=fallback>git checkout --orphan newbranch
 git rm -rf .
 </code></pre></div><p>And boom, you have a new branch with no connection to the old history of the
 repository and no contents. From here you can build an entirely new project
-isolated from any other branches.</p>
-<p>In the hydra Repository, you maintain separate orphan branches for each of your
+isolated from any other branches.</p><p>In the hydra Repository, you maintain separate orphan branches for each of your
 projects and libraries. This has all the isolation and lack of easy code sharing
 of multiple repos, but in the same repo. Like a monorepo, you can clone every
 single project you care about with a single <code>git clone</code> command without an easy
@@ -65,45 +19,14 @@ way of excluding some parts of the project. Google&rsquo;s famous monorepo inclu
 specialized tooling for dealing with a single repository that contains <em>all</em>
 Google code, and you&rsquo;ll be building all that tooling on top of git!. CI is even
 harder than in a monorepo, and even less tooling exists for managing this
-structure.</p>
-<p>Although most dependency management tools is prepared to deal with dependencies specified
+structure.</p><p>Although most dependency management tools is prepared to deal with dependencies specified
 by git repo URL and SHA (in order to handle multiple private repositories), are
 they read to deal with multiple dependencies that all come from exactly the same
 repository? Maybe some of them make some assumption that renders them incapable
 of dealing with hydra repositories, and therefor that language or environment
-incapable of running in a hydra repository.</p>
-<p>By using git worktree, you can &ldquo;mount&rdquo; these orphan branches in the working
-directories of other branches like so:</p>
-<div class="highlight"><pre class="chroma"><code class="language-fallback" data-lang="fallback">git worktree add repository/ &lt;SHA&gt;
+incapable of running in a hydra repository.</p><p>By using git worktree, you can &ldquo;mount&rdquo; these orphan branches in the working
+directories of other branches like so:</p><div class=highlight><pre class=chroma><code class=language-fallback data-lang=fallback>git worktree add repository/ &lt;SHA&gt;
 </code></pre></div><p>This directory will act like another working directory for the overall git
-repository, allowing you to work on multiple branches at the same time.</p>
-<p>You can also theoretically merge these repositories easily by just merging the
+repository, allowing you to work on multiple branches at the same time.</p><p>You can also theoretically merge these repositories easily by just merging the
 branches directly, so if you make the horrible and inexplicable decision, you
-can resolve the issue by just merging the orphan branches into the same branch.</p>
-<p>Luckily, this article is not born of personal experience.</p>
-
-</main>
-
-<hr>
-
-
-    <section>
-        
-            <a class="tag" href="/tags/code">
-                code
-            </a>
-        
-    </section>
-
-
-  <footer>
-  <div class="pride-strip pride-strip-position" ></div>
-
-  
-  <hr/>
-  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
-  
-  </footer>
-  </body>
-</html>
-
+can resolve the issue by just merging the orphan branches into the same branch.</p><p>Luckily, this article is not born of personal experience.</p></main><hr><section><a class=tag href=/tags/code>code</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2020</footer></body></html>

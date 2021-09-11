@@ -1,49 +1,8 @@
-<!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ironic Space Lisp Part 4 | Azrea Amis</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/pride_helper.css">
-
-
-  </head>
-
-  <body>
-    <nav>
-    <ul class="menu">
-      
-      <li><a href="/">Home</a></li>
-      
-      <li><a href="/posts/">Posts</a></li>
-      
-      <li><a href="/tags/">Tags</a></li>
-      
-      <li><a href="/projects/">Projects</a></li>
-      
-      <li><a href="/pictures/">Pictures</a></li>
-      
-      <li><a href="/downloads/resume.pdf">Resume</a></li>
-      
-    </ul>
-    <hr/>
-    </nav>
-
-<div class="article-meta">
-<h1><span class="title">Ironic Space Lisp Part 4</span></h1>
-
-<h2 class="date">2018/08/12</h2>
-</div>
-
-<main>
-<p>This update is all about parsing, and this ended up being really difficult. Not
-in a good way though. In my <a href="/posts/2018-08-10-ironic-space-lisp-part-3/">last post</a>, I talked about using
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 4 | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 4</span></h1><h2 class=date>2018/08/12</h2></div><main><p>This update is all about parsing, and this ended up being really difficult. Not
+in a good way though. In my <a href=/posts/2018-08-10-ironic-space-lisp-part-3/>last post</a>, I talked about using
 languages so difficult and alien that the difficulty clearly signified that
 there was something important you could learn from mastering them. I didn&rsquo;t find
-this was the case during this phase of the project.</p>
-<div class="highlight"><pre class="chroma"><code class="language-fallback" data-lang="fallback">$ cargo run
+this was the case during this phase of the project.</p><div class=highlight><pre class=chroma><code class=language-fallback data-lang=fallback>$ cargo run
    Compiling ironic-space-lisp v0.1.0 (file:///home/andrew/src/rust/ironic-space-lisp)                                                                                                                                                       
 error: no rules expected the token `,`
   --&gt; src/parser.rs:21:5
@@ -62,32 +21,27 @@ error: Could not compile `ironic-space-lisp`.
 To learn more, run the command again with --verbose.
 </code></pre></div><p>Thanks, rust. The <code>external-macro-backtrace</code>, once I had got it working, did not
 help my comprehension. By the time I figured out what was wrong with this code,
-I had abandoned this parsing framework.</p>
-<p>The AST I was targeting was quite simple, eschewing (for now) any
+I had abandoned this parsing framework.</p><p>The AST I was targeting was quite simple, eschewing (for now) any
 differentiation for special forms, quoting, quasiquoting, booleans, etc. I
 didn&rsquo;t write the AST down explicitly, rather, when approaching a new parsing
 framework, I would try to write a parser for <code>keywords</code> first, before moving
 onto numbers and ultimately nested lists. I also didn&rsquo;t want to involve the
 existing data structures to avoid initial complexity, so I started with parsing
-to strings and vectors, then parser-internal ASTs.</p>
-<p>I didn&rsquo;t keep a good record of my attempts, so I can&rsquo;t explain, in detail, where
+to strings and vectors, then parser-internal ASTs.</p><p>I didn&rsquo;t keep a good record of my attempts, so I can&rsquo;t explain, in detail, where
 I went wrong. I suspect that my issues were comparatively minor, and easily
 fixed with a little outside help, but I&rsquo;m an impatient man, and figured I&rsquo;d
 solve my own issues. I also figured that if I needed help as early in these
 parsers, advice capable of getting me over whatever issue I was dealing with
-at the moment would not be sufficient to carry me through the entire parser.</p>
-<h1 id="nomnom_link"><a href="https://github.com/Geal/nom"><code>nom</code></a></h1>
-<p><code>nom</code> is a parser-combinator language aimed at bit-level context-sensitive data
+at the moment would not be sufficient to carry me through the entire parser.</p><h1 id=nomnom_link><a href=https://github.com/Geal/nom><code>nom</code></a></h1><p><code>nom</code> is a parser-combinator language aimed at bit-level context-sensitive data
 formats. I was dealing with valid utf8 strings, which Nom handled with aplomb,
 but my AST was actually context-free, making <code>nom</code> somewhat overkill. <code>nom</code>, as
 a library, is pretty much all macros for generating custom parser combinators
 out of smaller combinators. The whole parser has a type signature roughly like
-<code>&amp;str -&gt; AST</code>, plus or minus a result type. Because of the heavy use of macros,
+<code>&str -> AST</code>, plus or minus a result type. Because of the heavy use of macros,
 the typing of everything was reasonably easy, but unfortunately, it ended up
 being hard to understand exactly how to use the macros together, and there were
 a large number of functions, some of which returned parsers, and some of which
-didn&rsquo;t.</p>
-<p><code>nom</code> also has an issue codified in <a href="https://github.com/Geal/nom/issues/271">Incomplete vs end of input</a>. The
+didn&rsquo;t.</p><p><code>nom</code> also has an issue codified in <a href=https://github.com/Geal/nom/issues/271>Incomplete vs end of input</a>. The
 gist of it is that, because <code>nom</code> is designed to produce parsers capable of
 working on input of both flat string and stream types, it had a tendency to
 &ldquo;over-consume&rdquo;, sort of. It wouldn&rsquo;t see the end of an input string as the end of
@@ -98,26 +52,21 @@ token. This is <em>sort of</em> reasonable: this string could be a fragment of a
 document or stream, the token could be continued in the next string, but the
 solution to the problem was more than a little unclear to me. There is a
 <code>CompleteString</code> type, but that ensures that the parser won&rsquo;t work on streams. I
-didn&rsquo;t really find a good solution to this problem?</p>
-<p>I also tried to separate lexing and parsing, but couldn&rsquo;t figure out how to
+didn&rsquo;t really find a good solution to this problem?</p><p>I also tried to separate lexing and parsing, but couldn&rsquo;t figure out how to
 parse non-string data with <code>nom</code>: there seemed to be a lot of traits to
 implement, and it wasn&rsquo;t abundantly clear why they weren&rsquo;t already implemented
-for a simple <code>Vec</code> if I was supposed to be able to do this.</p>
-<p>Also, error messages tended to be pretty impenetrable because everything was
+for a simple <code>Vec</code> if I was supposed to be able to do this.</p><p>Also, error messages tended to be pretty impenetrable because everything was
 macros. That error at the start of the article? I got that error because <code>alpha</code>
 is actually a function, and to get a parser from it, you needed to call it.
 Absolutely amazing error message though. Absolutely stumped me. Also, some of
-<code>nom</code>'s documentation is a little sparse and difficult to understand. None of it
+<code>nom</code>&rsquo;s documentation is a little sparse and difficult to understand. None of it
 is <em>undocumented</em>, <em>per se</em>, but I found understanding somewhat difficult to
 grasp. <code>nom</code> is clearly popular and powerful: the list of projects using it is
 quite large, but those projects were mature pieces of software with complex
 parsers for formats I didn&rsquo;t fully understand, so reading them to learn how to
-use <code>nom</code> was not useful.</p>
-<p>I expect I&rsquo;ll return to <code>nom</code>, as I&rsquo;m not entirely happy with with my current
+use <code>nom</code> was not useful.</p><p>I expect I&rsquo;ll return to <code>nom</code>, as I&rsquo;m not entirely happy with with my current
 choice, but I put several hours into my attempt to get even the most basic
-parser out of <code>nom</code>, and was thoroughly rebuffed.</p>
-<h1 id="combinecombine_link"><a href="https://github.com/Marwes/combine"><code>combine</code></a></h1>
-<p>Combine was another parser combinator, but this time with much fewer macros, and
+parser out of <code>nom</code>, and was thoroughly rebuffed.</p><h1 id=combinecombine_link><a href=https://github.com/Marwes/combine><code>combine</code></a></h1><p>Combine was another parser combinator, but this time with much fewer macros, and
 many more functions, types, traits, and more. <code>combine</code> types could get
 thoroughly overwhelming, with type signatures in error messages easy wrapping my
 terminal. Parsing what was actually going wrong from the type signatures was
@@ -127,73 +76,33 @@ the signature heavy error messages didn&rsquo;t not clarify for me. Although I&r
 entirely familiar with the issue, <code>combine</code> encoded the parsing tree into its
 complex types, but types cannot be infinite, so recursive parsing was achieved
 through a thoroughly baffling macro called <code>parser!</code>, which &ldquo;Declares a named
-parser which can easily be reused&rdquo;.</p>
-<p>At least part of these problems is my unfamiliarity with parser combinators. I&rsquo;m
+parser which can easily be reused&rdquo;.</p><p>At least part of these problems is my unfamiliarity with parser combinators. I&rsquo;m
 familiar with some of the theory, but adapting that to real world use, and to
 the unique syntax and interface of these parsers, is very difficult. The premier
 parser combinator is Haskell&rsquo;s Parsec, so perhaps a deep study of Parsec would
-help me with this issue. For now, I still need a parser.</p>
-<h1 id="lalrpoplalrpop_link"><a href="https://github.com/lalrpop/lalrpop"><code>lalrpop</code></a></h1>
-<p><code>lalrpop</code> is a much more traditional parser: it&rsquo;s a compile time parser
+help me with this issue. For now, I still need a parser.</p><h1 id=lalrpoplalrpop_link><a href=https://github.com/lalrpop/lalrpop><code>lalrpop</code></a></h1><p><code>lalrpop</code> is a much more traditional parser: it&rsquo;s a compile time parser
 generator for context-free grammars. It hooks the cargo build process to
 generate Rust code from a custom grammar file, a little like a gigantic macro.
 Unlike <code>nom</code>, its error messages seem custom generated, and in fact, its grammar
 file is defined not in terms of Rust macros but with a grammar itself, making
-the entire thing self hosting (or at least self parsing).</p>
-<p>It&rsquo;s context-free, so it&rsquo;s arguably less powerful that either <code>nom</code> or
+the entire thing self hosting (or at least self parsing).</p><p>It&rsquo;s context-free, so it&rsquo;s arguably less powerful that either <code>nom</code> or
 <code>combine</code>, but its grammar files are succinct and expressive, and I managed to
 complete a grammar and a test suite (longer than the grammar) in an amazingly
-short time.</p>
-<p>It does have fewer examples, and less documentation, but the tutorial was clear
+short time.</p><p>It does have fewer examples, and less documentation, but the tutorial was clear
 enough that I feel pretty confident I could produce similar parsers, and modify
-this parser, quite easily.</p>
-<h1 id="thoughts">Thoughts</h1>
-<p>This experience was striking. I&rsquo;m not happy about my performance with <code>nom</code> or
+this parser, quite easily.</p><h1 id=thoughts>Thoughts</h1><p>This experience was striking. I&rsquo;m not happy about my performance with <code>nom</code> or
 <code>combine</code>. I had real trouble understanding and using both of their interfaces,
 and I&rsquo;m hesitant to blame it on the frameworks over myself. Developer
 productivity can&rsquo;t be denied, but I can&rsquo;t help but feel I could have been better
-and could be better in the future.</p>
-<p>I think I&rsquo;m going to write a few AST mutating phases, then implement a
+and could be better in the future.</p><p>I think I&rsquo;m going to write a few AST mutating phases, then implement a
 tree-walk interpreter for the new AST before beginning on code generation. I&rsquo;m
 hoping to reuse the VM&rsquo;s environment code and builtin functions for simplicity.
 Ultimately, I can use the interpreter to test the code generation, but because
 the bytecode VM is the ultimate goal, I may end up modifying the interpreter to
 better fit the semantics of the VM. Modifications to syntax can be implemented
-as AST modification stages, as those should be semantic neutral.</p>
-<p>The project is really coming together, and starting with the parser, I&rsquo;ve begun
+as AST modification stages, as those should be semantic neutral.</p><p>The project is really coming together, and starting with the parser, I&rsquo;ve begun
 building a test suite. I&rsquo;ve also had time to think on the bytecode VM, and I
 think I&rsquo;m happy with its current state and semantics, and ready to write a test
-suite for it too. The runtime scheduler is a ways off.</p>
-</main>
-
-<hr>
-
-
-    <section>
-        
-            <a class="tag" href="/tags/rust">
-                rust
-            </a>
-        
-            <a class="tag" href="/tags/code">
-                code
-            </a>
-        
-            <a class="tag" href="/tags/language">
-                language
-            </a>
-        
-    </section>
-
-
-  <footer>
-  <div class="pride-strip pride-strip-position" ></div>
-
-  
-  <hr/>
-  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
-  
-  </footer>
-  </body>
-</html>
-
+suite for it too. The runtime scheduler is a ways off.</p></main><hr><section><a class=tag href=/tags/rust>rust</a>
+<a class=tag href=/tags/code>code</a>
+<a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2020</footer></body></html>

@@ -1,69 +1,25 @@
-<!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Flows the Wrong Way, Part 2: The Right Way | Azrea Amis</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/fonts.css" />
-    <link rel="stylesheet" href="/css/syntax.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/pride_helper.css">
-
-
-  </head>
-
-  <body>
-    <nav>
-    <ul class="menu">
-      
-      <li><a href="/">Home</a></li>
-      
-      <li><a href="/posts/">Posts</a></li>
-      
-      <li><a href="/tags/">Tags</a></li>
-      
-      <li><a href="/projects/">Projects</a></li>
-      
-      <li><a href="/pictures/">Pictures</a></li>
-      
-      <li><a href="/downloads/resume.pdf">Resume</a></li>
-      
-    </ul>
-    <hr/>
-    </nav>
-
-<div class="article-meta">
-<h1><span class="title">Flows the Wrong Way, Part 2: The Right Way</span></h1>
-
-<h2 class="date">2018/10/13</h2>
-</div>
-
-<main>
-<p>In my <a href="/posts/2018-10-10-flows-the-wrong-way/">last post</a>, I covered my first attempt to implement TCP streaming in
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Flows the Wrong Way, Part 2: The Right Way | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Flows the Wrong Way, Part 2: The Right Way</span></h1><h2 class=date>2018/10/13</h2></div><main><p>In my <a href=/posts/2018-10-10-flows-the-wrong-way/>last post</a>, I covered my first attempt to implement TCP streaming in
 <code>Flow</code>, a data flow library for Elixir. My first attempts involved a bunch of
 failed Unix sockets, and an attempt to implement a <code>GenStage</code> that failed for
-reasons I didn&rsquo;t understand. I eventually settled on this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Elixir" data-lang="Elixir"><span class="nc">Stream</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span>
-    <span class="n">fn</span> <span class="o">-&gt;</span> <span class="n">nil</span> <span class="n">end</span><span class="p">,</span>
-    <span class="n">fn</span> <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">{</span> <span class="nc">TcpStream.Aggregator</span><span class="o">.</span><span class="n">get_buffer</span><span class="p">(),</span> <span class="n">nil</span> <span class="p">}</span> <span class="n">end</span><span class="p">,</span>
-    <span class="n">fn</span> <span class="n">_</span> <span class="o">-&gt;</span> <span class="n">nil</span>
-<span class="n">end</span>
+reasons I didn&rsquo;t understand. I eventually settled on this:</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=nc>Stream</span><span class=o>.</span><span class=n>resource</span><span class=p>(</span>
+    <span class=k>fn</span> <span class=o>-&gt;</span> <span class=no>nil</span> <span class=k>end</span><span class=p>,</span>
+    <span class=k>fn</span> <span class=n>_</span> <span class=o>-&gt;</span> <span class=p>{</span> <span class=nc>TcpStream.Aggregator</span><span class=o>.</span><span class=n>get_buffer</span><span class=p>(),</span> <span class=no>nil</span> <span class=p>}</span> <span class=k>end</span><span class=p>,</span>
+    <span class=k>fn</span> <span class=n>_</span> <span class=o>-&gt;</span> <span class=no>nil</span>
+<span class=k>end</span>
 </code></pre></div><p><code>Stream.resource/3</code> can be converted into a <code>Flow</code> with
 <code>Flow.from_enumerables/2</code>. This is implemented with the assumption that the
 stream is synchronous (I think), and it continuously polls the 2nd function for
 new stream items. I&rsquo;m not entirely sure if you&rsquo;re allowed to block the stream
-process, but if you were, you could write something like:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Elixir" data-lang="Elixir"><span class="nc">Stream</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span>
-    <span class="n">fn</span> <span class="o">-&gt;</span> <span class="n">socket</span> <span class="n">end</span><span class="p">,</span>
-    <span class="n">fn</span> <span class="n">socket</span> <span class="o">-&gt;</span> <span class="p">{</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="n">socket</span><span class="p">),</span> <span class="n">socket</span> <span class="p">}</span> <span class="n">end</span><span class="p">,</span>
-    <span class="n">fn</span> <span class="n">socket</span> <span class="o">-&gt;</span> <span class="n">nil</span>
-<span class="n">end</span>
+process, but if you were, you could write something like:</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=nc>Stream</span><span class=o>.</span><span class=n>resource</span><span class=p>(</span>
+    <span class=k>fn</span> <span class=o>-&gt;</span> <span class=n>socket</span> <span class=k>end</span><span class=p>,</span>
+    <span class=k>fn</span> <span class=n>socket</span> <span class=o>-&gt;</span> <span class=p>{</span> <span class=ss>:gen_tcp</span><span class=o>.</span><span class=n>recv</span><span class=p>(</span><span class=n>socket</span><span class=p>),</span> <span class=n>socket</span> <span class=p>}</span> <span class=k>end</span><span class=p>,</span>
+    <span class=k>fn</span> <span class=n>socket</span> <span class=o>-&gt;</span> <span class=no>nil</span>
+<span class=k>end</span>
 </code></pre></div><p>But let&rsquo;s get back to my failure. <code>TcpStream.Aggregator.get_buffer()</code>
-is a <code>GenServer</code> call that polls each <code>Socket</code>'s internal buffer, and aggregates
+is a <code>GenServer</code> call that polls each <code>Socket</code>&rsquo;s internal buffer, and aggregates
 the results, and the stream continuously polls when it wants data, so the entire
-system is constantly polling and emptying the socket&rsquo;s internal buffers.</p>
-<h1 id="the-bug">The Bug</h1>
-<p>This is actually the bug I mentioned in the last article. Let&rsquo;s discuss
-<code>:gen_tcp</code>'s behavior, and how it relates to this project. The data sources this
+system is constantly polling and emptying the socket&rsquo;s internal buffers.</p><h1 id=the-bug>The Bug</h1><p>This is actually the bug I mentioned in the last article. Let&rsquo;s discuss
+<code>:gen_tcp</code>&rsquo;s behavior, and how it relates to this project. The data sources this
 project is dealing with is basically &ldquo;one JSON object per line, but millions of
 lines&rdquo;, which is actually really convenient. Trying to implement or use a
 streaming JSON decoder properly would be a real pain for this project, and the
@@ -74,8 +30,7 @@ each JSON object is pretty large (some are larger than 50,000 characters), the
 lines can be really long. They are always newline delimited, however. To that
 end, the initial implementation of this project was using files on disk, and
 opening those files as streams with the <code>:line</code> option, which causes the file to
-be read line by line, rather than all at once or in fixed sized binary chunks.</p>
-<p><code>:gen_tcp</code> also offers a <code>:line</code> option, but also offers a <code>:buffer</code> option for
+be read line by line, rather than all at once or in fixed sized binary chunks.</p><p><code>:gen_tcp</code> also offers a <code>:line</code> option, but also offers a <code>:buffer</code> option for
 configuring the size of the socket&rsquo;s internal buffer, and the <code>{:active, :once}</code> feature for controlling backpressure and ensuring GenServer
 responsiveness. These 3 options interact in an interesting way. The socket wants
 to report lines, and it only wants to report one line at a time, and because
@@ -84,22 +39,19 @@ However, it has an internal buffer, so what it does is chunk the messages. It
 reads to the end of the line, or then end of its buffer, and sends the buffer to
 the controlling process, then it repeats until it reaches the end of the line,
 where it stops, waiting for the <code>{:active, :once}</code> to be reset so it can
-continue reading.</p>
-<p>This means that, even if you have <code>{:active, :once}</code> set, you can receive
+continue reading.</p><p>This means that, even if you have <code>{:active, :once}</code> set, you can receive
 multiple messages from your socket while in <code>:line</code> mode. You won&rsquo;t be
 overwhelmed with data (except in pathological cases), but you might receive a
 couple more messages than you expect. Reconstructing the message is easy, you
 just concatenate the buffers you receive. When someone empties your buffer, you
 can reset <code>{:active, :once}</code>, and fill your buffer again. Based on your
-knowledge of the rest of the system, can you see the bug yet?</p>
-<p>Here&rsquo;s the bug: <code>Stream.resource/3</code> continuously polls the Aggregator, and the
+knowledge of the rest of the system, can you see the bug yet?</p><p>Here&rsquo;s the bug: <code>Stream.resource/3</code> continuously polls the Aggregator, and the
 Aggregator in turn polls the sockets directly. It does this constantly, because
 it&rsquo;s a spinlock. So what happens if a Socket gets polled in the middle of a
 line? That is, what happens with <code>:gen_tcp</code> has sent one part of a line to a
 <code>Socket</code>, but not the other, and the <code>Socket</code> gets polled? It returns a partial
 buffer, and the rest of the buffer ends up divorced, and <em>neither of them are
-valid JSON objects</em>, so the entire line would be lost.</p>
-<p>We initially thought this bug was a buffer size issue: that <code>:gen_tcp</code> simply
+valid JSON objects</em>, so the entire line would be lost.</p><p>We initially thought this bug was a buffer size issue: that <code>:gen_tcp</code> simply
 truncated lines that were too long. This is tantalizingly close to how it works
 (because shorter lines are never split like this), but we should have known
 better. However, when looking at the data that was getting truncated and
@@ -110,19 +62,16 @@ posts (heavily researched articles, long lists of deals with links to store
 pages) because the links got encoded with escape sequences to fit into JSON
 strings without breaking. Other posts that got dropped were a genre we code named
 &ldquo;Unicode fuckery&rdquo;, which were either posts with huge numbers of emoji, or
-<a href="https://stackoverflow.com/a/1732454">Zalgo-esque</a> spaghetti nightmare posts that caused mobile browsers and
+<a href=https://stackoverflow.com/a/1732454>Zalgo-esque</a> spaghetti nightmare posts that caused mobile browsers and
 clients to crash under the strain, except instead of a steady degradation into
 unreadability, they were just solid walls of character noise. Both of these
-presented problems due to the way they were encoded in JSON: as <code>&quot;\uXXXX&quot;</code>
+presented problems due to the way they were encoded in JSON: as <code>"\uXXXX"</code>
 characters. They also tended to be compound Unicode characters, so each
 &ldquo;character&rdquo; would be multiple escape sequences so although the site had a limit
 on the size of its content, the JSON representation could be up to 8 times
-larger thanks to this sort of encoding.</p>
-<p>The fix in this context is easy: maintain a shadow buffer of the partial line,
+larger thanks to this sort of encoding.</p><p>The fix in this context is easy: maintain a shadow buffer of the partial line,
 and only fill the real buffer when you know you have a real line. Really though,
-polling your buffers is a bad idea, so I set out to fix the whole issue</p>
-<h1 id="the-right-way">The Right Way</h1>
-<p><code>GenStage</code> is pretty cool, and from an user side, it&rsquo;s pretty slick and simple,
+polling your buffers is a bad idea, so I set out to fix the whole issue</p><h1 id=the-right-way>The Right Way</h1><p><code>GenStage</code> is pretty cool, and from an user side, it&rsquo;s pretty slick and simple,
 because the details of demand and backpressure are <em>mostly</em> hidden from you,
 unless you get into manual implementation of <code>ProducerConsumers</code>. Luckily, we&rsquo;re
 only concerned with <code>Producers</code>, as all our <code>ProducerConsumers</code> are pretty
@@ -130,250 +79,230 @@ generic, and implemented by <code>Flow</code> already. However, the use case of 
 a TCP port and feed all the lines into a <code>Flow</code>&rdquo; stage didn&rsquo;t seem to be
 covered, so I wrote the <code>Stream</code> hack. That&rsquo;s an obvious hack though, so I
 wanted to write a real <code>GenStage</code>, but having already failed 2 times, I had
-obviously missed something.</p>
-<p>Here&rsquo;s what I missed. The fundamental feature of <code>GenStage</code>s is an additional
+obviously missed something.</p><p>Here&rsquo;s what I missed. The fundamental feature of <code>GenStage</code>s is an additional
 field in the return value. While <code>GenServers</code> return values in the form of
 <code>{:reply, message, new_state}</code>, or <code>{:noreply, new_state}</code>, <code>GenStage</code> adds
 another return value, <code>{:noreply, [events], new_state}</code>, allowing <code>GenStages</code> to
-emit new events at any time.</p>
-<p>However, this feature isn&rsquo;t strongly represented in the documentation or example
+emit new events at any time.</p><p>However, this feature isn&rsquo;t strongly represented in the documentation or example
 <code>GenStages</code>. In general, examples emit events immediately. Sample
 <code>handle_demand/2</code> implementations simply returns all the requested items, and
-<code>handle_events/3</code> map over the incoming events, returning them directly.</p>
-<p>It doesn&rsquo;t have to be that way, however. Allow me to quote from the
-documentation on <code>handle_demand/2</code></p>
-<blockquote>
-<p>This callback is invoked on <code>:producer</code> stages with the demand from
+<code>handle_events/3</code> map over the incoming events, returning them directly.</p><p>It doesn&rsquo;t have to be that way, however. Allow me to quote from the
+documentation on <code>handle_demand/2</code></p><blockquote><p>This callback is invoked on <code>:producer</code> stages with the demand from
 consumers/dispatcher. The producer that implements this callback must either
-store the demand, or return the amount of requested events.</p>
-</blockquote>
-<p>This is a slightly odd phrase:</p>
-<blockquote>
-<p>store the demand</p>
-</blockquote>
-<p>However, you can interpret this to mean that, as a producer, you need to keep
+store the demand, or return the amount of requested events.</p></blockquote><p>This is a slightly odd phrase:</p><blockquote><p>store the demand</p></blockquote><p>However, you can interpret this to mean that, as a producer, you need to keep
 track of the number of events requested from you, and if you don&rsquo;t directly
 return those events, you have to keep emitting them somehow. As it turns out,
-this is exactly how it works, and it works great<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
-<h1 id="the-implementation">The Implementation</h1>
-<p>Although not strictly speaking necessary, I decided to remove essentially all
+this is exactly how it works, and it works great<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>.</p><h1 id=the-implementation>The Implementation</h1><p>Although not strictly speaking necessary, I decided to remove essentially all
 polling from the system, rather than simply the worst offenders. This made the
 fix for the bug mentioned above easy, and improved the system&rsquo;s efficiency. The
 overall structure is the same (sockets accept connections and are supervised
 dynamically, aggregator unifies the data for the public interface), but the
-control has been inverted somewhat.</p>
-<p>Previously, the aggregator only maintained a list of sockets, and polled them on
+control has been inverted somewhat.</p><p>Previously, the aggregator only maintained a list of sockets, and polled them on
 command. Now, the aggregator is a full <code>GenStage</code>, so in addition to keeping
-track of sockets, it also keeps track of demand and buffers events.</p>
-<p>Sockets accept on the listening socket, and when accepted, they register with
+track of sockets, it also keeps track of demand and buffers events.</p><p>Sockets accept on the listening socket, and when accepted, they register with
 the aggregator and start the next Socket for more accepts. The socket relies on
 outside actors to set its <code>{:active, :once}</code> trigger properly, which can be done
 in 2 ways. The first is a standard <code>GenServer</code> call. The Socket also keeps track
 of and shadow buffers lines until it has a full lines, whereupon it pushes the
 lines to the aggregator (although without newlines). When the aggregator
 receives a message push, it informs the socket of whether there is additional
-demand, and whether the Socket should continue receiving.</p>
-<p>Meanwhile, the aggregator buffers the lines, and emits events, keeping track of
-remaining demand.</p>
-<p>Here&rsquo;s the <code>Socket</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Elixir" data-lang="Elixir"><span class="n">defmodule</span> <span class="nc">TcpStage.Socket</span> <span class="n">do</span>
-  <span class="n">use</span> <span class="nc">GenServer</span>
+demand, and whether the Socket should continue receiving.</p><p>Meanwhile, the aggregator buffers the lines, and emits events, keeping track of
+remaining demand.</p><p>Here&rsquo;s the <code>Socket</code>:</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=kd>defmodule</span> <span class=nc>TcpStage.Socket</span> <span class=k>do</span>
+  <span class=kn>use</span> <span class=nc>GenServer</span>
 
-  <span class="n">def</span> <span class="n">start_link</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="n">do</span>
-    <span class="nc">GenServer</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
-  <span class="n">end</span>
+  <span class=kd>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>args</span><span class=p>)</span> <span class=k>do</span>
+    <span class=nc>GenServer</span><span class=o>.</span><span class=n>start_link</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=n>args</span><span class=p>)</span>
+  <span class=k>end</span>
 
-  <span class="c1"># Pass in both the listening socket and the aggregator</span>
-  <span class="n">def</span> <span class="n">init</span><span class="p">([</span> <span class="n">lsocket</span><span class="p">,</span> <span class="n">agg</span> <span class="p">])</span> <span class="n">do</span>
-    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">%{</span><span class="ss">lsocket</span><span class="p">:</span> <span class="n">lsocket</span><span class="p">,</span> <span class="ss">agg</span><span class="p">:</span> <span class="n">agg</span><span class="p">,</span> <span class="ss">buffer</span><span class="p">:</span> <span class="n">nil</span><span class="p">},</span> <span class="mi">0</span><span class="p">}</span>
-  <span class="n">end</span>
+  <span class=c1># Pass in both the listening socket and the aggregator</span>
+  <span class=kd>def</span> <span class=n>init</span><span class=p>([</span> <span class=n>lsocket</span><span class=p>,</span> <span class=n>agg</span> <span class=p>])</span> <span class=k>do</span>
+    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=p>%{</span><span class=ss>lsocket</span><span class=p>:</span> <span class=n>lsocket</span><span class=p>,</span> <span class=ss>agg</span><span class=p>:</span> <span class=n>agg</span><span class=p>,</span> <span class=ss>buffer</span><span class=p>:</span> <span class=no>nil</span><span class=p>},</span> <span class=mi>0</span><span class=p>}</span>
+  <span class=k>end</span>
 
-  <span class="n">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="ss">:timeout</span><span class="p">,</span> <span class="p">%{</span><span class="ss">lsocket</span><span class="p">:</span> <span class="n">lsocket</span><span class="p">,</span> <span class="ss">agg</span><span class="p">:</span> <span class="n">agg</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">socket</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">lsocket</span><span class="p">)</span>
+  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>(</span><span class=ss>:timeout</span><span class=p>,</span> <span class=p>%{</span><span class=ss>lsocket</span><span class=p>:</span> <span class=n>lsocket</span><span class=p>,</span> <span class=ss>agg</span><span class=p>:</span> <span class=n>agg</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>socket</span><span class=p>}</span> <span class=o>=</span> <span class=ss>:gen_tcp</span><span class=o>.</span><span class=n>accept</span><span class=p>(</span><span class=n>lsocket</span><span class=p>)</span>
 
-    <span class="c1"># Start the next socket acceptor.</span>
-    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">=</span> <span class="nc">TcpStage.SocketSupervisor</span><span class="o">.</span><span class="n">start_child</span><span class="p">()</span>
+    <span class=c1># Start the next socket acceptor.</span>
+    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>_</span><span class=p>}</span> <span class=o>=</span> <span class=nc>TcpStage.SocketSupervisor</span><span class=o>.</span><span class=n>start_child</span><span class=p>()</span>
 
-    <span class="c1"># Register with the aggregator, which will monitor us</span>
-    <span class="ss">:ok</span> <span class="o">=</span> <span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">agg</span><span class="p">,</span> <span class="ss">:register</span><span class="p">)</span>
+    <span class=c1># Register with the aggregator, which will monitor us</span>
+    <span class=ss>:ok</span> <span class=o>=</span> <span class=nc>GenServer</span><span class=o>.</span><span class=n>call</span><span class=p>(</span><span class=n>agg</span><span class=p>,</span> <span class=ss>:register</span><span class=p>)</span>
 
-    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="ss">:socket</span><span class="p">,</span> <span class="n">socket</span><span class="p">)}</span>
-  <span class="n">end</span>
+    <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=nc>Map</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=n>state</span><span class=p>,</span> <span class=ss>:socket</span><span class=p>,</span> <span class=n>socket</span><span class=p>)}</span>
+  <span class=k>end</span>
 
-  <span class="c1"># Add data to the buffer, then check to see if we need to emit lines.</span>
-  <span class="n">def</span> <span class="n">handle_info</span><span class="p">({</span><span class="ss">:tcp</span><span class="p">,</span> <span class="n">_sock</span><span class="p">,</span> <span class="n">data</span><span class="p">},</span> <span class="p">%{</span><span class="ss">buffer</span><span class="p">:</span> <span class="n">buf</span><span class="p">,</span> <span class="ss">agg</span><span class="p">:</span> <span class="n">agg</span><span class="p">,</span> <span class="ss">socket</span><span class="p">:</span> <span class="n">socket</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">if</span> <span class="n">buf</span> <span class="o">!=</span> <span class="n">nil</span> <span class="n">do</span>
-      <span class="n">buf</span> <span class="o">&lt;&gt;</span> <span class="n">data</span>
-    <span class="n">else</span>
-      <span class="n">data</span>
-    <span class="n">end</span>
+  <span class=c1># Add data to the buffer, then check to see if we need to emit lines.</span>
+  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp</span><span class=p>,</span> <span class=n>_sock</span><span class=p>,</span> <span class=n>data</span><span class=p>},</span> <span class=p>%{</span><span class=ss>buffer</span><span class=p>:</span> <span class=n>buf</span><span class=p>,</span> <span class=ss>agg</span><span class=p>:</span> <span class=n>agg</span><span class=p>,</span> <span class=ss>socket</span><span class=p>:</span> <span class=n>socket</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=n>data</span> <span class=o>=</span> <span class=k>if</span> <span class=n>buf</span> <span class=o>!=</span> <span class=no>nil</span> <span class=k>do</span>
+      <span class=n>buf</span> <span class=o>&lt;&gt;</span> <span class=n>data</span>
+    <span class=k>else</span>
+      <span class=n>data</span>
+    <span class=k>end</span>
 
-    <span class="n">lines</span> <span class="o">=</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)</span>
-    <span class="p">{</span><span class="n">messages</span><span class="p">,</span> <span class="n">buf</span><span class="p">}</span> <span class="o">=</span> <span class="n">extract_data</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class=n>lines</span> <span class=o>=</span> <span class=nc>String</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=n>data</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+    <span class=p>{</span><span class=n>messages</span><span class=p>,</span> <span class=n>buf</span><span class=p>}</span> <span class=o>=</span> <span class=n>extract_data</span><span class=p>(</span><span class=n>lines</span><span class=p>)</span>
 
-    <span class="n">if</span> <span class="n">messages</span> <span class="o">!=</span> <span class="p">[]</span> <span class="n">do</span>
-      <span class="n">if</span> <span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">agg</span><span class="p">,</span> <span class="p">{</span><span class="ss">:messages</span><span class="p">,</span> <span class="n">messages</span><span class="p">})</span> <span class="o">==</span> <span class="ss">:continue</span> <span class="n">do</span>
-        <span class="c1"># If the aggregator wants more lines, reset the socket</span>
-        <span class="ss">:inet</span><span class="o">.</span><span class="n">setopts</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="p">[{</span><span class="ss">:active</span><span class="p">,</span> <span class="ss">:once</span><span class="p">}])</span>
-      <span class="n">end</span>
-    <span class="n">end</span>
+    <span class=k>if</span> <span class=n>messages</span> <span class=o>!=</span> <span class=p>[]</span> <span class=k>do</span>
+      <span class=k>if</span> <span class=nc>GenServer</span><span class=o>.</span><span class=n>call</span><span class=p>(</span><span class=n>agg</span><span class=p>,</span> <span class=p>{</span><span class=ss>:messages</span><span class=p>,</span> <span class=n>messages</span><span class=p>})</span> <span class=o>==</span> <span class=ss>:continue</span> <span class=k>do</span>
+        <span class=c1># If the aggregator wants more lines, reset the socket</span>
+        <span class=ss>:inet</span><span class=o>.</span><span class=n>setopts</span><span class=p>(</span><span class=n>socket</span><span class=p>,</span> <span class=p>[{</span><span class=ss>:active</span><span class=p>,</span> <span class=ss>:once</span><span class=p>}])</span>
+      <span class=k>end</span>
+    <span class=k>end</span>
 
 
-    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="p">%{</span><span class="n">state</span> <span class="o">|</span> <span class="ss">buffer</span><span class="p">:</span> <span class="n">buf</span><span class="p">}}</span>
-  <span class="n">end</span>
+    <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=p>%{</span><span class=n>state</span> <span class=o>|</span> <span class=ss>buffer</span><span class=p>:</span> <span class=n>buf</span><span class=p>}}</span>
+  <span class=k>end</span>
 
-  <span class="c1"># Allow an external process (probably the aggregator) to reset our socket.</span>
-  <span class="c1"># Note that resetting an already reset socket is just fine.</span>
-  <span class="n">def</span> <span class="n">handle_cast</span><span class="p">(</span><span class="ss">:reset_socket</span><span class="p">,</span> <span class="p">%{</span><span class="ss">socket</span><span class="p">:</span> <span class="n">socket</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="ss">:inet</span><span class="o">.</span><span class="n">setopts</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="p">[{</span><span class="ss">:active</span><span class="p">,</span> <span class="ss">:once</span><span class="p">}])</span>
-    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span>
-  <span class="n">end</span>
-
-
-  <span class="n">def</span> <span class="n">handle_info</span><span class="p">({</span><span class="ss">:tcp_closed</span><span class="p">,</span> <span class="n">_sock</span><span class="p">},</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="p">{</span><span class="ss">:stop</span><span class="p">,</span> <span class="p">{</span><span class="ss">:shutdown</span><span class="p">,</span> <span class="ss">:tcp_closed</span><span class="p">},</span> <span class="n">state</span><span class="p">}</span>
-  <span class="n">end</span>
-
-  <span class="n">def</span> <span class="n">handle_info</span><span class="p">({</span><span class="ss">:tcp_error</span><span class="p">,</span> <span class="n">_sock</span><span class="p">,</span> <span class="n">reason</span><span class="p">},</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="p">{</span><span class="ss">:stop</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span>
-  <span class="n">end</span>
+  <span class=c1># Allow an external process (probably the aggregator) to reset our socket.</span>
+  <span class=c1># Note that resetting an already reset socket is just fine.</span>
+  <span class=kd>def</span> <span class=n>handle_cast</span><span class=p>(</span><span class=ss>:reset_socket</span><span class=p>,</span> <span class=p>%{</span><span class=ss>socket</span><span class=p>:</span> <span class=n>socket</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=ss>:inet</span><span class=o>.</span><span class=n>setopts</span><span class=p>(</span><span class=n>socket</span><span class=p>,</span> <span class=p>[{</span><span class=ss>:active</span><span class=p>,</span> <span class=ss>:once</span><span class=p>}])</span>
+    <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=n>state</span><span class=p>}</span>
+  <span class=k>end</span>
 
 
-  <span class="n">def</span> <span class="n">terminate</span><span class="p">(</span><span class="n">_reason</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="n">if</span> <span class="n">state</span><span class="p">[</span><span class="ss">:socket</span><span class="p">]</span> <span class="n">do</span>
-      <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="ss">:socket</span><span class="p">])</span>
-    <span class="n">end</span>
-  <span class="n">end</span>
+  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp_closed</span><span class=p>,</span> <span class=n>_sock</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=p>{</span><span class=ss>:stop</span><span class=p>,</span> <span class=p>{</span><span class=ss>:shutdown</span><span class=p>,</span> <span class=ss>:tcp_closed</span><span class=p>},</span> <span class=n>state</span><span class=p>}</span>
+  <span class=k>end</span>
 
-  <span class="c1"># Takes a list of strings from a buffer being split,</span>
-  <span class="c1"># and returns {full_lines, remaining_buffer}.</span>
-  <span class="c1"># If the buffer ends in a newline (for example), the last</span>
-  <span class="c1"># element will be the empty string, so we know the second to</span>
-  <span class="c1"># last line is a full line. If it isn&#39;t then this is the truncated</span>
-  <span class="c1"># first part of a line, and it needs to go back in the buffer.</span>
-  <span class="n">def</span> <span class="n">extract_data</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="n">when</span> <span class="n">is_list</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="n">do</span>
-    <span class="n">extract_data_internal</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="p">[])</span>
-  <span class="n">end</span>
+  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp_error</span><span class=p>,</span> <span class=n>_sock</span><span class=p>,</span> <span class=n>reason</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=p>{</span><span class=ss>:stop</span><span class=p>,</span> <span class=n>reason</span><span class=p>,</span> <span class=n>state</span><span class=p>}</span>
+  <span class=k>end</span>
 
-  <span class="n">defp</span> <span class="n">extract_data_internal</span><span class="p">([</span><span class="n">f</span> <span class="o">|</span> <span class="n">rest</span><span class="p">]</span> <span class="o">=</span> <span class="n">lines</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span> <span class="n">do</span>
-    <span class="n">if</span> <span class="n">length</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="n">do</span>
-      <span class="n">out</span> <span class="o">=</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-      <span class="n">if</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&#34;&#34;</span> <span class="n">do</span>
-        <span class="p">{</span><span class="n">out</span><span class="p">,</span> <span class="n">nil</span><span class="p">}</span>
-      <span class="n">else</span>
-        <span class="p">{</span><span class="n">out</span><span class="p">,</span> <span class="n">f</span><span class="p">}</span>
-      <span class="n">end</span>
-    <span class="n">else</span>
-      <span class="n">extract_data_internal</span><span class="p">(</span><span class="n">rest</span><span class="p">,</span> <span class="p">[</span><span class="n">f</span> <span class="o">|</span> <span class="n">out</span><span class="p">])</span>
-    <span class="n">end</span>
-  <span class="n">end</span>
-<span class="n">end</span>
+
+  <span class=kd>def</span> <span class=n>terminate</span><span class=p>(</span><span class=n>_reason</span><span class=p>,</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=k>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:socket</span><span class=p>]</span> <span class=k>do</span>
+      <span class=ss>:gen_tcp</span><span class=o>.</span><span class=n>close</span><span class=p>(</span><span class=n>state</span><span class=p>[</span><span class=ss>:socket</span><span class=p>])</span>
+    <span class=k>end</span>
+  <span class=k>end</span>
+
+  <span class=c1># Takes a list of strings from a buffer being split,</span>
+  <span class=c1># and returns {full_lines, remaining_buffer}.</span>
+  <span class=c1># If the buffer ends in a newline (for example), the last</span>
+  <span class=c1># element will be the empty string, so we know the second to</span>
+  <span class=c1># last line is a full line. If it isn&#39;t then this is the truncated</span>
+  <span class=c1># first part of a line, and it needs to go back in the buffer.</span>
+  <span class=kd>def</span> <span class=n>extract_data</span><span class=p>(</span><span class=n>lines</span><span class=p>)</span> <span class=ow>when</span> <span class=n>is_list</span><span class=p>(</span><span class=n>lines</span><span class=p>)</span> <span class=k>do</span>
+    <span class=n>extract_data_internal</span><span class=p>(</span><span class=n>lines</span><span class=p>,</span> <span class=p>[])</span>
+  <span class=k>end</span>
+
+  <span class=kd>defp</span> <span class=n>extract_data_internal</span><span class=p>([</span><span class=n>f</span> <span class=o>|</span> <span class=n>rest</span><span class=p>]</span> <span class=o>=</span> <span class=n>lines</span><span class=p>,</span> <span class=n>out</span><span class=p>)</span> <span class=k>do</span>
+    <span class=k>if</span> <span class=n>length</span><span class=p>(</span><span class=n>rest</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span> <span class=k>do</span>
+      <span class=n>out</span> <span class=o>=</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>reverse</span><span class=p>(</span><span class=n>out</span><span class=p>)</span>
+      <span class=k>if</span> <span class=n>f</span> <span class=o>==</span> <span class=s2>&#34;&#34;</span> <span class=k>do</span>
+        <span class=p>{</span><span class=n>out</span><span class=p>,</span> <span class=no>nil</span><span class=p>}</span>
+      <span class=k>else</span>
+        <span class=p>{</span><span class=n>out</span><span class=p>,</span> <span class=n>f</span><span class=p>}</span>
+      <span class=k>end</span>
+    <span class=k>else</span>
+      <span class=n>extract_data_internal</span><span class=p>(</span><span class=n>rest</span><span class=p>,</span> <span class=p>[</span><span class=n>f</span> <span class=o>|</span> <span class=n>out</span><span class=p>])</span>
+    <span class=k>end</span>
+  <span class=k>end</span>
+<span class=k>end</span>
 </code></pre></div><p>Erlang offers a nice double ended queue with nice performance characteristics in
 the <code>:queue</code>, but its API isn&rsquo;t quite as friendly, so this uses normal lists.
 This could be a problem if those lists get very long, but this shouldn&rsquo;t happen,
 as the Socket will automatically push lines to the aggregator, who must accept
 them, and although there are no hard limits on how long lines can be, lines long
 enough to seriously impact the performance of this socket are very rare, even in
-weird data sets like ours.</p>
-<p>Let&rsquo;s look at the aggregator <code>GenStage</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-Elixir" data-lang="Elixir"><span class="n">defmodule</span> <span class="nc">TcpStage</span> <span class="n">do</span>
-  <span class="n">use</span> <span class="nc">GenStage</span>
+weird data sets like ours.</p><p>Let&rsquo;s look at the aggregator <code>GenStage</code></p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=kd>defmodule</span> <span class=nc>TcpStage</span> <span class=k>do</span>
+  <span class=kn>use</span> <span class=nc>GenStage</span>
 
-  <span class="c1"># Fixes a deadlock where a Socket doesn&#39;t get triggered,</span>
-  <span class="c1"># but demand remains</span>
-  <span class="na">@timeout</span> <span class="mi">10000</span>
+  <span class=c1># Fixes a deadlock where a Socket doesn&#39;t get triggered,</span>
+  <span class=c1># but demand remains</span>
+  <span class=na>@timeout</span> <span class=mi>10000</span>
 
-  <span class="n">def</span> <span class="n">start_link</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="n">do</span>
-    <span class="nc">GenStage</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="n">__MODULE__</span><span class="p">)</span>
-  <span class="n">end</span>
+  <span class=kd>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>args</span><span class=p>)</span> <span class=k>do</span>
+    <span class=nc>GenStage</span><span class=o>.</span><span class=n>start_link</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=n>args</span><span class=p>,</span> <span class=ss>name</span><span class=p>:</span> <span class=n>__MODULE__</span><span class=p>)</span>
+  <span class=k>end</span>
 
-  <span class="n">def</span> <span class="n">init</span><span class="p">([])</span> <span class="n">do</span>
+  <span class=kd>def</span> <span class=n>init</span><span class=p>([])</span> <span class=k>do</span>
 
-    <span class="n">set_timer</span><span class="p">()</span>
+    <span class=n>set_timer</span><span class=p>()</span>
 
-    <span class="c1"># Maybe change buffer to :queue for speed</span>
-    <span class="p">{</span><span class="ss">:producer</span><span class="p">,</span> <span class="p">%{</span><span class="ss">pids</span><span class="p">:</span> <span class="p">[],</span> <span class="ss">buffer</span><span class="p">:</span> <span class="p">[],</span> <span class="ss">demand</span><span class="p">:</span> <span class="mi">0</span><span class="p">}}</span>
-  <span class="n">end</span>
+    <span class=c1># Maybe change buffer to :queue for speed</span>
+    <span class=p>{</span><span class=ss>:producer</span><span class=p>,</span> <span class=p>%{</span><span class=ss>pids</span><span class=p>:</span> <span class=p>[],</span> <span class=ss>buffer</span><span class=p>:</span> <span class=p>[],</span> <span class=ss>demand</span><span class=p>:</span> <span class=mi>0</span><span class=p>}}</span>
+  <span class=k>end</span>
 
-  <span class="n">def</span> <span class="n">handle_call</span><span class="p">(</span><span class="ss">:register</span><span class="p">,</span> <span class="p">{</span><span class="n">pid</span><span class="p">,</span> <span class="n">_ref</span><span class="p">},</span> <span class="p">%{</span><span class="ss">pids</span><span class="p">:</span> <span class="n">pids</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">({</span><span class="ss">:registration</span><span class="p">,</span> <span class="n">pid</span><span class="p">})</span>
-    <span class="nc">Process</span><span class="o">.</span><span class="n">monitor</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+  <span class=kd>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:register</span><span class=p>,</span> <span class=p>{</span><span class=n>pid</span><span class=p>,</span> <span class=n>_ref</span><span class=p>},</span> <span class=p>%{</span><span class=ss>pids</span><span class=p>:</span> <span class=n>pids</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=nc>IO</span><span class=o>.</span><span class=n>inspect</span><span class=p>({</span><span class=ss>:registration</span><span class=p>,</span> <span class=n>pid</span><span class=p>})</span>
+    <span class=nc>Process</span><span class=o>.</span><span class=n>monitor</span><span class=p>(</span><span class=n>pid</span><span class=p>)</span>
 
-    <span class="c1"># Mutual GenServer calls aren&#39;t allowed, so this blocks</span>
-    <span class="c1"># another process until we return.</span>
-    <span class="n">spawn</span> <span class="n">fn</span> <span class="o">-&gt;</span> <span class="nc">GenServer</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:reset_socket</span><span class="p">)</span>  <span class="n">end</span>
+    <span class=c1># Mutual GenServer calls aren&#39;t allowed, so this blocks</span>
+    <span class=c1># another process until we return.</span>
+    <span class=n>spawn</span> <span class=k>fn</span> <span class=o>-&gt;</span> <span class=nc>GenServer</span><span class=o>.</span><span class=n>cast</span><span class=p>(</span><span class=n>pid</span><span class=p>,</span> <span class=ss>:reset_socket</span><span class=p>)</span>  <span class=k>end</span>
 
-    <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="ss">:ok</span><span class="p">,</span> <span class="p">[],</span> <span class="p">%{</span><span class="n">state</span> <span class="o">|</span> <span class="ss">pids</span><span class="p">:</span> <span class="p">[</span><span class="n">pid</span> <span class="o">|</span> <span class="n">pids</span><span class="p">]}}</span>
-  <span class="n">end</span>
+    <span class=p>{</span><span class=ss>:reply</span><span class=p>,</span> <span class=ss>:ok</span><span class=p>,</span> <span class=p>[],</span> <span class=p>%{</span><span class=n>state</span> <span class=o>|</span> <span class=ss>pids</span><span class=p>:</span> <span class=p>[</span><span class=n>pid</span> <span class=o>|</span> <span class=n>pids</span><span class=p>]}}</span>
+  <span class=k>end</span>
 
-  <span class="c1"># Delegates to deliver_messages, but informs callers whether there is</span>
-  <span class="c1"># more demand.</span>
-  <span class="n">def</span> <span class="n">handle_call</span><span class="p">({</span><span class="ss">:messages</span><span class="p">,</span> <span class="n">messages</span><span class="p">},</span> <span class="n">_from</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="p">{</span><span class="n">_</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span> <span class="o">=</span> <span class="n">deliver_messages</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">messages</span><span class="p">)</span>
+  <span class=c1># Delegates to deliver_messages, but informs callers whether there is</span>
+  <span class=c1># more demand.</span>
+  <span class=kd>def</span> <span class=n>handle_call</span><span class=p>({</span><span class=ss>:messages</span><span class=p>,</span> <span class=n>messages</span><span class=p>},</span> <span class=n>_from</span><span class=p>,</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=p>{</span><span class=n>_</span><span class=p>,</span> <span class=n>ans</span><span class=p>,</span> <span class=n>state</span><span class=p>}</span> <span class=o>=</span> <span class=n>deliver_messages</span><span class=p>(</span><span class=n>state</span><span class=p>,</span> <span class=n>messages</span><span class=p>)</span>
 
 
-    <span class="n">reply</span> <span class="o">=</span> <span class="n">if</span> <span class="n">state</span><span class="p">[</span><span class="ss">:demand</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="n">do</span>
-      <span class="ss">:continue</span>
-    <span class="n">else</span>
-      <span class="ss">:stop</span>
-    <span class="n">end</span>
+    <span class=n>reply</span> <span class=o>=</span> <span class=k>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:demand</span><span class=p>]</span> <span class=o>&gt;</span> <span class=mi>0</span> <span class=k>do</span>
+      <span class=ss>:continue</span>
+    <span class=k>else</span>
+      <span class=ss>:stop</span>
+    <span class=k>end</span>
 
-    <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="n">reply</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span>
-  <span class="n">end</span>
+    <span class=p>{</span><span class=ss>:reply</span><span class=p>,</span> <span class=n>reply</span><span class=p>,</span> <span class=n>ans</span><span class=p>,</span> <span class=n>state</span><span class=p>}</span>
+  <span class=k>end</span>
 
-  <span class="n">def</span> <span class="n">handle_info</span><span class="p">({</span><span class="ss">:DOWN</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="ss">:process</span><span class="p">,</span> <span class="n">from</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">=</span> <span class="n">msg</span><span class="p">,</span> <span class="p">%{</span><span class="ss">pids</span><span class="p">:</span> <span class="n">pids</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">({</span><span class="ss">:mon_down</span><span class="p">,</span> <span class="n">msg</span> <span class="p">})</span>
-    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="p">[],</span> <span class="p">%{</span><span class="n">state</span> <span class="o">|</span> <span class="ss">pids</span><span class="p">:</span> <span class="nc">List</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">pids</span><span class="p">,</span> <span class="n">from</span><span class="p">)}}</span>
-  <span class="n">end</span>
+  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:DOWN</span><span class=p>,</span> <span class=n>_</span><span class=p>,</span> <span class=ss>:process</span><span class=p>,</span> <span class=n>from</span><span class=p>,</span> <span class=n>_</span><span class=p>}</span> <span class=o>=</span> <span class=n>msg</span><span class=p>,</span> <span class=p>%{</span><span class=ss>pids</span><span class=p>:</span> <span class=n>pids</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=nc>IO</span><span class=o>.</span><span class=n>inspect</span><span class=p>({</span><span class=ss>:mon_down</span><span class=p>,</span> <span class=n>msg</span> <span class=p>})</span>
+    <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=p>[],</span> <span class=p>%{</span><span class=n>state</span> <span class=o>|</span> <span class=ss>pids</span><span class=p>:</span> <span class=nc>List</span><span class=o>.</span><span class=n>delete</span><span class=p>(</span><span class=n>pids</span><span class=p>,</span> <span class=n>from</span><span class=p>)}}</span>
+  <span class=k>end</span>
 
-  <span class="c1"># I had an issue where the system hung with sockets no reset despite demand</span>
-  <span class="c1"># remaining. This automatically triggers sockets if there is demand. See set_timer/0.</span>
-  <span class="n">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="ss">:timeout</span><span class="p">,</span> <span class="p">%{</span><span class="ss">pids</span><span class="p">:</span> <span class="n">pids</span><span class="p">,</span> <span class="ss">demand</span><span class="p">:</span> <span class="n">demand</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="n">if</span> <span class="n">demand</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="n">do</span>
-      <span class="n">reset_all</span><span class="p">(</span><span class="n">pids</span><span class="p">)</span>
-    <span class="n">end</span>
-    <span class="n">set_timer</span><span class="p">()</span>
-    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="p">[],</span> <span class="n">state</span><span class="p">}</span>
-  <span class="n">end</span>
+  <span class=c1># I had an issue where the system hung with sockets no reset despite demand</span>
+  <span class=c1># remaining. This automatically triggers sockets if there is demand. See set_timer/0.</span>
+  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>(</span><span class=ss>:timeout</span><span class=p>,</span> <span class=p>%{</span><span class=ss>pids</span><span class=p>:</span> <span class=n>pids</span><span class=p>,</span> <span class=ss>demand</span><span class=p>:</span> <span class=n>demand</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=k>if</span> <span class=n>demand</span> <span class=o>&gt;</span> <span class=mi>0</span> <span class=k>do</span>
+      <span class=n>reset_all</span><span class=p>(</span><span class=n>pids</span><span class=p>)</span>
+    <span class=k>end</span>
+    <span class=n>set_timer</span><span class=p>()</span>
+    <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=p>[],</span> <span class=n>state</span><span class=p>}</span>
+  <span class=k>end</span>
 
 
-  <span class="c1"># Delegates to deliver_messages</span>
-  <span class="n">def</span> <span class="n">handle_demand</span><span class="p">(</span><span class="n">demand</span><span class="p">,</span> <span class="p">%{</span><span class="ss">demand</span><span class="p">:</span> <span class="n">old_demand</span><span class="p">,</span> <span class="ss">pids</span><span class="p">:</span> <span class="n">pids</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">)</span> <span class="n">when</span> <span class="n">demand</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="n">do</span>
-    <span class="n">reset_all</span><span class="p">(</span><span class="n">pids</span><span class="p">)</span>
+  <span class=c1># Delegates to deliver_messages</span>
+  <span class=kd>def</span> <span class=n>handle_demand</span><span class=p>(</span><span class=n>demand</span><span class=p>,</span> <span class=p>%{</span><span class=ss>demand</span><span class=p>:</span> <span class=n>old_demand</span><span class=p>,</span> <span class=ss>pids</span><span class=p>:</span> <span class=n>pids</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=ow>when</span> <span class=n>demand</span> <span class=o>&gt;</span> <span class=mi>0</span> <span class=k>do</span>
+    <span class=n>reset_all</span><span class=p>(</span><span class=n>pids</span><span class=p>)</span>
 
-    <span class="n">deliver_messages</span><span class="p">(%{</span><span class="n">state</span> <span class="o">|</span> <span class="ss">demand</span><span class="p">:</span> <span class="n">old_demand</span> <span class="o">+</span> <span class="n">demand</span><span class="p">},</span> <span class="p">[])</span>
-  <span class="n">end</span>
+    <span class=n>deliver_messages</span><span class=p>(%{</span><span class=n>state</span> <span class=o>|</span> <span class=ss>demand</span><span class=p>:</span> <span class=n>old_demand</span> <span class=o>+</span> <span class=n>demand</span><span class=p>},</span> <span class=p>[])</span>
+  <span class=k>end</span>
 
-  <span class="c1"># Sends :timeout to itself arter @timeout milliseconds.</span>
-  <span class="c1"># This is necessary to fix a deadlock bug, but also because GenStage</span>
-  <span class="c1"># doesn&#39;t expose the timeout option that GenServer has, and which Socket uses.</span>
-  <span class="n">def</span> <span class="n">set_timer</span> <span class="n">do</span>
-    <span class="ss">:erlang</span><span class="o">.</span><span class="n">send_after</span><span class="p">(</span><span class="na">@timeout</span><span class="p">,</span> <span class="n">self</span><span class="p">(),</span> <span class="ss">:timeout</span><span class="p">)</span>
-  <span class="n">end</span>
+  <span class=c1># Sends :timeout to itself arter @timeout milliseconds.</span>
+  <span class=c1># This is necessary to fix a deadlock bug, but also because GenStage</span>
+  <span class=c1># doesn&#39;t expose the timeout option that GenServer has, and which Socket uses.</span>
+  <span class=kd>def</span> <span class=n>set_timer</span> <span class=k>do</span>
+    <span class=ss>:erlang</span><span class=o>.</span><span class=n>send_after</span><span class=p>(</span><span class=na>@timeout</span><span class=p>,</span> <span class=n>self</span><span class=p>(),</span> <span class=ss>:timeout</span><span class=p>)</span>
+  <span class=k>end</span>
 
-  <span class="c1"># This doesn&#39;t really need to be syncronous.</span>
-  <span class="n">def</span> <span class="n">reset_all</span><span class="p">(</span><span class="n">pids</span><span class="p">)</span> <span class="n">do</span>
-    <span class="nc">Parallel</span><span class="o">.</span><span class="n">pmap</span><span class="p">(</span><span class="n">pids</span><span class="p">,</span> <span class="n">fn</span> <span class="n">pid</span> <span class="o">-&gt;</span>
-      <span class="nc">GenServer</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:reset_socket</span><span class="p">)</span>
-    <span class="n">end</span><span class="p">)</span>
-  <span class="n">end</span>
+  <span class=c1># This doesn&#39;t really need to be syncronous.</span>
+  <span class=kd>def</span> <span class=n>reset_all</span><span class=p>(</span><span class=n>pids</span><span class=p>)</span> <span class=k>do</span>
+    <span class=nc>Parallel</span><span class=o>.</span><span class=n>pmap</span><span class=p>(</span><span class=n>pids</span><span class=p>,</span> <span class=k>fn</span> <span class=n>pid</span> <span class=o>-&gt;</span>
+      <span class=nc>GenServer</span><span class=o>.</span><span class=n>cast</span><span class=p>(</span><span class=n>pid</span><span class=p>,</span> <span class=ss>:reset_socket</span><span class=p>)</span>
+    <span class=k>end</span><span class=p>)</span>
+  <span class=k>end</span>
 
-  <span class="c1"># Handles the heavy lifting of splitting, buffering, and demand.</span>
-  <span class="n">def</span> <span class="n">deliver_messages</span><span class="p">(%{</span><span class="ss">demand</span><span class="p">:</span> <span class="n">demand</span><span class="p">,</span> <span class="ss">buffer</span><span class="p">:</span> <span class="n">buffer</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">,</span> <span class="n">messages</span><span class="p">)</span> <span class="n">do</span>
-    <span class="c1"># This could be inefficient, but using :queue can fix that.</span>
-    <span class="n">buffer</span> <span class="o">=</span> <span class="n">buffer</span> <span class="o">++</span> <span class="n">messages</span>
+  <span class=c1># Handles the heavy lifting of splitting, buffering, and demand.</span>
+  <span class=kd>def</span> <span class=n>deliver_messages</span><span class=p>(%{</span><span class=ss>demand</span><span class=p>:</span> <span class=n>demand</span><span class=p>,</span> <span class=ss>buffer</span><span class=p>:</span> <span class=n>buffer</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>,</span> <span class=n>messages</span><span class=p>)</span> <span class=k>do</span>
+    <span class=c1># This could be inefficient, but using :queue can fix that.</span>
+    <span class=n>buffer</span> <span class=o>=</span> <span class=n>buffer</span> <span class=o>++</span> <span class=n>messages</span>
 
-    <span class="c1"># Demand is usually much higher, so rest is usually []</span>
-    <span class="p">{</span><span class="n">ans</span><span class="p">,</span> <span class="n">rest</span><span class="p">}</span> <span class="o">=</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">demand</span><span class="p">)</span>
+    <span class=c1># Demand is usually much higher, so rest is usually []</span>
+    <span class=p>{</span><span class=n>ans</span><span class=p>,</span> <span class=n>rest</span><span class=p>}</span> <span class=o>=</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=n>buffer</span><span class=p>,</span> <span class=n>demand</span><span class=p>)</span>
 
-    <span class="c1"># This could also be inefficient, but requires more work than just :queue</span>
-    <span class="c1"># to make efficient.</span>
-    <span class="n">new_demand</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">demand</span> <span class="o">-</span> <span class="n">length</span><span class="p">(</span><span class="n">ans</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class=c1># This could also be inefficient, but requires more work than just :queue</span>
+    <span class=c1># to make efficient.</span>
+    <span class=n>new_demand</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>demand</span> <span class=o>-</span> <span class=n>length</span><span class=p>(</span><span class=n>ans</span><span class=p>),</span> <span class=mi>0</span><span class=p>)</span>
 
-    <span class="c1"># 2nd argument emits events</span>
-    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="n">ans</span><span class="p">,</span> <span class="p">%{</span><span class="n">state</span> <span class="o">|</span> <span class="ss">buffer</span><span class="p">:</span> <span class="n">rest</span><span class="p">,</span> <span class="ss">demand</span><span class="p">:</span> <span class="n">new_demand</span><span class="p">}}</span>
-  <span class="n">end</span>
-<span class="n">end</span>
+    <span class=c1># 2nd argument emits events</span>
+    <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=n>ans</span><span class=p>,</span> <span class=p>%{</span><span class=n>state</span> <span class=o>|</span> <span class=ss>buffer</span><span class=p>:</span> <span class=n>rest</span><span class=p>,</span> <span class=ss>demand</span><span class=p>:</span> <span class=n>new_demand</span><span class=p>}}</span>
+  <span class=k>end</span>
+<span class=k>end</span>
 </code></pre></div><p>And that&rsquo;s it. I&rsquo;ve omitted the supervisors, because they&rsquo;re nearly identical to
 the last ones. I don&rsquo;t have empirical data saying this is faster, but at least
 it&rsquo;s not a spinlock. From the vocabulary and structure of the Socket, you might
@@ -384,52 +313,14 @@ data, rather than just one, before needing to be reset. However, it wasn&rsquo;t
 how to integrate <code>Flow</code> with <em>multiple dynamically spawning and dying</em>
 <code>GenStages</code>: the API seems to support static stages only. I could be missing
 something, but implementing your own dynamic stage wouldn&rsquo;t be too hard, but
-that&rsquo;s for another post, I think.</p>
-<p>So why was this so hard? This is basically a &ldquo;me&rdquo; problem, because the
+that&rsquo;s for another post, I think.</p><p>So why was this so hard? This is basically a &ldquo;me&rdquo; problem, because the
 documentation probably mentions this particular detail somewhere, and I never
 noticed, but I think maybe an example that uses this technique might also be
 good. In retrospect, it should have been obvious, but the example code samples
 were limited, and didn&rsquo;t really express <em>when</em> you could emit events. Having
-written a good <code>GenStage</code>, I&rsquo;m confident I can write more good stages.</p>
-<p>Thanks for reading, and I hope I helped someone with the same revelations I
-needed.</p>
-<section class="footnotes" role="doc-endnotes">
-<hr>
-<ol>
-<li id="fn:1" role="doc-endnote">
-<p>Before I realized this, I thought that <code>handle_demand/2</code> had to
+written a good <code>GenStage</code>, I&rsquo;m confident I can write more good stages.</p><p>Thanks for reading, and I hope I helped someone with the same revelations I
+needed.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>Before I realized this, I thought that <code>handle_demand/2</code> had to
 effectively be synchronous, and I thought that was insane, because
 synchronously waiting for the next TCP line (with <code>gen_tcp:recv</code>) would
-obviously cause timeouts in <code>handle_demand/2</code>. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
-</li>
-</ol>
-</section>
-</main>
-
-<hr>
-
-
-    <section>
-        
-            <a class="tag" href="/tags/code">
-                code
-            </a>
-        
-            <a class="tag" href="/tags/elixir">
-                elixir
-            </a>
-        
-    </section>
-
-
-  <footer>
-  <div class="pride-strip pride-strip-position" ></div>
-
-  
-  <hr/>
-  © <a href="http://atamis.me">Azrea Amis</a> &mdash; <a href="http://github.com/atamis">Github</a> &mdash; 2020
-  
-  </footer>
-  </body>
-</html>
-
+obviously cause timeouts in <code>handle_demand/2</code>.&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></main><hr><section><a class=tag href=/tags/code>code</a>
+<a class=tag href=/tags/elixir>elixir</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2020</footer></body></html>
