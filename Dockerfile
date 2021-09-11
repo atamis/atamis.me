@@ -31,7 +31,7 @@ COPY ./ /site
 
 COPY --from=resume-builder /work/main.pdf /site/static/downloads/resume.pdf
 
-RUN cd /site && /usr/bin/hugo --minify
+RUN cd /site && /usr/bin/hugo --minify --config config.toml,docker.toml
 
 # Final NGINX container
 FROM nginx:alpine
