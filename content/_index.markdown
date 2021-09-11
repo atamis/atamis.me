@@ -17,8 +17,6 @@ You can find my code on my [github](http://github.com/atamis), my projects
 
 My views on this site are my own, and do not reflect the views of my employer.
 
-Formerly Andrew Amis.
-
 ## Miscellaneous
 
 **[Crossgambling](/crossgambling/)**, analysis of a minigame with Mathematica.
