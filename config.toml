@@ -16,8 +16,8 @@ project = "projects"
     custom_css = ["/css/syntax.css", "/css/custom.css", "/css/pride_helper.css"]
 
 [permalinks]
-    post = "/post/:year/:month/:day/:slug/"
-    note = "/note/:year/:month/:day/:slug/"
+    posts = "/post/:year/:month/:day/:slug/"
+    notes = "/note/:year/:month/:day/:slug/"
 
 [[menu.main]]
     name = "Home"
