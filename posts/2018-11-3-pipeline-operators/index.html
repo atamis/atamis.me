@@ -57,8 +57,8 @@ the pipeline operator, this code gets a lot more readable.</p><div class=highlig
 <span class=o>|&gt;</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>reduce</span><span class=p>(</span><span class=o>&amp;+/</span><span class=mi>2</span><span class=p>)</span>
 </code></pre></div><p>Although much more readable, for reference, this is what the code looks like
 without the anonymous function shorthand.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=mi>0</span><span class=o>..</span><span class=mi>49</span>
-<span class=o>|&gt;</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>filter</span><span class=p>(</span><span class=k>fn</span> <span class=n>x</span> <span class=o>-&gt;</span> <span class=n>rem</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span> <span class=k>end</span><span class=p>)</span>
-<span class=o>|&gt;</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>map</span><span class=p>(</span><span class=k>fn</span> <span class=n>x</span> <span class=o>-&gt;</span> <span class=n>x</span> <span class=o>+</span> <span class=mi>5</span> <span class=k>end</span><span class=p>)</span>
+<span class=o>|&gt;</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>filter</span><span class=p>(</span><span class=n>fn</span> <span class=n>x</span> <span class=o>-&gt;</span> <span class=n>rem</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span> <span class=n>end</span><span class=p>)</span>
+<span class=o>|&gt;</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>map</span><span class=p>(</span><span class=n>fn</span> <span class=n>x</span> <span class=o>-&gt;</span> <span class=n>x</span> <span class=o>+</span> <span class=mi>5</span> <span class=n>end</span><span class=p>)</span>
 <span class=o>|&gt;</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>reduce</span><span class=p>(</span><span class=o>&amp;+/</span><span class=mi>2</span><span class=p>)</span>
 </code></pre></div><p>Elixir is not object oriented and does not have methods, but almost all APIs
 obey the rule that the first argument is the &ldquo;method receiver&rdquo;, so to speak.
@@ -76,7 +76,7 @@ just don&rsquo;t at all, and the accepted method of, say, indexing into a struct
 with an anonymous function:</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=n>id</span>
 <span class=o>|&gt;</span> <span class=nc>Database</span><span class=o>.</span><span class=n>lookup</span><span class=p>()</span>
 <span class=c1>#|&gt; &amp;(&amp;1.field).()</span>
-<span class=o>|&gt;</span> <span class=k>fn</span> <span class=n>struct</span> <span class=o>-&gt;</span> <span class=n>struct</span><span class=o>.</span><span class=n>field</span> <span class=k>end</span><span class=o>.</span><span class=p>()</span>
+<span class=o>|&gt;</span> <span class=n>fn</span> <span class=n>struct</span> <span class=o>-&gt;</span> <span class=n>struct</span><span class=o>.</span><span class=n>field</span> <span class=n>end</span><span class=o>.</span><span class=p>()</span>
 <span class=o>|&gt;</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>map</span><span class=p>(</span><span class=n>...</span><span class=p>)</span>
 </code></pre></div><p>Even when using the shorthand (commented out in the above), this introduces
 substantial line noise, and because function values can&rsquo;t be invoked normally,
@@ -164,27 +164,27 @@ better ergonomics.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=
 together, or you&rsquo;re threading the data through the expressions), but it
 clashes with the threads used for parallelism so badly that it makes
 researching this topic difficult. For reference, you can find the <a href=https://clojure.org/guides/threading_macros>Clojure
-docs here</a> and the <a href=https://docs.racket-lang.org/threading/index.html>Racket docs here.</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p>Racket doesn&rsquo;t let you bind to names like <code>as-></code>, but in both first and
+docs here</a> and the <a href=https://docs.racket-lang.org/threading/index.html>Racket docs here.</a> <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p>Racket doesn&rsquo;t let you bind to names like <code>as-></code>, but in both first and
 last threading macros, offers the opportunity to override the default
 argument position behavior by inserting a <code>_</code> symbol in the code (like a
 variable reference) to serve as the insertion point for the last expression.
 Clojure will let you match/destructure with <code>as-></code>, and end up with several
 different bound names, but the names get rebound <em>with every expression</em>, so
-it&rsquo;s a little hard to imagine a situation where this wouldn&rsquo;t get very confusing.&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3 role=doc-endnote><p>This is not helped by some functions producing transducers when called
+it&rsquo;s a little hard to imagine a situation where this wouldn&rsquo;t get very confusing. <a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3 role=doc-endnote><p>This is not helped by some functions producing transducers when called
 with only 1 argument, like <code>(map #(+ % 5))</code> outside a thread macro is a
 valid function call and produces a transducer. Transducers are composed like
 functions with <code>comp</code>, so if you aren&rsquo;t entirely familiar with the threaded
 macro, you might think you were looking at transducer code rather than
-threaded code.&#160;<a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:4 role=doc-endnote><p>It is worth noting that, in Clojure, you can &ldquo;call&rdquo; a keyword with a map as
+threaded code. <a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:4 role=doc-endnote><p>It is worth noting that, in Clojure, you can &ldquo;call&rdquo; a keyword with a map as
 its argument, and index into a map, like so <code>(:key map)</code>, and that this works
 perfectly fine when used in a threaded macro, so <code>(-> map :key)</code> is
 equivalent. This is part of a special feature of the threading macros that
 let you elide the parenthesis around 1-arity calls, so this is also
-equivalent to <code>(-> map (:key))</code>.&#160;<a href=#fnref:4 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:5 role=doc-endnote><p>The Elixir version of the <code>let</code> example would be something like this:</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=n>coll</span> <span class=o>=</span> <span class=mi>0</span><span class=o>..</span><span class=mi>49</span>
+equivalent to <code>(-> map (:key))</code>. <a href=#fnref:4 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:5 role=doc-endnote><p>The Elixir version of the <code>let</code> example would be something like this:</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=n>coll</span> <span class=o>=</span> <span class=mi>0</span><span class=o>..</span><span class=mi>49</span>
 <span class=n>filtered</span> <span class=o>=</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>filter</span><span class=p>(</span><span class=n>coll</span><span class=p>,</span> <span class=o>&amp;</span><span class=p>(</span><span class=n>rem</span><span class=p>(</span><span class=ni>&amp;1</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>))</span>
 <span class=n>plus_five</span> <span class=o>=</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>map</span><span class=p>(</span><span class=n>filtered</span><span class=p>,</span> <span class=o>&amp;</span><span class=p>(</span><span class=ni>&amp;1</span> <span class=o>+</span> <span class=mi>5</span><span class=p>))</span>
 <span class=n>sum</span> <span class=o>=</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>reduce</span><span class=p>(</span><span class=n>plus</span><span class=o>-</span><span class=n>five</span><span class=p>,</span> <span class=o>&amp;+/</span><span class=mi>2</span><span class=p>)</span>
-</code></pre></div>&#160;<a href=#fnref:5 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></li><li id=fn:6 role=doc-endnote><p>From <a href=https://github.com/johannhof/pipeline.rs#examples>pipeline.rs</a>.&#160;<a href=#fnref:6 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></main><hr><section><a class=tag href=/tags/clojure>clojure</a>
+</code></pre></div><a href=#fnref:5 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></li><li id=fn:6 role=doc-endnote><p>From <a href=https://github.com/johannhof/pipeline.rs#examples>pipeline.rs</a>. <a href=#fnref:6 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></main><hr><section><a class=tag href=/tags/clojure>clojure</a>
 <a class=tag href=/tags/elixir>elixir</a>
 <a class=tag href=/tags/code>code</a>
 <a class=tag href=/tags/rust>rust</a>
