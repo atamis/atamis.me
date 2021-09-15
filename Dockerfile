@@ -1,5 +1,5 @@
 # Containerized hugo
-FROM alpine:3.5 as hugo
+FROM alpine:3 as hugo
 
 ENV HUGO_VERSION 0.84.1
 ENV HUGO_BINARY hugo_${HUGO_VERSION}_Linux-64bit.tar.gz
