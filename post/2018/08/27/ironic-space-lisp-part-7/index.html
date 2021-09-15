@@ -1,0 +1,216 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 7 | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 7</span></h1><h2 class=date>2018/08/27</h2></div><main><p>Let&rsquo;s talk about the VM internals. I&rsquo;ve written a compiler for ISL, and
+implemented functions at the same time. This is not a mistake or an over-reach,
+rather a natural progression. To the VM, what is a function? The VM doesn&rsquo;t have
+a strong concept of &ldquo;functions&rdquo;, or even of procedures. It has the <code>Call</code> and
+<code>Return</code> operations. These operations are the only way to manipulate the frame
+stack in a meaningful way: <code>Call</code> pushes an address to the frame stack, jumping
+to it, while <code>Return</code> pops an address, returning to the caller. So the VM has a
+concept of blocks of code you can jump to which will do &ldquo;things&rdquo; to the data
+stack, and then return back to you, maybe.</p><p>The data stack is totally unprotected from the callers, with no stack
+&ldquo;blockades&rdquo; or &ldquo;breakpoints&rdquo;, although you could imagine a such a system to
+prevent stack destruction. This system would only be useful for calling
+untrusted bytecode, because a compiler emitting those instructions would be a
+bug. There is also no guarantee that your caller will return to you: they could
+totally ignore you and enter an infinite loop. The VM is already slow and stupid
+enough, I think this sort of security is better addressed at the &ldquo;OS&rdquo; or
+scheduler level. The VM struct represents a single executing thread, so to
+accommodate the planned parallel execution environment, multiple VMs would be
+scheduled on OS threads. Launching a new VM/thread would be a normal task, so
+extending that system to permit launching restricted VMs without certain
+&ldquo;syscalls&rdquo;, like thread launch, message passing to anybody except the leader, etc.</p><p>I had planned to implement these &ldquo;syscalls&rdquo; as a table, and adding capabilities
+to a VM was just pushing Rust-level function into the table. Rather than use a
+separate <code>Syscall</code> operation, it&rsquo;s currently implemented as addresses you can
+<code>Call</code>: the VM hooks the instruction decode step and looks them up. When you add
+syscalls to the table, you&rsquo;d get an address back, and you store the address in
+then environment, and can use normal function call semantics. To add more
+syscalls to extend the VM&rsquo;s capabilities, you&rsquo;d push more functions to the
+table, and get more addresses back that you then bind to the environment and
+continue executing bytecode. That means you can&rsquo;t rely on a stable syscall
+interface, you have to reference the environment binding each time. You also
+can&rsquo;t do pre-execution optimization to replace function variable references with
+address literals because the address literals are VM-instance specific, and
+dependent on the <em>order the syscalls were installed in the VM.</em> If you were
+interested in strongly confounding compilers that <em>do</em> rely on syscall order,
+you could randomize the syscall distribution and order, but that seems excessive.</p><h1 id=isl-bytecode>ISL Bytecode</h1><p>To make life easier, ISL bytecode is stored in the <code>Bytecode</code> class, which is a
+vector of <code>Chunk</code>s which are vectors of operations. This is largely code-only
+memory, with the exception of the <code>Op::Lit</code> operation, which holds a
+<code>data::Literal</code>. The rest of the program&rsquo;s memory is in the data stack and the
+environment bindings: no generic contiguous memory allocation or access for this
+VM. Normal machine code isn&rsquo;t as segmented as ISL bytecode, and although the
+layout depends on compiler, OS, etc., the actual code of the machine code is
+generally a single contiguous array.</p><p>This <code>Vec&lt;Vec&lt;Op&gt;&gt;</code> architecture was designed to make my job as an implementer
+easier, but potentially allow more efficient bytecode packing in the future.
+Addresses are tuples of <code>(chunk_index, operation_index)</code>, so nothing is forcing
+the VM and compiler to use chunks, and chunks don&rsquo;t mean anything to do the VM,
+so compiler writers can can use them how they wish.</p><p>The VM and bytecode do make 2 assumptions. The first is that, after executing a
+particular instruction that isn&rsquo;t a jump (not <code>Jump</code>, <code>JumpCond</code>, or <code>Call</code>),
+the next instruction to execute can be found at the next <em>operation index</em> in
+the <em>same chunk</em>. This is easy to understand, basically what you expect, and
+matches the efficient execution strategy in accordance with branch prediction
+and predictive cache filling for modern CPUs.</p><p>The other assumption is how you will want to load additional code into your VM.
+I&rsquo;m planning on allowing ISL to load additional code into its VM at runtime,
+either in the form of <code>eval</code> compiling the code rather than simply evaluating
+it, or loading libraries dynamically, or receiving new code over the wire from
+&ldquo;colleague VMs&rdquo; and executing it. Currently, this is implemented by copying
+chunks from one bytecode to another, adding the new chunks to the end of the
+existing chunks, and iterating over all the new operations, adding the new chunk
+offset to all the addresses, so the addresses stay locally consistent. This
+process returns the address of the first new chunk: by convention, this is the
+&ldquo;main&rdquo; function for each bytecode. Because the <code>Call</code> and <code>Return</code> instructions
+don&rsquo;t manipulate the environment (compilers have to emit instructions do this
+manually), you can use this main function to add name-address bindings to the
+global environment.</p><p>You can&rsquo;t do this at runtime yet (because I haven&rsquo;t fully built syscalls yet),
+but you can do it from Rust, which is how the new REPL works! Yes, real REPL
+which compiles to bytecode.</p><h2 id=isl-function-interface>ISL Function Interface</h2><p>To simplify things for implementers (me), functions are quite simple. Each
+function lives in its own chunk. Thus, you can call a function by jumping or
+<code>Call</code>ing the 0th operation index for that chunk. Currently, it is assumed that
+functions themselves will manage their environments, pushing and popping
+environments as necessary. Thus, if future optimizations can remove a function&rsquo;s
+need for environmental interaction, those operations can be elided directly,
+rather than signaling all the call sites that the instructions aren&rsquo;t
+necessary.</p><p>ISL functions take arguments on the stack, and arity information is not
+contained within the bytecode. It&rsquo;s not implemented at all, and would have be be
+implemented in an earlier pass. However, most languages like binding arguments
+to names and then reusing them, so you can use the <code>Store</code> operation to put
+arguments in the local environment. Well behaved functions consume all the
+arguments passed to them, and leave a single value on the stack (they could
+leave multiple values, but that could be messy, difficult for compilers to
+utilize, and hopefully not necessary with the addition of better data
+structures). Then they pop their environment (if necessary) and call <code>Return</code>,
+which pops the frame stack and returns control to their caller. This interface
+is nicely barebones, and can fit with a number of different programming and
+compiler styles.</p><p>This does mean that functions aren&rsquo;t really language level values, they&rsquo;re
+bytecode in the bytecode-store, rather than in the runtime data-store. Currently
+ISL solves this by using data-level addresses to represent functions. You can
+load a keyword from the environment, get an address, then call that address with
+some arguments, and it&rsquo;ll all work right. Because the address is normal value,
+you can reassign it, use it in local bindings, even compose them (maybe), and it
+still refers to a chunk of bytecode, in the end.</p><p>However, functions aren&rsquo;t closures, and closures are a very important part of
+higher-order programming, and Lisp in particular. Closures will need substantial
+direct support in the compiler, and because I don&rsquo;t think it can be done
+through the existing syscall infrastructure. It could be done as an operation,
+but parameterizing it would be difficult: most of the relevant variable data
+(precisely which values to close over) exists in the AST and compiler, but is
+lost by the time it reaches bytecode. Calling a closure involves pushing an
+environment, adding all the new bindings, and then calling the enclosed
+function. This could be done at callsite, increasing the size of the bytecode,
+or could be done in another chunk which then calls the wrapped function. This
+adds another push to the frame stack, but with tail call optimization, that can
+be avoided.</p><h1 id=the-current-compiler>The Current Compiler</h1><p>The current compiler is dumb and has 3 phases. I&rsquo;m tempted to name it something
+like &ldquo;failure&rdquo;, but I already use a library called failure, or fuckwit, or
+&ldquo;a disaster in three acts&rdquo;, or something. I&rsquo;m not exactly proud of it. It works, but
+produces some pretty shitty bytecode. This is the bytecode version of <code>(def x 1)
+x</code>, annotated manually:</p><div class=highlight><pre class=chroma>        (0, 0)  Lit     N(1)
+        (0, 1)  Lit     :&#34;x&#34;
+        (0, 2)  Store           // Store x = 1
+        (0, 3)  Lit     :&#34;x&#34;
+        (0, 4)  Load            // load x
+        (0, 5)  Pop             // pop x
+        (0, 6)  Lit     :&#34;x&#34;
+        (0, 7)  Load            // load x
+        (0, 8)  Return          // return</pre></div><p>It stores x, it loads it, it pops it, and it loads it again before returning.
+Holy shit.</p><p>There are 2 major hurdles to get over when compiling ISL: if and functions. If
+is easy in the sense that it directly maps to a known operation, <code>JumpCond</code>, but
+<code>JumpCond</code> takes 2 addresses and a value, and jumps based on the value. But the
+compiler doesn&rsquo;t really know where to jump, exactly: from the middle of an AST,
+it&rsquo;s hard to know where the code you&rsquo;re writing, so you can&rsquo;t really emit a
+literal address. You could maybe emit a literal address, and then update address
+values as the bytecode moves around, a little like the bytecode importing I
+described above works, but that sounds really complicated, and very bookkeeping
+heavy. It does sound pretty generic, so you could build and test it in isolation
+and without loss of generality, but I decided to take a different approach. That
+different approach is an intermediate representation for operations. This
+intermediate pass is comparatively simple, and really only deals with the
+difficulties of <code>JumpCond</code>.</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=k>pub</span><span class=w> </span><span class=k>enum</span> <span class=nc>IrOp</span><span class=w> </span><span class=p>{</span><span class=w>
+</span><span class=w>    </span><span class=n>Lit</span><span class=p>(</span><span class=n>Literal</span><span class=p>),</span><span class=w>
+</span><span class=w>    </span><span class=n>Return</span><span class=p>,</span><span class=w>
+</span><span class=w>    </span><span class=n>Call</span><span class=p>,</span><span class=w>
+</span><span class=w>    </span><span class=n>Jump</span><span class=p>,</span><span class=w>
+</span><span class=w>    </span><span class=n>JumpCond</span><span class=w> </span><span class=p>{</span><span class=w>
+</span><span class=w>        </span><span class=n>pred</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>IrChunk</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=n>then</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>IrChunk</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span><span class=w>        </span><span class=n>els</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>IrChunk</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span><span class=w>    </span><span class=p>},</span><span class=w>
+</span><span class=w>    </span><span class=n>Load</span><span class=p>,</span><span class=w>
+</span><span class=w>    </span><span class=n>Store</span><span class=p>,</span><span class=w>
+</span><span class=w>    </span><span class=n>PushEnv</span><span class=p>,</span><span class=w>
+</span><span class=w>    </span><span class=n>PopEnv</span><span class=p>,</span><span class=w>
+</span><span class=w>    </span><span class=n>Dup</span><span class=p>,</span><span class=w>
+</span><span class=w>    </span><span class=n>Pop</span><span class=p>,</span><span class=w>
+</span><span class=w></span><span class=p>}</span><span class=w>
+</span></code></pre></div><p>This phase of the compiler is implemented as an <code>ASTVisitor&lt;IrChunk&gt;</code>. It walks
+the AST tree and produces a vector of intermediate operations that may point to
+other vectors of intermediate operations. A lot of this phase is just emitting
+one or 2 instructions, and then appending the chunks generated from <code>visit</code>ing
+the AST child nodes. The mapping between <code>IrOP</code> and the bytecode native <code>Op</code> is
+pretty clear, but the packing problem of getting all the <code>JumpCond</code> chunks in
+the right place is a little tricky, so I wrote a packer to pack it all together.
+You can see it <a href=https://github.com/atamis/ironic-space-lisp/blob/be888b130d781a70af42e9bf50f9c13d776c9be7/src/compiler.rs#L239><code>compiler::pack</code></a>. It&rsquo;s purpose is to pack an
+<code>IrChunk</code> into a <code>Bytecode</code> starting at a particular chunk and op index. It
+returns the final operation index, which allows you to chain pack <code>IrChunks</code> into
+the same <code>Chunk</code>, if the packer thinks they can fit together. The packer &ldquo;allocates&rdquo;
+subsequent chunk indexes with the naive algorithm of just adding another chunk
+to the end and returning its index.</p><p>The packer&rsquo;s similarly naive approach to packing <code>IrOp::JumpCond</code> into the
+bytecode is to just allocate new chunks for the 2 branches of the <code>JumpCond</code>,
+pack those <code>IrChunks</code> with a recursive call to <code>pack</code>, and then push jumps back
+to the current jump on the end. Thus each <code>if</code> expression adds 2 chunks. This
+could obviously be a lot smarter, but I&rsquo;m avoiding premature optimization for
+now. Additionally, <code>JumpCond</code> could be <code>JumpIfTrue</code> instead. Changing that now
+wouldn&rsquo;t be too hard, because operation set isn&rsquo;t too integrated into the
+project, just in the VM and compiler. It might not even require a change to the
+<code>IrOp</code> or compiler AST phase, just to the packer.</p><p>Anyway, I consider the AST compiler one phase, and the packer the second phase.
+The third phase is the phase that implements functions. This whole article is
+written a little backwards. The above explanation of the bytecode, the function
+interface, etc. were all developed alongside this third pass, so before I wrote
+this pass, I had no idea how functions were going to be compiled. Phase 1 errors
+out on lambdas. It still does, to be fair, but Phase 3 now replaces all lambdas
+with something else.</p><p>As part of my plan to not read very much literature and just see what happens,
+I&rsquo;ve named Phase 3 &ldquo;Function Lifting&rdquo;. As it turns out, <a href=https://wiki.haskell.org/Lifting>lifting</a> is
+something different, and I may have made a big mistake, and may have to rename
+it. Oh well.</p><p>The <a href=https://github.com/atamis/ironic-space-lisp/blob/be888b130d781a70af42e9bf50f9c13d776c9be7/src/ast/passes/function_lifter.rs><code>ast::passes::function_lifting</code></a> module is an AST pass (it implements
+<code>ASTVisitor</code>) to produce a <code>LiftedAST</code>, which is an AST with all the functions
+removed, placed into a <code>FunctionRegistry</code>, and replaced in the AST with an
+address in the form <code>(registry index, 0)</code>. This implementation is tightly bound
+to the compiler, and any compiler that consumes <code>LiftedAST</code>s (usually called
+<code>last</code> in the code base and damn the consequences) needs to place the functions
+at that address, or they&rsquo;ll have to adjust all the address literals in all the
+ASTs. It would probably be easier to simply rewrite the lifter, but at least you
+can guarantee that every address literal will need to be adjusted, because
+there&rsquo;s no other way to produce an address literal: the parser can&rsquo;t emit them,
+and the AST parser might error out if it encounters them.</p><p>The lifter extracts functions as a list of keyword argument names and an AST
+body. Right now, the first function is a dummy function that gets replaced by
+the compiler, usually with the root AST. The lifter should probably just put the
+root AST there, but whatever.</p><p>The compiler has a separate function that compiles and packs lifted ASTs in one
+go called <code>compiler::pack_compile_lifted</code>. It reallocates chunks for all the
+functions, then compiles and packs the <code>IrOp</code> in, adding code to store arguments
+and to push and pop environments. Then it compiles the root and puts it in the
+same place as the dummy function. Recall that packing each <code>IrChunk</code> can result
+in multiple real <code>Chunk</code>s. By pre-allocating chunks for the functions, we can
+ensure that any extra chunks don&rsquo;t take a function&rsquo;s assigned spot, and don&rsquo;t
+get overwritten.</p><h2 id=tco>TCO</h2><p>This is how Tail Call Optimization is implemented in the current compiler.</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=k>fn</span> <span class=nf>tail_call_optimization</span><span class=p>(</span><span class=n>chunk</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>IrChunk</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>len</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>chunk</span><span class=p>.</span><span class=n>len</span><span class=p>();</span><span class=w>
+</span><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=n>len</span><span class=w> </span><span class=o>&gt;=</span><span class=w> </span><span class=mi>3</span><span class=w>
+</span><span class=w>        </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>3</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>Call</span><span class=w>
+</span><span class=w>        </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>PopEnv</span><span class=w>
+</span><span class=w>        </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>Return</span><span class=w>
+</span><span class=w>    </span><span class=p>{</span><span class=w>
+</span><span class=w>        </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>3</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>PopEnv</span><span class=p>;</span><span class=w>
+</span><span class=w>        </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>Jump</span><span class=p>;</span><span class=w>
+</span><span class=w>    </span><span class=p>}</span><span class=w>
+</span><span class=w></span><span class=p>}</span><span class=w>
+</span></code></pre></div><p>It works, but is very tightly bound to the compiler implementation, and if the
+compiler ever gains the ability to elide environments, this will break.</p><h1 id=benching>Benching</h1><p>I tried benchmarking the VM, but for whatever reason, the executing time is
+pretty unreliable, with variance of between 5 and 15%. I haven&rsquo;t tried
+benchmarking the parser-compiler: I suspect it will be very slow, because,
+instead of a much vaunted &ldquo;no-copy architecture&rdquo;, I implemented a &ldquo;copy-everything
+architecture&rdquo;, where data from each intermediate phase isn&rsquo;t consumed by the
+next phase, but entirely new data is produced each time. This allows you to
+reuse the intermediate data, a feature I have never used and have no particular
+plans to, outside of the obvious reuse of bytecode in the VM.</p><h1 id=looking-forward>Looking Forward</h1><p>After I add closures, I&rsquo;ll be pretty happy with this toolchain, and will likely
+start to work on the standard library. I could also work on the scheduler, but
+being able to implement the runtime access to the scheduler alongside the
+scheduler will likely be useful.</p><p>I&rsquo;m also thinking about a different kind of VM, one that doesn&rsquo;t use bytecode
+chunks like current one, and deals with &ldquo;first class value functions&rdquo; in a more
+literal way.</p></main><hr><section><a class=tag href=/tags/rust>rust</a>
+<a class=tag href=/tags/code>code</a>
+<a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>&copy; <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2020</footer></body></html>

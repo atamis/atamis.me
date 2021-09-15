@@ -1,0 +1,123 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Org Setup | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Org Setup</span></h1><h2 class=date>2021/09/15</h2></div><main><p>Emacs and Org posts are a dime a dozen on the internet, and they&rsquo;re usually
+extremely specific, going into precise detail on how the author uses every tool
+in Org&rsquo;s arsenal. I usually find these blog posts overwhelming and not
+particularly useful. Maybe I&rsquo;ll pick up some tricks and integrate them into my
+own setup, but usually my eyes glaze over and I leave none the wiser.</p><p>So rather than explain my system in detail, I&rsquo;ll just list some basic tricks you
+might find useful for your own setup. A lot of Org posts go into detail about
+actually using Org itself, but I found that I didn&rsquo;t really use Org very much
+at all until I fixed some basic usability issues not directly related to Org at
+all.</p><h1 id=what-didn-t-work-for-me>What didn&rsquo;t work for me</h1><p>It took me a while to really get into Org mainly because of sync. I had a fair
+number of computers I needed to edit my Org files own (including my phone), so I
+needed to make sure they were always available on all the computers. My first
+solution was Dropbox, which sounded perfect on paper. I would simply edit the
+org files and Dropbox would sync them to the cloud and then my other devices.
+There was even an Android app, Orgzly, that could edit Org files and sync them
+with Dropbox: perfect.</p><p>Except not perfect. I immediately ran into sync issues. Files would become
+desynced with 2 clients having different sets of changes. Dropbox would resolve
+the issue by copying the file and adding <code>(Conflicted version...)</code> to the end.
+Without automatic merging, I had to diff the files, see which lines were missing
+from where, and manually and painstakingly merge them. Org files are actually
+very difficult to edit as text files. If they&rsquo;re longer than like 50 lines, you
+absolutely need code folding for them (headers and property drawers, for
+example), but diffs were always plaintext un-folded, so you didn&rsquo;t really have
+enough context to properly merge. This went triple for Orgzly, which clobbered
+my main Org file at least once. I relegated Orgzly to editing its own file
+where it couldn&rsquo;t cause too much damage, but multiple isolated Org files was not
+really want I was after.</p><p>I also found Orgzly to be pretty clunky. I could never figure out how
+to capture a quick note from my phone with Orgzly, and the settings were dense
+and difficult to understand. Org setups tend to be very custom, leaving
+non-Emacs Org editors with real usability issues as they try and judge how much
+of Org they should support, and how to handle configuration. And everyone uses
+Org differently, so there&rsquo;s a high chance that whatever subset they do implement
+is not the subset that you use.</p><h1 id=git>Git</h1><p>I directly identified that the issue with the Dropbox solution was merging, but
+it took me a while to think up a setup that would be simple enough for me to
+use on a daily basis. Because merging was my issue, tracking changes to my Org
+file with git was an obvious choice, but git&rsquo;s ergonomics are heavily biased
+towards multi-user source control, not single user sync. I didn&rsquo;t want to think
+of a commit message for all my arbitrary changes. I eventually &ldquo;invented&rdquo; the
+<code>auto-commit</code> script:</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh><span class=cp>#!/usr/bin/env bash
+</span><span class=cp></span>
+<span class=c1># Add any changed files</span>
+git add -u
+<span class=c1># All all new files from directories where I always want new files</span>
+git add roam .attach
+git commit -m <span class=s2>&#34;Automatic commit at `date`&#34;</span>
+git push</code></pre></div><p>And it&rsquo;s associated Emacs function:</p><div class=highlight><pre class=chroma><code class=language-elisp data-lang=elisp><span class=p>(</span><span class=nb>defun</span> <span class=nv>auto-commit</span> <span class=p>()</span>
+  <span class=p>(</span><span class=nb>interactive</span><span class=p>)</span>
+  <span class=p>(</span><span class=nv>shell-command</span> <span class=s>&#34;cd $(git rev-parse --show-toplevel) &amp;&amp; ./auto-commit&#34;</span><span class=p>))</span></code></pre></div><p>I didn&rsquo;t add this to any Emacs hooks, I just call it with <code>M-x</code> whenever I want
+to sync my changes. This unconditionally commits local changes before pushing to
+a remote repository. If this repo didn&rsquo;t have the most up to date changes, you
+don&rsquo;t have to worry about the remote changes clobbering local ones because they
+are already commited, and then you can deal with the merge using git&rsquo;s full
+merge system and Magit&rsquo;s UI, which makes things much easier.<sup class=footnote-ref id=fnref:2><a href=#fn:2>1</a></sup> I ended up placing
+these repositories outside of Dropbox because they are intended to be logically
+separate and Dropbox would only get in the way.</p><h1 id=capturing-from-my-phone>Capturing from my phone</h1><p>So our Org files are now in a git repo and all changes are tracked. So accessing
+Org from my phone got much harder, right? It&rsquo;s going to take a terminal emulator
+and git and all sorts of stuff to get this working, right?</p><p>Well, Orgzly can still sync with Dropbox. That didn&rsquo;t work when it was syncing
+with several other computers, but what if it was the only client writing to
+Dropbox? Orgzly would write changes to Dropbox, Dropbox would sync them to a
+real computer, and that computer could read the changes and push them to the Git
+repo. Because all changes flowed from Orgzly, it wouldn&rsquo;t really need to sync,
+right?</p><p>In practice, this did not work very well. Although this made sync easier to deal
+with and more structured, sync still had to happen. I would capture things with
+Orgzly, and commit them, but then I&rsquo;d have to sync with git. So changes would
+still have to flow the other way. Orgzly had to care about whether any captured
+entries had been deleted because git cared, and while syncing was less
+nightmarish, it was not the effortless sync I was looking for.</p><p>So I gave up on phone capturing for a time while I tried to think of a way to
+organize the system. Everything I was capturing on the phone was meant to be
+processed later, either with more time, a better browser, or a different
+mindset. The phone never had to consume any entries, just produce them. It also
+didn&rsquo;t have to happen immediately: I could commit the phone entries to the repo
+at my leisure, and I could use a full computer to do it with.</p><p>So I eventually settled on writing entries from my phone into a chat application
+(Discord in this case, but you could use any) and then collecting them later.
+The chat didn&rsquo;t have to persist message forever, just long enough for me not to
+forget them.</p><p>However, I wanted to be able to capture messages into my Org file and then
+delete them later when I was finished with them. Being able to delete the chat messages
+would also be useful. So, I couldn&rsquo;t rely on matching messages to individual Org
+headlines by ID because neither the message nor the Org headline were guaranteed to
+exist later. So I needed some kind of external persistent state<sup class=footnote-ref id=fnref:3><a href=#fn:3>2</a></sup> to track which
+messages had been processed into Org and which hadn&rsquo;t. A hosted database was
+right out: I wanted to be able to run this from wherever I was and not bother
+with network authentication. Tracking the state with git was the best option,
+because then the output and the state would be tracked side by side. I
+decided to store the state in the properties of a headline Org file itself
+rather than a JSON file or SQLITE database for ease of administration.</p><p>So I eventually settled on the structure of a program that would read message
+state from an Org file, query messages from the chat app&rsquo;s API, and then write
+new messages to the Org file. This design took me quite a while to settle on,
+but it was straightforward to implement. I picked Rust because my last cursed
+sync program<sup class=footnote-ref id=fnref:1><a href=#fn:1>3</a></sup> was in Go and became unmaintainable after 3 rounds of revisions,
+and because Rust had a good Org parser and a good Discord client. It was also
+extremely fast. This didn&rsquo;t matter initially, but the program scans the entirety
+of the file looking for &ldquo;configs&rdquo; to get messages from, and the file has gotten
+quite long.</p><p>I spent the bulk of my time writing the translator for turning Discord message
+embeds into Org tasks. I got very tired of all my Twitter links being entirely
+opaque, and the Discord embeds have at least their text. I called the program
+<code>link_dump</code> because it dumps links into my Org files.</p><p>I have the program and tokens set up in their own copy of the repo. This lets me
+start by pulling the latest changes, running the program to dump links, then
+running <code>auto-commit</code> to push the changes: guaranteed zero merge issues.</p><p>This program is not open source because it&rsquo;s so specific to my needs, but if
+there&rsquo;s a demand, I can think about open source it.</p><p>The pattern of requesting data and automatically rendering it into Org files
+while triggering the processing manually makes the process really easy to
+control and understand. This pattern can also be applied to a number of other
+tools. You could get RSS feeds, Twitter accounts, and Youtube subscriptions
+dumped directly into your Org file for efficient reading. Many chat apps,
+including Discord, also support webhooks, so you could use an automation
+platform like Zapier or IFTTT to get many platforms for the implementation of
+one. I mostly use it for notes to myself.</p><div class=footnotes><hr><ol><li id=fn:2><p>I will note that I sometimes don&rsquo;t notice that I need to merge, and
+although the local changes are commited, they haven&rsquo;t been pushed. I&rsquo;ve
+considered writing a script to push to a branch in those cases (letting
+merging be done on any computer), but the script sounds complicated and you
+have to remember to merge the branch, so then you need some kind of alert or
+UI, and it gets complicated fast.</p><a class=footnote-return href=#fnref:2><sup>[return]</sup></a></li><li id=fn:3><p>This state was just a handfull of values about which Discord channel to
+request and what was the ID of the last message seen. Discord made querying
+based on ID very easy, but other chat apps may other ways of getting unread
+messages.</p><a class=footnote-return href=#fnref:3><sup>[return]</sup></a></li><li id=fn:1><p>This was an attempt to sync tasks in Org mode with tasks in Asana with PRs
+in Github. I needed to sync whether the task was done and the PR merged, and
+also if the Asana task had certain fields set correctly, and that the Asana
+task had the Github PR number, and that the Github PR linked to the Asana
+task. I used the Org file as the source of truth, but I didn&rsquo;t want the
+program to make mutating API calls in case it broke, so it just collected
+info and then reported data mismatches. I wrote the program in Go, and after
+a couple of revisions, the code was unmaintainably complicated. I had
+trouble expressing program state using Go&rsquo;s type system, and found error
+handling inelegant. Luckily processes changed and I could retire the
+program before any of my coworkers asked me for a copy.</p><a class=footnote-return href=#fnref:1><sup>[return]</sup></a></li></ol></div></main><hr><section><a class=tag href=/tags/writing>writing</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>&copy; <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2020</footer></body></html>
