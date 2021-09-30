@@ -1,0 +1,293 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Flows the Wrong Way: Streaming into Elixir | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Flows the Wrong Way: Streaming into Elixir</span></h1><h2 class=date>2018/10/10</h2></div><main><p>As part of a new and exciting project, I was faced with the task of ingesting a
+large amount of more or less homogeneous JSON data into a SQL database for an
+associate of mine to do some rudimentary business intelligence analysis on it.
+The context complicated things: the bulk data was a bunch of historical social
+media data, and in future he would also want to ingest the live API in addition
+to this archived historical data. The ratio of data in to cleaned SQL data out
+is pretty massive (approx. 20gb into 30mb, but I&rsquo;ll get into this later), so most
+of the processing power was dedicated to filtering and paring down the data,
+rather than inserting it into the DB, so I figured that the system could
+probably absorb a lot of data from a lot of different sources at the same time,
+all the time. This mean the system had to be &ldquo;online&rdquo;, and resilient in the face
+of failure, so I decided to write this program in Elixir (taking advantage of
+the Flow library) to take advantage of the strong asynchronous IO, concurrent
+parallelism, and system resilience.</p><h1 id=the-data>The Data</h1><p>The data is pretty standard: compressed text files with 1 JSON object per line.
+The document as a whole isn&rsquo;t really a valid JSON document, rather a whole bunch
+of them, but that&rsquo;s okay, the JSON objects can be dealt with independently.
+However, between repeated keys, and some repeated values, the data compressed
+very readily: the compressed files were between 1 and 3 gigabytes, but over 20gb
+when decompressed. I couldn&rsquo;t fit this data set into RAM, but that&rsquo;s okay, this
+was always going to be a streaming system. However, the entire relevant archive
+was 20 or so files, and I didn&rsquo;t have the disk space to hold them all uncompressed.
+It&rsquo;s also worth nothing that streaming compressed data from disk is more
+efficient than streaming uncompressed, so you can get higher effective IO by
+decompressing the data in memory, and then consuming it with a stream.</p><h1 id=the-basic-system>The Basic System</h1><p>This is what the system looked like so far:</p><div class=highlight><pre class=chroma><code class=language-elixir data-lang=elixir><span class=nc>File</span><span class=o>.</span><span class=n>stream!</span><span class=p>(</span><span class=n>name</span><span class=p>,</span> <span class=p>[],</span> <span class=ss>:line</span><span class=p>)</span>
+<span class=o>|&gt;</span> <span class=nc>Flow</span><span class=o>.</span><span class=n>from_enumerables</span><span class=p>()</span>
+<span class=o>|&gt;</span> <span class=nc>Flow</span><span class=o>.</span><span class=n>map</span><span class=p>(</span><span class=o>&amp;</span><span class=n>parse_json</span><span class=o>/</span><span class=mi>1</span><span class=p>)</span>
+<span class=o>|&gt;</span> <span class=nc>Flow</span><span class=o>.</span><span class=n>filter</span><span class=p>(</span><span class=o>&amp;</span><span class=n>is_map</span><span class=o>/</span><span class=mi>1</span><span class=p>)</span>
+<span class=c1># ... cleaning ...</span>
+<span class=o>|&gt;</span> <span class=nc>Flow</span><span class=o>.</span><span class=n>each</span><span class=p>(</span> <span class=n>fn</span> <span class=n>p</span> <span class=o>-&gt;</span>
+  <span class=n>post</span> <span class=o>=</span> <span class=p>%</span><span class=nc>Post</span><span class=p>{}</span>
+  <span class=n>changeset</span> <span class=o>=</span> <span class=nc>Post</span><span class=o>.</span><span class=n>changeset</span><span class=p>(</span><span class=n>post</span><span class=p>,</span> <span class=n>p</span><span class=p>)</span>
+  <span class=n>case</span> <span class=nc>Analysis.Repo</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=n>changeset</span><span class=p>)</span> <span class=n>do</span>
+    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>_</span><span class=p>}</span> <span class=o>-&gt;</span> <span class=n>nil</span>
+    <span class=p>{</span><span class=ss>:error</span><span class=p>,</span> <span class=n>reason</span><span class=p>}</span> <span class=o>-&gt;</span> <span class=nc>IO</span><span class=o>.</span><span class=n>puts</span><span class=p>(</span><span class=s2>&#34;Encountered error </span><span class=si>#{</span><span class=n>inspect</span><span class=p>(</span><span class=n>reason</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+  <span class=n>end</span>
+<span class=n>end</span><span class=p>)</span>
+</code></pre></div><p>Reading in a file (or files) one line at a time, parsing the JSON, filtering it,
+cleaning it, and then inserting it into the database. This is pretty efficient
+and stable, thanks to the speed of Elixir and backpressure of Flow. In
+particular, Flow is a pull system rather than a push system. In Flow, consumers
+query up-stream producers (or producer-consumers, as the interstitial steps are
+termed), expressing their &ldquo;demand&rdquo; for additional data, which the producers
+supply. This integrates with Elixir&rsquo;s default IO device types well: files can be
+read from line by arbitrary line, feeding the system without overwhelming it.</p><p>Elixir&rsquo;s IO device type is pretty interesting: it&rsquo;s a departure from the
+traditional Erlang method, and supports pretty rich interaction capable of
+supporting this sort of careful IO work. There are a couple of small problems,
+and I have a folder full of failed attempts.</p><h1 id=attempt-0-streaming-compressed-data-with-erlang>Attempt 0: Streaming compressed data with Erlang</h1><p>Erlang has a <a href=http://erlang.org/doc/man/zlib.html>zlib</a> library for dealing
+with compressed data, but converting a <em>stream</em> of compressed to a stream of
+uncompressed data looks complicated. Also, it supports zip and gzip, but not any
+of the compression algorithms the data is actually compressed with, so I&rsquo;d have
+to re-compress the data, so I figured there had to be a better way.</p><h1 id=attempt-1-pipes>Attempt 1: Pipes</h1><p>So we can&rsquo;t read <code>xz</code> files directly, but we can read STDIN, and we can pipe the
+decompressed data directly into Elixir.</p><div class=highlight><pre class=chroma><code class=language-fallback data-lang=fallback>xz -k -c -d file.xz | mix run --no-halt
+</code></pre></div><p>So how does Elixir deal with large amounts of data (more than 20gb) of data on
+STDIN? Does it read it carefully in chunks in response to backpressure, or does
+it just buffer it all? It just buffers it, and the OOM killer got my Elixir
+process before it completed. I <em>think</em> this is a flaw in Erlang or Elixir,
+because this isn&rsquo;t how most command line programs deal with STDIN. They generally
+stream it through much smaller buffers. This might be my fault, but I know that
+most of my code doesn&rsquo;t &ldquo;leak&rdquo; memory per-record, so if there&rsquo;s a &ldquo;no-buffer&rdquo; or
+&ldquo;streaming&rdquo; mode for STDIN that somehow isn&rsquo;t enabled by
+<code>IO.stream(:stdio, :line) |> Flow.from_enumerable()</code>, I don&rsquo;t know where it is.</p><h1 id=attempt-2-ports>Attempt 2: Ports</h1><p>Elixir offers a <code>Port</code> library based on a very similar Erlang feature for
+calling out to an external program and interacting with it. It has a
+&ldquo;controlling process&rdquo;, and when the Port receives data from the external process,
+it sends it as a message to its controlling process in a particular message
+format you can match on. However, it does this <em>constantly</em>, and you can&rsquo;t stop
+it, so I used the Erlang <code>:queue</code> library to make an efficient buffer, and
+implemented <code>GenStage</code>'s <code>handle_demand/2</code> so the whole thing could plug into
+the existing Flow system. This approach is probably just as flawed as the pipes
+approach, because it still doesn&rsquo;t deal with backpressure&ndash;the buffer keeps
+growing&ndash;but at least when lines are consumed, they&rsquo;re removed from the buffer,
+and eventually GCed, which didn&rsquo;t seem to be the case for the STDIN buffer. It&rsquo;s
+not entirely clear why this didn&rsquo;t work, although my theory is that I didn&rsquo;t
+implement <code>handle_demand/2</code> properly. The Flow would get 2 or 3 messages from
+the <code>Port</code>, then shut everything down with no error message, so I suspect I
+violated a contract, and should have implemented <code>handle_demand</code>, although I&rsquo;m
+not sure how.</p><h1 id=attempt-2-unix-sockets>Attempt 2: Unix Sockets</h1><p>Unix Domain Sockets are like normal IO sockets, but instead of being addressed
+with IPs and ports like TCP or UDP, they use filesystem paths, and act like
+normal files. You make them, read from them, and write to them. So the plan is
+to make a socket, set up the external command to write decompressed data to the
+socket, and then get Elixir to read it. How do you access UNIX domain sockets
+with Erlang? With <code>:gen_udp</code>, of course. So how does <code>:gen_udp</code>. Did this work?
+Nope, I could never get <code>:gen_udp</code> to connect to the socket. I could read
+uncompressed data from it with other tools, but I couldn&rsquo;t get Erlang to read
+the socket.</p><h1 id=attempt-3-tcp-connections>Attempt 3: TCP Connections</h1><p>So there&rsquo;s this really cool tool called <code>socat</code>, which lets you connect 2
+sockets of arbitrary type together. The 2 sockets can be anything, including
+STDIN, STDOUT, UNIX domain sockets, exec&rsquo;d external commands, TCP sockets, UDP
+sockets, SSH sockets(?), and many others. It can do a number of things with TCP
+sockets, and one of those things set up a TCP listening socket, and write data
+from the other socket to clients that connect to the right TCP port. This
+process has the distinct advantage of having buffers and backpressure built in:
+Erlang&rsquo;s <code>:gen_tcp</code> library includes a <code>:passive</code> mode, where you synchronously
+receive data, but also an <code>{:active, :once}</code> mode, where the TCP socket sends a
+single message when it receives data, and then switches back to <code>:passive</code> mode,
+and you have to reset it to <code>{:active, :once}</code> to get the next message, so
+you&rsquo;re never swamped. So why didn&rsquo;t this work? Again, I&rsquo;m not sure, but I tried
+to implement it as a <code>GenStage</code>, and if you&rsquo;re noticing a pattern&ndash;that I don&rsquo;t
+know how to write <code>GenStage</code>s&ndash;me too.</p><p>At this point, I took a break. Okay, actually I gave up, and resigned myself to
+inefficiently reading hundreds of gigabytes from disk. After giving myself a
+couple of days to think, I came up with a similar, but new solution.</p><h1 id=attempt-4-tcp-listener>Attempt 4: TCP Listener</h1><p>Instead of making the connection ourselves, what if we just listened on a
+socket? We accept connections, read data using <code>{:active, :once}</code>, and buffer a
+small number of messages in an aggregator from all connections, only receiving
+more when the buffer is drained. With aggressive use of supervisors, we can
+ensure the entire thing never goes down, and continues to feed the Flow.</p><p>The system uses a <code>DynamicSupervisor</code> to handle the individual sockets:</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=n>defmodule</span> <span class=nc>Analysis.TcpStream.SocketSupervisor</span> <span class=n>do</span>
+  <span class=n>use</span> <span class=nc>DynamicSupervisor</span>
+
+  <span class=n>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>args</span><span class=p>)</span> <span class=n>do</span>
+    <span class=nc>DynamicSupervisor</span><span class=o>.</span><span class=n>start_link</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=n>args</span><span class=p>,</span> <span class=ss>name</span><span class=p>:</span> <span class=n>__MODULE__</span><span class=p>)</span>
+  <span class=n>end</span>
+
+  <span class=n>def</span> <span class=n>start_child</span> <span class=n>do</span>
+    <span class=n>spec</span> <span class=o>=</span> <span class=p>%{</span>
+      <span class=ss>id</span><span class=p>:</span> <span class=nc>Analysis.TcpStream.Socket</span><span class=p>,</span>
+      <span class=ss>start</span><span class=p>:</span> <span class=p>{</span><span class=nc>Analysis.TcpStream.Socket</span><span class=p>,</span> <span class=ss>:start_link</span><span class=p>,</span> <span class=p>[]},</span>
+      <span class=ss>restart</span><span class=p>:</span> <span class=ss>:transient</span>
+    <span class=p>}</span>
+
+    <span class=nc>DynamicSupervisor</span><span class=o>.</span><span class=n>start_child</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=n>spec</span><span class=p>)</span>
+  <span class=n>end</span>
+
+  <span class=na>@impl</span> <span class=n>true</span>
+  <span class=n>def</span> <span class=n>init</span><span class=p>([</span><span class=n>lsocket</span><span class=p>])</span> <span class=n>do</span>
+    <span class=nc>DynamicSupervisor</span><span class=o>.</span><span class=n>init</span><span class=p>(</span><span class=ss>strategy</span><span class=p>:</span> <span class=ss>:one_for_one</span><span class=p>,</span> <span class=ss>extra_arguments</span><span class=p>:</span> <span class=p>[</span><span class=n>lsocket</span><span class=p>])</span>
+  <span class=n>end</span>
+<span class=n>end</span>
+</code></pre></div><p>The <code>extra_arguments</code> option to <code>DynamicSupervisor</code> lets us parameterize all the
+children this supervisor spawns with some argument, which in this case is the
+listening socket handle. This is because, <a href=http://erlang.org/pipermail/erlang-questions/2010-July/052583.html>per this post on
+erlang-questions</a>, the best way to do this sort of TCP socket listening
+is to have the <em>socket</em> call <code>accept</code> on the listening socket, and then spawn
+another socket when it gets a connection. The listening socket is basically
+handed off to successive sockets. This is in contrast to the traditional model
+where one process accepts sockets, then spawns or hands off the socket to a
+worker. However, this Supervisor doesn&rsquo;t actually create the listening socket,
+the overall supervisor does. It&rsquo;s also worth nothing that, like many parts of
+this system, it&rsquo;s globally registered under its own module name.</p><p>Let&rsquo;s take a look at the socket itself, which isn&rsquo;t globally registed, but
+dynamically created and supervised by the above supervisor.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=n>defmodule</span> <span class=nc>Analysis.TcpStream.Socket</span> <span class=n>do</span>
+  <span class=n>use</span> <span class=nc>GenServer</span>
+
+  <span class=n>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>lsocket</span><span class=p>)</span> <span class=n>do</span>
+    <span class=nc>GenServer</span><span class=o>.</span><span class=n>start_link</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=n>lsocket</span><span class=p>)</span>
+  <span class=n>end</span>
+
+  <span class=n>def</span> <span class=n>init</span><span class=p>(</span><span class=n>lsocket</span><span class=p>)</span> <span class=n>do</span>
+    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=p>%{</span><span class=ss>lsocket</span><span class=p>:</span> <span class=n>lsocket</span><span class=p>,</span> <span class=ss>buffer</span><span class=p>:</span> <span class=n>nil</span><span class=p>},</span> <span class=mi>0</span><span class=p>}</span>
+  <span class=n>end</span>
+
+  <span class=n>def</span> <span class=n>handle_info</span><span class=p>(</span><span class=ss>:timeout</span><span class=p>,</span> <span class=p>%{</span><span class=ss>lsocket</span><span class=p>:</span> <span class=n>lsocket</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>socket</span><span class=p>}</span> <span class=o>=</span> <span class=ss>:gen_tcp</span><span class=o>.</span><span class=n>accept</span><span class=p>(</span><span class=n>lsocket</span><span class=p>)</span>
+
+    <span class=nc>Analysis.TcpStream.SocketSupervisor</span><span class=o>.</span><span class=n>start_child</span><span class=p>()</span>
+    <span class=nc>Analysis.TcpStream.Aggregator</span><span class=o>.</span><span class=n>register</span><span class=p>()</span>
+
+    <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=nc>Map</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=n>state</span><span class=p>,</span> <span class=ss>:socket</span><span class=p>,</span> <span class=n>socket</span><span class=p>)}</span>
+
+  <span class=n>end</span>
+  
+</code></pre></div><p>The <code>Socket</code> is parameterized by the listen socket, and uses a timeout of 0
+to immediately attempt to accept a connect on the socket. It uses a this
+<code>GenServer</code>-internal timeout system because initialization code for <code>GenServers</code> is
+expected to return promptly, and can error out if it doesn&rsquo;t.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=n>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp</span><span class=p>,</span> <span class=n>_sock</span><span class=p>,</span> <span class=n>data</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+    <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span>
+     <span class=p>%{</span><span class=n>state</span> <span class=o>|</span>
+       <span class=ss>buffer</span><span class=p>:</span> <span class=n>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]</span> <span class=n>do</span>
+         <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]</span> <span class=o>&lt;&gt;</span> <span class=n>data</span>
+       <span class=n>else</span>
+         <span class=n>data</span>
+       <span class=n>end</span>
+     <span class=p>}</span>
+    <span class=p>}</span>
+  <span class=n>end</span>
+</code></pre></div><p>Although the listen socket is in <code>:line</code> mode, it sometimes chunks replies,
+sending incomplete lines through multiple messages, so we concatenate with the
+buffer if it&rsquo;s already present. This may be the source of a bug, which I&rsquo;ll get
+to later.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=n>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp_closed</span><span class=p>,</span> <span class=n>_sock</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+    <span class=p>{</span><span class=ss>:stop</span><span class=p>,</span> <span class=p>{</span><span class=ss>:shutdown</span><span class=p>,</span> <span class=ss>:tcp_closed</span><span class=p>},</span> <span class=n>state</span><span class=p>}</span>
+  <span class=n>end</span>
+
+  <span class=n>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp_error</span><span class=p>,</span> <span class=n>_sock</span><span class=p>,</span> <span class=n>reason</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+    <span class=p>{</span><span class=ss>:stop</span><span class=p>,</span> <span class=n>reason</span><span class=p>,</span> <span class=n>state</span><span class=p>}</span>
+  <span class=n>end</span>
+
+
+  <span class=n>def</span> <span class=n>terminate</span><span class=p>(</span><span class=n>_reason</span><span class=p>,</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+    <span class=n>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:socket</span><span class=p>]</span> <span class=n>do</span>
+      <span class=ss>:gen_tcp</span><span class=o>.</span><span class=n>close</span><span class=p>(</span><span class=n>state</span><span class=p>[</span><span class=ss>:socket</span><span class=p>])</span>
+    <span class=n>end</span>
+  <span class=n>end</span>
+</code></pre></div><p>I think this is the proper way to handle the shutdown of the TCP stream, and the
+application has stopped throwing errors when clients disconnect, but I&rsquo;m
+ultimately not sure.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=n>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:get_buffer</span><span class=p>,</span> <span class=n>_from</span><span class=p>,</span> <span class=p>%{</span><span class=ss>socket</span><span class=p>:</span> <span class=n>socket</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+    <span class=ss>:inet</span><span class=o>.</span><span class=n>setopts</span><span class=p>(</span><span class=n>socket</span><span class=p>,</span> <span class=p>[{</span><span class=ss>:active</span><span class=p>,</span> <span class=ss>:once</span><span class=p>}])</span>
+    <span class=p>{</span><span class=ss>:reply</span><span class=p>,</span>
+    <span class=n>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]</span> <span class=n>do</span>
+      <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]}</span>
+    <span class=n>else</span>
+      <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=ss>:empty</span><span class=p>}</span>
+    <span class=n>end</span><span class=p>,</span>
+     <span class=p>%{</span><span class=n>state</span> <span class=o>|</span> <span class=ss>buffer</span><span class=p>:</span> <span class=n>nil</span><span class=p>}}</span>
+  <span class=n>end</span>
+
+<span class=n>end</span>
+</code></pre></div><p>Reset the TCP socket, and query and reset the internal buffer. This means that
+the socket won&rsquo;t read more data than necessary, and effectively passes on the
+backpressure gained from <code>{:active, :once}</code>.</p><p>Let&rsquo;s take a look at the aggregator.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=n>defmodule</span> <span class=nc>Analysis.TcpStream.Aggregator</span> <span class=n>do</span>
+  <span class=n>use</span> <span class=nc>GenServer</span>
+  <span class=n>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>_args</span><span class=p>)</span> <span class=n>do</span>
+    <span class=nc>GenServer</span><span class=o>.</span><span class=n>start_link</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=p>[[]],</span> <span class=ss>name</span><span class=p>:</span> <span class=n>__MODULE__</span><span class=p>)</span>
+  <span class=n>end</span>
+
+  <span class=n>def</span> <span class=n>register</span> <span class=n>do</span>
+    <span class=nc>GenServer</span><span class=o>.</span><span class=n>call</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=ss>:register</span><span class=p>)</span>
+  <span class=n>end</span>
+
+  <span class=n>def</span> <span class=n>get_buffer</span> <span class=n>do</span>
+    <span class=nc>GenServer</span><span class=o>.</span><span class=n>call</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=ss>:get_buffer</span><span class=p>,</span> <span class=mi>10000</span><span class=p>)</span>
+  <span class=n>end</span>
+
+  <span class=c1># Callbacks</span>
+
+  <span class=n>def</span> <span class=n>init</span><span class=p>(</span><span class=n>_args</span><span class=p>)</span> <span class=n>do</span>
+    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=p>[]}</span>
+  <span class=n>end</span>
+
+</code></pre></div><p>Note that this is globally registered. This allows any other piece of the
+application to read data from this socket. This has some caveats.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>
+  <span class=n>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:register</span><span class=p>,</span> <span class=p>{</span><span class=n>from</span><span class=p>,</span> <span class=n>_ref</span><span class=p>},</span> <span class=n>pids</span><span class=p>)</span> <span class=n>do</span>
+    <span class=nc>IO</span><span class=o>.</span><span class=n>inspect</span><span class=p>({</span><span class=s2>&#34;Registration from &#34;</span><span class=p>,</span> <span class=n>from</span><span class=p>})</span>
+    <span class=nc>Process</span><span class=o>.</span><span class=n>monitor</span><span class=p>(</span><span class=n>from</span><span class=p>)</span>
+    <span class=p>{</span><span class=ss>:reply</span><span class=p>,</span> <span class=ss>:ok</span><span class=p>,</span> <span class=p>[</span><span class=n>from</span> <span class=o>|</span> <span class=n>pids</span><span class=p>]}</span>
+  <span class=n>end</span>
+
+  <span class=n>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:DOWN</span><span class=p>,</span> <span class=n>_</span><span class=p>,</span> <span class=ss>:process</span><span class=p>,</span> <span class=n>from</span><span class=p>,</span> <span class=n>_</span><span class=p>}</span> <span class=o>=</span> <span class=n>msg</span><span class=p>,</span> <span class=n>pids</span><span class=p>)</span> <span class=n>do</span>
+    <span class=nc>IO</span><span class=o>.</span><span class=n>inspect</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
+    <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=nc>List</span><span class=o>.</span><span class=n>delete</span><span class=p>(</span><span class=n>pids</span><span class=p>,</span> <span class=n>from</span><span class=p>)}</span>
+  <span class=n>end</span>
+  
+</code></pre></div><p>Sockets register themselves with the Aggregator, and the Aggregator monitors
+them so it can remove them from the list.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=n>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:get_buffer</span><span class=p>,</span> <span class=n>_from</span><span class=p>,</span> <span class=n>pids</span><span class=p>)</span> <span class=n>do</span>
+    <span class=n>buffer</span> <span class=o>=</span> <span class=nc>Parallel</span><span class=o>.</span><span class=n>pmap</span><span class=p>(</span><span class=n>pids</span><span class=p>,</span> <span class=n>fn</span><span class=p>(</span><span class=n>pid</span><span class=p>)</span> <span class=o>-&gt;</span>
+      <span class=n>try</span> <span class=n>do</span>
+        <span class=n>case</span> <span class=nc>GenServer</span><span class=o>.</span><span class=n>call</span><span class=p>(</span><span class=n>pid</span><span class=p>,</span> <span class=ss>:get_buffer</span><span class=p>,</span> <span class=mi>1000</span><span class=p>)</span> <span class=n>do</span>
+          <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=ss>:empty</span><span class=p>}</span> <span class=o>-&gt;</span> <span class=p>[]</span>
+          <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>b</span><span class=p>}</span> <span class=o>-&gt;</span> <span class=nc>String</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=n>b</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+          <span class=n>x</span> <span class=o>-&gt;</span>
+            <span class=nc>IO</span><span class=o>.</span><span class=n>inspect</span><span class=p>({</span><span class=ss>:unexpected_buffer</span><span class=p>,</span> <span class=n>x</span><span class=p>})</span>
+            <span class=p>[]</span>
+        <span class=n>end</span>
+      <span class=n>rescue</span>
+      <span class=n>_</span> <span class=o>-&gt;</span> <span class=p>[]</span>
+      <span class=n>end</span>
+    <span class=n>end</span>
+    <span class=p>)</span> <span class=o>|&gt;</span> <span class=nc>List</span><span class=o>.</span><span class=n>flatten</span><span class=p>()</span> <span class=o>|&gt;</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>filter</span><span class=p>(</span><span class=o>&amp;</span><span class=p>(</span><span class=ni>&amp;1</span> <span class=o>!=</span> <span class=s2>&#34;&#34;</span><span class=p>))</span>
+
+    <span class=p>{</span><span class=ss>:reply</span><span class=p>,</span> <span class=n>buffer</span><span class=p>,</span> <span class=n>pids</span><span class=p>}</span>
+  <span class=n>end</span>
+<span class=n>end</span>
+</code></pre></div><p>This queries all the registered sockets, then manipulates the responses slightly
+to make subsequent processing easier. In particular, it splits on newlines
+(because sometimes TCP connections don&rsquo;t really fully obey the request only for
+full lines, or maybe they ignore the <code>{:active, :once}</code>, and the socket naively
+concatenates 2 lines), flattens the buffers (so Sockets can return multiple
+messages, or you could theoretically chain aggregators, no idea why you&rsquo;d do
+that though), and then filters out empty strings, splitting on newlines under
+normal circumstances tends to produce the line and then an empty string from the
+other side of the newline. This is reasonably robust, although it&rsquo;s worth noting
+that this is called with a timeout of <code>10000</code>, and it gives the sockets <code>1000</code>
+(ms, I think) to respond, so if more than 10 sockets fail to respond, the
+Aggregator could itself timeout. Also note that in the case of errors (timeouts
+throw exceptions, but many other things do to), the Aggregator does absolutely
+nothing, and relies on the Socket to actually crash itself before removing it
+from the pid list. Hypothetically, if a Socket crashed but didn&rsquo;t die, it would
+sit around in the pid list, taking up 1s of every attempt to get a buffer, until
+the program was restarted, so I guess we hope that sockets can&rsquo;t do that.</p><p>So given my previous failings to write a correct <code>GenStage</code>, how do I actually
+use this Aggregator?</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=nc>Stream</span><span class=o>.</span><span class=n>resource</span><span class=p>(</span>
+    <span class=n>fn</span> <span class=o>-&gt;</span> <span class=n>nil</span> <span class=n>end</span><span class=p>,</span>
+    <span class=n>fn</span> <span class=n>_</span> <span class=o>-&gt;</span> <span class=p>{</span> <span class=nc>Analysis.TcpStream.Aggregator</span><span class=o>.</span><span class=n>get_buffer</span><span class=p>(),</span> <span class=n>nil</span> <span class=p>}</span> <span class=n>end</span><span class=p>,</span>
+    <span class=n>fn</span> <span class=n>_</span> <span class=o>-&gt;</span> <span class=n>nil</span>
+<span class=n>end</span>
+</code></pre></div><p>Fun fact, this is actually a spinlock, which means it works, but it&rsquo;s really
+really bad. It works though, and ultimately lets you easily stream multiple
+different data sources directly over TCP using the same interface, and it&rsquo;ll all
+get ingested properly by the flow. You can use whatever compression algorithm
+you want, you can write some other program to send other data, you can do
+whatever you want, and the flow keeps going.</p><p>Because this solution is so obviously bad, and because I&rsquo;m clearly missing
+something about <code>GenStage</code>, I&rsquo;m going to continue to think about this problem,
+and ultimately create a better solution. Probably one that still listens on TCP
+sockets, but one that doesn&rsquo;t spinlock. Ultimately, my colleague was happy with
+the solution, the application worked out of the box, and the universal interface
+of plain text JSON objects to a TCP socket was easy for him to understand,
+interact with, and even automate (he has no idea how the Flow application works,
+but he has shell experience and can assemble <code>ncat</code> commands.). Spinlocks are
+bad though, and I think throughput can be increased if I write the GenStages right.</p></main><hr><section><a class=tag href=/tags/code>code</a>
+<a class=tag href=/tags/elixir>elixir</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2020</footer></body></html>
