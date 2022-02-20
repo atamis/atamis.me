@@ -7,6 +7,8 @@ HUGO := hugo
 # All input files
 FILES=$(shell find content layouts static themes -type f)
 
+KETEX_VERSION=0.15.2
+
 # Below are PHONY targets
 all: public
 
@@ -39,8 +41,26 @@ cv:
 	make -C cv
 	cp cv/main.pdf static/downloads/resume.pdf
 
+pkg/katex:
+	curl -o pkg/katex.tar.gz -C - -L "https://github.com/KaTeX/KaTeX/releases/download/v${KETEX_VERSION}/katex.tar.gz"
+	tar -C pkg -xzvf pkg/katex.tar.gz
+
+assets/css/katex.min.css: pkg/katex
+	cp pkg/katex/katex.min.css $@
+
+katex-fonts: pkg/katex/fonts/*
+	cp $? static/css/fonts
+
+assets/js/katex.min.js: pkg/katex
+	cp pkg/katex/katex.min.js $@
+
+assets/js/katex-auto-render.min.js: pkg/katex
+	cp pkg/katex/contrib/auto-render.min.js $@
+
+katex: assets/js/katex-auto-render.min.js assets/js/katex.min.js assets/css/katex.min.css katex-fonts
+
 # Below are file based targets
-public: $(FILES) cv config.toml
+public: $(FILES) cv config.toml katex
 	git submodule update --recursive
 	$(HUGO) --minify
 
@@ -54,7 +74,6 @@ public: $(FILES) cv config.toml
 
 	# Ensure the public folder has it's mtime updated.
 	touch $@
-
 
 # https://gohugo.io/hosting-and-deployment/hosting-on-github/#build-and-deployment
 deploy:

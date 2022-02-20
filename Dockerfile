@@ -1,18 +1,17 @@
 # Containerized hugo
-FROM alpine:3.5 as hugo
+FROM alpine:3.15 as hugo
 
-ENV HUGO_VERSION 0.84.1
+ENV HUGO_VERSION 0.92.2
 ENV HUGO_BINARY hugo_${HUGO_VERSION}_Linux-64bit.tar.gz
 
 # Install Hugo
 RUN set -x && \
-  apk add --update wget ca-certificates && \
+  apk add --no-cache --update wget ca-certificates && \
   wget https://github.com/spf13/hugo/releases/download/v${HUGO_VERSION}/${HUGO_BINARY} && \
   tar xzf ${HUGO_BINARY} && \
   rm -r ${HUGO_BINARY} && \
   mv hugo /usr/bin && \
-  apk del wget ca-certificates && \
-  rm /var/cache/apk/*
+  apk del --no-cache wget ca-certificates
 
 ENTRYPOINT ["/usr/bin/hugo"]
 
@@ -30,6 +29,8 @@ FROM hugo as site-builder
 COPY ./ /site
 
 COPY --from=resume-builder /work/main.pdf /site/static/downloads/resume.pdf
+
+RUN apk add --no-cache make && cd /site && make katex
 
 RUN cd /site && /usr/bin/hugo --minify --config config.toml,ci/docker.toml
 

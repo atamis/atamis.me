@@ -1,11 +1,31 @@
 {{ $syntax := resources.Get "css/syntax.css" | minify}}
 {{ $custom := resources.Get "css/custom.css" | minify }}
 {{ $pride := resources.Get "css/pride_helper.css" | minify }}
+{{ $katex := resources.Get "css/katex.min.css" }}
 
-{{ $css := slice $syntax $custom $pride | resources.Concat "css/bundle.css"}}
+{{ $css := slice $syntax $custom $pride $katex | resources.Concat "css/bundle.css"}}
 
 <link rel="stylesheet" href="{{ $css.Permalink }}">
 
 {{ range .AlternativeOutputFormats -}}
     {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
 {{ end -}}
+
+{{ if .Params.math }}
+  {{ $katexjs := resources.Get "js/katex.min.js" }}
+  <script defer src="{{ $katexjs.Permalink }}"></script>
+
+  {{ $katexjs_auto := resources.Get "js/katex-auto-render.min.js" }}
+<script defer src="{{ $katexjs_auto.Permalink }}" onload="renderMathInElement(document.body);"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false}
+            ]
+        });
+    });
+</script>
+{{ end }}

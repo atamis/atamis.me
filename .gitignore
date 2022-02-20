@@ -255,3 +255,10 @@ TSWLatexianTemp*
 cv/main.pdf
 cv/Azrea Amis CV.pdf
 static/downloads/resume.pdf
+
+pkg/*
+
+static/css/fonts/KaTeX*
+assets/js/katex-auto-render.min.js
+assets/js/katex.min.js
+assets/css/katex.min.css
