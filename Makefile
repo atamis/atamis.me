@@ -30,6 +30,8 @@ help:
 clean:
 	-rm -rf public
 	-make -C cv clean
+	-rm -rf pkg/katex* assets/css/katex.min.css static/css/fonts/KaTeX* assets/js/katex.min.js assets/js/katex-auto-render.min.js
+
 
 server: public
 	cd public && python3 -m http.server 1313
@@ -48,8 +50,8 @@ pkg/katex:
 assets/css/katex.min.css: pkg/katex
 	cp pkg/katex/katex.min.css $@
 
-katex-fonts: pkg/katex/fonts/*
-	cp $? static/css/fonts
+katex-fonts: pkg/katex
+	cp $?/fonts/* static/css/fonts
 
 assets/js/katex.min.js: pkg/katex
 	cp pkg/katex/katex.min.js $@

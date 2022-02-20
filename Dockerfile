@@ -30,7 +30,7 @@ COPY ./ /site
 
 COPY --from=resume-builder /work/main.pdf /site/static/downloads/resume.pdf
 
-RUN apk add --no-cache make && cd /site && make katex
+RUN apk add --no-cache make curl && cd /site && make katex
 
 RUN cd /site && /usr/bin/hugo --minify --config config.toml,ci/docker.toml
 
