@@ -16,7 +16,7 @@
   <script defer src="{{ $katexjs.Permalink }}"></script>
 
   {{ $katexjs_auto := resources.Get "js/katex-auto-render.min.js" }}
-<script defer src="{{ $katexjs_auto.Permalink }}" onload="renderMathInElement(document.body);"></script>
+<script defer src="{{ $katexjs_auto.Permalink }}"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {

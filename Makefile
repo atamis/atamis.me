@@ -36,7 +36,7 @@ clean:
 server: public
 	cd public && python3 -m http.server 1313
 
-watch: clean
+watch:
 	$(HUGO) server -w
 
 cv:
