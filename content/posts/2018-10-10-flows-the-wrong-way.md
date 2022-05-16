@@ -6,6 +6,10 @@ tags: ["code", "elixir"]
 projects: ["flows"]
 ---
 
+Note in 2022: I'm in a very different state of mind compared to when I wrote
+this, and neither part represents my modern voice or style particularly well.
+I think it's still a good story.
+
 As part of a new and exciting project, I was faced with the task of ingesting a
 large amount of more or less homogeneous JSON data into a SQL database for an
 associate of mine to do some rudimentary business intelligence analysis on it.
@@ -183,7 +187,6 @@ defmodule Analysis.TcpStream.SocketSupervisor do
 end
 ```
 
-
 The `extra_arguments` option to `DynamicSupervisor` lets us parameterize all the
 children this supervisor spawns with some argument, which in this case is the
 listening socket handle. This is because, [per this post on
@@ -220,7 +223,7 @@ defmodule Analysis.TcpStream.Socket do
     {:noreply, Map.put(state, :socket, socket)}
 
   end
-  
+
 ```
 
 The `Socket` is parameterized by the listen socket, and uses a timeout of 0
@@ -228,7 +231,6 @@ to immediately attempt to accept a connect on the socket. It uses a this
 `GenServer`-internal timeout system because initialization code for `GenServers` is
 expected to return promptly, and can error out if it doesn't.
 
-  
 ```Elixir
   def handle_info({:tcp, _sock, data}, state) do
     {:noreply,
@@ -269,7 +271,6 @@ I think this is the proper way to handle the shutdown of the TCP stream, and the
 application has stopped throwing errors when clients disconnect, but I'm
 ultimately not sure.
 
-
 ```Elixir
   def handle_call(:get_buffer, _from, %{socket: socket} = state) do
     :inet.setopts(socket, [{:active, :once}])
@@ -288,7 +289,6 @@ end
 Reset the TCP socket, and query and reset the internal buffer. This means that
 the socket won't read more data than necessary, and effectively passes on the
 backpressure gained from `{:active, :once}`.
-
 
 Let's take a look at the aggregator.
 
@@ -318,7 +318,6 @@ defmodule Analysis.TcpStream.Aggregator do
 Note that this is globally registered. This allows any other piece of the
 application to read data from this socket. This has some caveats.
 
-
 ```Elixir
 
   def handle_call(:register, {from, _ref}, pids) do
@@ -331,7 +330,7 @@ application to read data from this socket. This has some caveats.
     IO.inspect(msg)
     {:noreply, List.delete(pids, from)}
   end
-  
+
 ```
 
 Sockets register themselves with the Aggregator, and the Aggregator monitors
@@ -358,7 +357,6 @@ them so it can remove them from the list.
   end
 end
 ```
-
 
 This queries all the registered sockets, then manipulates the responses slightly
 to make subsequent processing easier. In particular, it splits on newlines

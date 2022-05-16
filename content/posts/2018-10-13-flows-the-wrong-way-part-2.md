@@ -5,11 +5,17 @@ tags: ["code", "elixir"]
 projects: ["flows"]
 ---
 
+Note in 2022: I'm in a very different state of mind compared to when I wrote
+this, and neither part represents my modern voice or style particularly well.
+I think it's still a good story.
+
 In my [last post][last_post], I covered my first attempt to implement TCP streaming in
 `Flow`, a data flow library for Elixir. My first attempts involved a bunch of
 failed Unix sockets, and an attempt to implement a `GenStage` that failed for
 reasons I didn't understand. I eventually settled on this:
+
 <!--more-->
+
 ```Elixir
 Stream.resource(
     fn -> nil end,
@@ -51,11 +57,10 @@ each JSON object is pretty large (some are larger than 50,000 characters), the
 lines can be really long. They are always newline delimited, however. To that
 end, the initial implementation of this project was using files on disk, and
 opening those files as streams with the `:line` option, which causes the file to
-be read line by line, rather than all at once or in fixed sized binary chunks.  
+be read line by line, rather than all at once or in fixed sized binary chunks.
 
 `:gen_tcp` also offers a `:line` option, but also offers a `:buffer` option for
-configuring the size of the socket's internal buffer, and the `{:active,
-:once}` feature for controlling backpressure and ensuring GenServer
+configuring the size of the socket's internal buffer, and the `{:active, :once}` feature for controlling backpressure and ensuring GenServer
 responsiveness. These 3 options interact in an interesting way. The socket wants
 to report lines, and it only wants to report one line at a time, and because
 `:active`, it reports them by sending messages to its controlling process.
@@ -99,7 +104,7 @@ presented problems due to the way they were encoded in JSON: as `"\uXXXX"`
 characters. They also tended to be compound Unicode characters, so each
 "character" would be multiple escape sequences so although the site had a limit
 on the size of its content, the JSON representation could be up to 8 times
-larger thanks to this sort of encoding. 
+larger thanks to this sort of encoding.
 
 The fix in this context is easy: maintain a shadow buffer of the partial line,
 and only fill the real buffer when you know you have a real line. Really though,
@@ -118,7 +123,7 @@ wanted to write a real `GenStage`, but having already failed 2 times, I had
 obviously missed something.
 
 Here's what I missed. The fundamental feature of `GenStage`s is an additional
-field in the return value. While `GenServers` return values in the form of 
+field in the return value. While `GenServers` return values in the form of
 `{:reply, message, new_state}`, or `{:noreply, new_state}`, `GenStage` adds
 another return value, `{:noreply, [events], new_state}`, allowing `GenStages` to
 emit new events at any time.
@@ -131,9 +136,9 @@ However, this feature isn't strongly represented in the documentation or example
 It doesn't have to be that way, however. Allow me to quote from the
 documentation on `handle_demand/2`
 
->This callback is invoked on `:producer` stages with the demand from
->consumers/dispatcher. The producer that implements this callback must either
->store the demand, or return the amount of requested events. 
+> This callback is invoked on `:producer` stages with the demand from
+> consumers/dispatcher. The producer that implements this callback must either
+> store the demand, or return the amount of requested events.
 
 This is a slightly odd phrase:
 
@@ -167,7 +172,7 @@ receives a message push, it informs the socket of whether there is additional
 demand, and whether the Socket should continue receiving.
 
 Meanwhile, the aggregator buffers the lines, and emits events, keeping track of
-remaining demand. 
+remaining demand.
 
 Here's the `Socket`:
 
@@ -399,8 +404,8 @@ written a good `GenStage`, I'm confident I can write more good stages.
 Thanks for reading, and I hope I helped someone with the same revelations I
 needed.
 
-
-[^0]: Before I realized this, I thought that `handle_demand/2` had to
+[^0]:
+    Before I realized this, I thought that `handle_demand/2` had to
     effectively be synchronous, and I thought that was insane, because
     synchronously waiting for the next TCP line (with `gen_tcp:recv`) would
     obviously cause timeouts in `handle_demand/2`.
