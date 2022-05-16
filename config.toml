@@ -12,7 +12,7 @@ tag = "tags"
 project = "projects"
 
 [params]
-    footer = "&copy; [Azrea Amis](http://atamis.me) --- [Github](http://github.com/atamis) --- 2020"
+    footer = "&copy; [Azrea Amis](http://atamis.me) --- [Github](http://github.com/atamis) --- 2022"
     custom_css = ["/css/syntax.css", "/css/custom.css", "/css/pride_helper.css"]
 
 [permalinks]
