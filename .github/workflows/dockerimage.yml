@@ -17,11 +17,13 @@ jobs:
 
     - name: Git config
       uses: srt32/git-actions@v0.0.3
-      args: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      with:
+        args: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
     - name: Checkout submodules
       uses: srt32/git-actions@v0.0.3
-      args: git submodule update --init --recursive
+      with:
+        args: git submodule update --init --recursive
 
 
     - name: Publish to Registry
