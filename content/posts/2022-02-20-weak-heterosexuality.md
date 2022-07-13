@@ -35,7 +35,7 @@ Homosexual despite consisting of people of two different genders.
 
 Suppose we define Weak Heterosexuality as relationships consisting of no
 identical genders. Suppose $ G $ is the set of all genders. A Weakly
-Heterosexual relationship a set of genders $ H $ such that $ H \subset G $ and 
+Heterosexual relationship a set of genders $ H $ such that $ H \subset G $ and
 $ |H| = 2 $ and $ \forall g_1, g_2 \in H, g_1 \neq g_2 $. Note $ | G | \geq 3 $[^3] so
 $ H $ is always a proper subset and there is always an $ n \in G $ such that $ n
 \ni H$.
@@ -52,7 +52,7 @@ that $ man, woman \ni NB $
 # Weak Homosexuality
 
 It is easy to derive Weak Homosexuality from Weak Heterosexuality: A Weakly
-Homosexual relationship is a set of genders $ Q $ such that $ Q \subset G$ and 
+Homosexual relationship is a set of genders $ Q $ such that $ Q \subset G$ and
 $ |Q| = 2$ and $ \forall g_1, g_2 \in Q, g_1 = g_2$.
 
 So any relationship consisting of two people with exactly the same gender is
@@ -94,7 +94,7 @@ If $ f(t) $ is not defined for all $ t $ see Annex: Agender.
 Some people identify as "agender" and do not have a gender. This could be
 defined such that, if $ g $ is an agender person's gender, then $ g \ni G$. But
 agender people do not have gender so they cannot have $ g $ such that $ g $ is
-their gender. 
+their gender.
 
 Let us examine the definition of Weakly Heterosexuality more carefully. Weak
 Heterosexuality implicitly assumes that a relationship is a set $ R \subseteq P
@@ -106,14 +106,12 @@ one person with a gender and one agender person are neither Weakly Heterosexual
 nor Weakly Homosexual.
 
 Polyamorous relationships could involve three people with gender and any number of
-agender people and the sexuality of the relationship would be defined by the
+agender people and the orientation of the relationship would be defined by the
 genders of the three people with gender and the agender people would not
-contribute to the definition of sexuality of the relationship.
+contribute to the definition of sexual orientation of the relationship.
 
-
-
-
-[^1]: You'll have to forgive this author for not giving a formal definition of
+[^1]:
+    You'll have to forgive this author for not giving a formal definition of
     Strong Heterosexuality. Its proponents (which do not include this author)
     are disinclined to encourage thought in this direction and give only
     informal definitions. In fact one might be lead to think, based on the
@@ -121,7 +119,8 @@ contribute to the definition of sexuality of the relationship.
     created for its own merit but perhaps as a method of establishing an
     in-group and out-group.
 
-[^2]: This is not to imply that all genderfluid people change gender in response
+[^2]:
+    This is not to imply that all genderfluid people change gender in response
     to changes in time: merely that their gender is defined for all $ t $.
 
 [^3]: https://www.pinknews.co.uk/2021/01/13/joe-biden-three-genders-turning-point-usa/
