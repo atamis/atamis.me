@@ -1,7 +1,7 @@
 +++
 title = "How I reduced my Gitlab CI Runtime by 80%! (Clickbait!)"
 date = 2022-08-13T13:52:29+02:00
-draft = true
+draft = false
 tags = ["cloud", "linux"]
 projects = []
 +++
@@ -34,8 +34,8 @@ the same Gitlab repo that CI is running is not a novel problem, and I found an
 informative
 [article](https://www.benjaminrancourt.ca/how-to-push-to-a-git-repository-from-a-gitlab-ci-pipeline/)
 on the subject. The article includes all the useful details on how to clone
-the repo, how to check if changes have been made, how to push without trigger CI
-again, etc.. It also included the vital tidbit that Gitlab CI's default repo
+the repo, how to check if changes have been made, how to push without triggering CI
+again, etc.. It also included the useful tidbit that Gitlab CI's default repo
 clone is not suitable for actually committing and pushing, so it instead
 re-clones the repo to a separate directory.
 
@@ -44,11 +44,12 @@ for build steps. You can define many parts of a build step, like scripts for
 before and after the main step, as well as image and entrypoint. Then you can
 make any number of other concrete build steps that `extend` the original build
 step, copying the template and customizing the build step from there. Benjamin's
-`git` step cloned the repo and configured the commit user, ran the main steps
-interaction script, then committed the changes, all in a `git` specific
-container.
+`git` step cloned the repo and configured the commit user, committed the
+changes, all in a `git` specific container, leaving room for the main `script`
+tag to run the interaction. Note that the main `script` ran in the same
+container running the `git` commands.
 
-So here's a heavy paraphrase of what his setup looked like:
+So here's a heavy paraphrase of his setup:
 
 ```yaml
 .git:push:
@@ -69,13 +70,13 @@ deploy:
     - mv built/*.jpg "${CI_COMMIT_SHA}"
 ```
 
-This presented some problems to my. My interaction programs are private
-obviously weren't included in a public `git` oriented container image. I also
+This presented some problems to me. My interaction programs are private
+and obviously weren't included in a public `git` oriented container image. I also
 had more than one interaction, each running in their own container. So I needed
 a different approach.
 
 One interesting foible of Gitlab CI is that build steps don't share workspaces:
-each step runs separately, close a separate copy of the repo, and then does
+each step runs separately, clones a separate copy of the repo, and then does
 whatever it wants to do. If you want to transfer the output of one build step to
 another build step, you can use a feature called `artifacts`: select a path and
 the build worker will upload it to object storage and subsequent build steps will
@@ -152,21 +153,21 @@ git:push:
 
 So we have 3 different stages in strict order, but also note that the
 `interaction2` step depends on the `interaction1` step. This is because, if they
-run in parallel, they both will produce artifacts for the same path based on the
-artifacts of the `git:prep` stage, and then one of their artifacts "wins" (gets
-downloaded second) and makes it to the `git:push` step and actually gets
-committed. So `interaction2` runs second (via the `needs` directive) and runs in
-serial so that it can receive artifacts from `interaction1` and so its artifacts
-include changes from both interaction steps. Even better, `interaction2` is
-marked as `allow_failure` (it's not the most reliable program), but even if it
-does fail, `interaction1`s artifacts are still committed correctly.
+run in parallel, they both will produce artifacts for the same path (the repo
+made in `git:pre`), and then one of their artifacts "wins" when the `git:push`
+step downloads one second and only that one actually gets committed. So
+`interaction2` runs second (via the `needs` directive) and runs in serial so
+that it can receive artifacts from `interaction1` and so its artifacts include
+changes from both interaction steps. `interaction2` is marked as `allow_failure`
+(it's not the most reliable program), but even if it does fail, `interaction1`s
+artifacts are still committed correctly.
 
 # What Was Slow
 
 So this is pretty unwieldy, but it works great! It's quite reliable, and it's
 not even that slow. Well, it takes about 4 minutes, and that's kinda slow. For
 context, the interaction programs run in just a handful of seconds each, and
-`git` is very fast and the interactions don't produce any substantial amount of
+`git` is very fast and the interactions don't produce any any great volume of
 changes, so the `git push` was also quite fast.
 
 So the slowness is somewhere else.
@@ -176,16 +177,18 @@ take any real time compared to the overall runtime, which means the culprit is
 outside my scripts. I'm left just watching the pipeline run, and seeing where it
 spends its time.[^1] Luckily, it's pretty obvious where it spends its time. Each
 Gitlab build step imposes a certain amount of overhead. They all have download
-their iamge, then clone the repo, then start executing, then do cleanup. It
+their image, then clone the repo, then start executing, then do cleanup. It
 seems like Gitlab intends their build steps to represent quite large chunks of
-work, but this is especially awkward when you're running several small build
-steps in a tool-per-container. Containers are supposed to be small and
-self-contained, but Gitlab's approach wants big chunky build steps with almost
-omnibus container images. It would not be unreasonable for your build steps to
-start with a base image, install all the tools you need, and then do whatever it
-needed to do.
+work, so this is especially awkward when you're running several small build
+steps in a tool-per-container. Containers are very flexible tools, but we
+usually understand them as being small and self-contained, containing at most
+one tool, but Gitlab's approach wants big chunky build steps with almost omnibus
+container images. It would not be unreasonable for your build steps to start
+with a base image, install all the tools you need, and then do whatever it
+needed to do, because that would probably be faster than using several smaller
+containers. 
 
-I was yet again doing something my tools weren't designed to do. Let's build
+I was _yet again_ doing something my tools weren't designed to do. Let's build
 some new tools, shall we?
 
 # New Approach
@@ -199,14 +202,12 @@ The necessity of running interactions-as-containers requires substantial
 contortion. Separate git clone and git push steps. Artifacts, and their
 discontents. All these slow features.
 
-In the brave new world, there will be one container and it will run in one step
-and it will do _everything_.
-
-And we're gonna do it in Alpine, baybee. The hard way. The fun way.
+In the "brave new world", there will be one container and it will run in one
+build step and it will do _everything_, with no artifacts.
 
 ## Repackaging Interactions
 
-The easy way out would be just combining the Dockerfiles for the existing
+The easy way would be just combining the Dockerfiles for the existing
 interaction tools. The existing interaction tools are written in Rust, so their
 Dockerfiles are pretty straightforward, and you can build together something
 like this:
@@ -243,6 +244,8 @@ interaction tools live in separate repos, so it's not exactly clear where this
 Dockerfile would run or what kind of access it would need, those are solvable
 issues. What isn't a solvable issue is that this is boring.
 
+So let's do this with even more Alpine. The hard way. The fun way.
+
 ## What are we actually doing here
 
 The impetus for actually fixing this problem wasn't really the slow pipeline
@@ -258,12 +261,12 @@ packages's source, build it, and then install it into a destination. and then
 Melange takes care of packaging it up into an APK and will even detect some
 runtime dependencies automatically.
 
-apko is another declarative tool, this one for building reproducible container images. It
-takes an approach somewhat similar to `distroless`, but with APK and Alpine
-instead of Debian. It lets you define a series of Alpine registries, trusted
-keys, and APK packages, and it'd produce a single layer Docker container with
-those packages installed (Alpine base system optional). You can also define the
-entrypoint, environment variables, and running services. It's also quite fast.
+apko is a tool for declaratively building reproducible container images. It
+takes an approach somewhat similar to `distroless`, but with Alpine and the APK
+ecosystem. instead of Debian. It lets you define a series of Alpine registries,
+trusted keys, and APK packages, and it'd produce a single layer Docker container
+with those packages installed (Alpine base system optional). You can also define
+the entrypoint, environment variables, and running services. It's also quite fast.
 
 So, I used Melange to build my Rust applications into APK packages, hosted them
 in a private Alpine repository[^2], hooked up the private repo and its key to
@@ -273,7 +276,7 @@ about a 1:40m. It runs in 40s.
 
 I could replace the old build pipeline with building this image then using it,
 and it would still be faster than the original pipeline, but the omnibus image
-rarely changes, so can do even better and just run.
+rarely changes, so can do even better and just run it.
 
 I'd previously bounced off the Alpine packaging system, but tools like Melange
 and apko make dealing with it a lot easier, and sand off a lot of the rough
@@ -285,4 +288,5 @@ space going forward.
     I could maybe boot my own Gitlab runner and profile like that, but that
     would prove to be overkill.
 
-[^2]: Easier than it sounds, barely even worth a blog post.
+[^2]: Easier than it sounds, thanks to to
+    [this](https://engineering.fundingcircle.com/blog/2015/04/28/create-alpine-linux-repository/) article.
