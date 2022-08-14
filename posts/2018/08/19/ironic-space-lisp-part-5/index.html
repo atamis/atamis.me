@@ -123,7 +123,7 @@ at least slightly, all parts of the program (parser, AST, interpreter, and VM),
 but I always envisioned ISL without mutability, in much the same way as Erlang
 avoids mutability, and immutable data structures seem like a great way to do that
 without being horribly inefficient and copying everything around, or attempting
-to implement my own bad versions of existing immutable data structures.</p><p>Anyway, back to environments. <code>im-rs</code>'s <code>HashMap</code> matches the semantics I want
+to implement my own bad versions of existing immutable data structures.</p><p>Anyway, back to environments. <code>im-rs</code>&rsquo;s <code>HashMap</code> matches the semantics I want
 for environments pretty perfectly: hash maps with the option to insert &ldquo;mutably&rdquo;
 and to produce new hashmaps with new values inserted to use as child
 environments. I don&rsquo;t feel any particular need to wrap the <code>HashMap</code>, so my new

@@ -28,14 +28,14 @@ decompressing the data in memory, and then consuming it with a stream.</p><h1 id
 <span class=o>|&gt;</span> <span class=nc>Flow</span><span class=o>.</span><span class=n>map</span><span class=p>(</span><span class=o>&amp;</span><span class=n>parse_json</span><span class=o>/</span><span class=mi>1</span><span class=p>)</span>
 <span class=o>|&gt;</span> <span class=nc>Flow</span><span class=o>.</span><span class=n>filter</span><span class=p>(</span><span class=o>&amp;</span><span class=n>is_map</span><span class=o>/</span><span class=mi>1</span><span class=p>)</span>
 <span class=c1># ... cleaning ...</span>
-<span class=o>|&gt;</span> <span class=nc>Flow</span><span class=o>.</span><span class=n>each</span><span class=p>(</span> <span class=n>fn</span> <span class=n>p</span> <span class=o>-&gt;</span>
+<span class=o>|&gt;</span> <span class=nc>Flow</span><span class=o>.</span><span class=n>each</span><span class=p>(</span> <span class=k>fn</span> <span class=n>p</span> <span class=o>-&gt;</span>
   <span class=n>post</span> <span class=o>=</span> <span class=p>%</span><span class=nc>Post</span><span class=p>{}</span>
   <span class=n>changeset</span> <span class=o>=</span> <span class=nc>Post</span><span class=o>.</span><span class=n>changeset</span><span class=p>(</span><span class=n>post</span><span class=p>,</span> <span class=n>p</span><span class=p>)</span>
-  <span class=n>case</span> <span class=nc>Analysis.Repo</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=n>changeset</span><span class=p>)</span> <span class=n>do</span>
-    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>_</span><span class=p>}</span> <span class=o>-&gt;</span> <span class=n>nil</span>
+  <span class=k>case</span> <span class=nc>Analysis.Repo</span><span class=o>.</span><span class=n>insert</span><span class=p>(</span><span class=n>changeset</span><span class=p>)</span> <span class=k>do</span>
+    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>_</span><span class=p>}</span> <span class=o>-&gt;</span> <span class=no>nil</span>
     <span class=p>{</span><span class=ss>:error</span><span class=p>,</span> <span class=n>reason</span><span class=p>}</span> <span class=o>-&gt;</span> <span class=nc>IO</span><span class=o>.</span><span class=n>puts</span><span class=p>(</span><span class=s2>&#34;Encountered error </span><span class=si>#{</span><span class=n>inspect</span><span class=p>(</span><span class=n>reason</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
-  <span class=n>end</span>
-<span class=n>end</span><span class=p>)</span>
+  <span class=k>end</span>
+<span class=k>end</span><span class=p>)</span>
 </code></pre></div><p>Reading in a file (or files) one line at a time, parsing the JSON, filtering it,
 cleaning it, and then inserting it into the database. This is pretty efficient
 and stable, thanks to the speed of Elixir and backpressure of Flow. In
@@ -66,7 +66,7 @@ calling out to an external program and interacting with it. It has a
 it sends it as a message to its controlling process in a particular message
 format you can match on. However, it does this <em>constantly</em>, and you can&rsquo;t stop
 it, so I used the Erlang <code>:queue</code> library to make an efficient buffer, and
-implemented <code>GenStage</code>'s <code>handle_demand/2</code> so the whole thing could plug into
+implemented <code>GenStage</code>&rsquo;s <code>handle_demand/2</code> so the whole thing could plug into
 the existing Flow system. This approach is probably just as flawed as the pipes
 approach, because it still doesn&rsquo;t deal with backpressure&ndash;the buffer keeps
 growing&ndash;but at least when lines are consumed, they&rsquo;re removed from the buffer,
@@ -102,14 +102,14 @@ couple of days to think, I came up with a similar, but new solution.</p><h1 id=a
 socket? We accept connections, read data using <code>{:active, :once}</code>, and buffer a
 small number of messages in an aggregator from all connections, only receiving
 more when the buffer is drained. With aggressive use of supervisors, we can
-ensure the entire thing never goes down, and continues to feed the Flow.</p><p>The system uses a <code>DynamicSupervisor</code> to handle the individual sockets:</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=n>defmodule</span> <span class=nc>Analysis.TcpStream.SocketSupervisor</span> <span class=n>do</span>
-  <span class=n>use</span> <span class=nc>DynamicSupervisor</span>
+ensure the entire thing never goes down, and continues to feed the Flow.</p><p>The system uses a <code>DynamicSupervisor</code> to handle the individual sockets:</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=kd>defmodule</span> <span class=nc>Analysis.TcpStream.SocketSupervisor</span> <span class=k>do</span>
+  <span class=kn>use</span> <span class=nc>DynamicSupervisor</span>
 
-  <span class=n>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>args</span><span class=p>)</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>args</span><span class=p>)</span> <span class=k>do</span>
     <span class=nc>DynamicSupervisor</span><span class=o>.</span><span class=n>start_link</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=n>args</span><span class=p>,</span> <span class=ss>name</span><span class=p>:</span> <span class=n>__MODULE__</span><span class=p>)</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
-  <span class=n>def</span> <span class=n>start_child</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>start_child</span> <span class=k>do</span>
     <span class=n>spec</span> <span class=o>=</span> <span class=p>%{</span>
       <span class=ss>id</span><span class=p>:</span> <span class=nc>Analysis.TcpStream.Socket</span><span class=p>,</span>
       <span class=ss>start</span><span class=p>:</span> <span class=p>{</span><span class=nc>Analysis.TcpStream.Socket</span><span class=p>,</span> <span class=ss>:start_link</span><span class=p>,</span> <span class=p>[]},</span>
@@ -117,13 +117,13 @@ ensure the entire thing never goes down, and continues to feed the Flow.</p><p>T
     <span class=p>}</span>
 
     <span class=nc>DynamicSupervisor</span><span class=o>.</span><span class=n>start_child</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=n>spec</span><span class=p>)</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
-  <span class=na>@impl</span> <span class=n>true</span>
-  <span class=n>def</span> <span class=n>init</span><span class=p>([</span><span class=n>lsocket</span><span class=p>])</span> <span class=n>do</span>
+  <span class=na>@impl</span> <span class=no>true</span>
+  <span class=kd>def</span> <span class=n>init</span><span class=p>([</span><span class=n>lsocket</span><span class=p>])</span> <span class=k>do</span>
     <span class=nc>DynamicSupervisor</span><span class=o>.</span><span class=n>init</span><span class=p>(</span><span class=ss>strategy</span><span class=p>:</span> <span class=ss>:one_for_one</span><span class=p>,</span> <span class=ss>extra_arguments</span><span class=p>:</span> <span class=p>[</span><span class=n>lsocket</span><span class=p>])</span>
-  <span class=n>end</span>
-<span class=n>end</span>
+  <span class=k>end</span>
+<span class=k>end</span>
 </code></pre></div><p>The <code>extra_arguments</code> option to <code>DynamicSupervisor</code> lets us parameterize all the
 children this supervisor spawns with some argument, which in this case is the
 listening socket handle. This is because, <a href=http://erlang.org/pipermail/erlang-questions/2010-July/052583.html>per this post on
@@ -135,18 +135,18 @@ where one process accepts sockets, then spawns or hands off the socket to a
 worker. However, this Supervisor doesn&rsquo;t actually create the listening socket,
 the overall supervisor does. It&rsquo;s also worth nothing that, like many parts of
 this system, it&rsquo;s globally registered under its own module name.</p><p>Let&rsquo;s take a look at the socket itself, which isn&rsquo;t globally registed, but
-dynamically created and supervised by the above supervisor.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=n>defmodule</span> <span class=nc>Analysis.TcpStream.Socket</span> <span class=n>do</span>
-  <span class=n>use</span> <span class=nc>GenServer</span>
+dynamically created and supervised by the above supervisor.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=kd>defmodule</span> <span class=nc>Analysis.TcpStream.Socket</span> <span class=k>do</span>
+  <span class=kn>use</span> <span class=nc>GenServer</span>
 
-  <span class=n>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>lsocket</span><span class=p>)</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>lsocket</span><span class=p>)</span> <span class=k>do</span>
     <span class=nc>GenServer</span><span class=o>.</span><span class=n>start_link</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=n>lsocket</span><span class=p>)</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
-  <span class=n>def</span> <span class=n>init</span><span class=p>(</span><span class=n>lsocket</span><span class=p>)</span> <span class=n>do</span>
-    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=p>%{</span><span class=ss>lsocket</span><span class=p>:</span> <span class=n>lsocket</span><span class=p>,</span> <span class=ss>buffer</span><span class=p>:</span> <span class=n>nil</span><span class=p>},</span> <span class=mi>0</span><span class=p>}</span>
-  <span class=n>end</span>
+  <span class=kd>def</span> <span class=n>init</span><span class=p>(</span><span class=n>lsocket</span><span class=p>)</span> <span class=k>do</span>
+    <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=p>%{</span><span class=ss>lsocket</span><span class=p>:</span> <span class=n>lsocket</span><span class=p>,</span> <span class=ss>buffer</span><span class=p>:</span> <span class=no>nil</span><span class=p>},</span> <span class=mi>0</span><span class=p>}</span>
+  <span class=k>end</span>
 
-  <span class=n>def</span> <span class=n>handle_info</span><span class=p>(</span><span class=ss>:timeout</span><span class=p>,</span> <span class=p>%{</span><span class=ss>lsocket</span><span class=p>:</span> <span class=n>lsocket</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>(</span><span class=ss>:timeout</span><span class=p>,</span> <span class=p>%{</span><span class=ss>lsocket</span><span class=p>:</span> <span class=n>lsocket</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
     <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>socket</span><span class=p>}</span> <span class=o>=</span> <span class=ss>:gen_tcp</span><span class=o>.</span><span class=n>accept</span><span class=p>(</span><span class=n>lsocket</span><span class=p>)</span>
 
     <span class=nc>Analysis.TcpStream.SocketSupervisor</span><span class=o>.</span><span class=n>start_child</span><span class=p>()</span>
@@ -154,108 +154,108 @@ dynamically created and supervised by the above supervisor.</p><div class=highli
 
     <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=nc>Map</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=n>state</span><span class=p>,</span> <span class=ss>:socket</span><span class=p>,</span> <span class=n>socket</span><span class=p>)}</span>
 
-  <span class=n>end</span>
+  <span class=k>end</span>
 
 </code></pre></div><p>The <code>Socket</code> is parameterized by the listen socket, and uses a timeout of 0
 to immediately attempt to accept a connect on the socket. It uses a this
 <code>GenServer</code>-internal timeout system because initialization code for <code>GenServers</code> is
-expected to return promptly, and can error out if it doesn&rsquo;t.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=n>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp</span><span class=p>,</span> <span class=n>_sock</span><span class=p>,</span> <span class=n>data</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+expected to return promptly, and can error out if it doesn&rsquo;t.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp</span><span class=p>,</span> <span class=n>_sock</span><span class=p>,</span> <span class=n>data</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
     <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span>
      <span class=p>%{</span><span class=n>state</span> <span class=o>|</span>
-       <span class=ss>buffer</span><span class=p>:</span> <span class=n>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]</span> <span class=n>do</span>
+       <span class=ss>buffer</span><span class=p>:</span> <span class=k>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]</span> <span class=k>do</span>
          <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]</span> <span class=o>&lt;&gt;</span> <span class=n>data</span>
-       <span class=n>else</span>
+       <span class=k>else</span>
          <span class=n>data</span>
-       <span class=n>end</span>
+       <span class=k>end</span>
      <span class=p>}</span>
     <span class=p>}</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 </code></pre></div><p>Although the listen socket is in <code>:line</code> mode, it sometimes chunks replies,
 sending incomplete lines through multiple messages, so we concatenate with the
 buffer if it&rsquo;s already present. This may be the source of a bug, which I&rsquo;ll get
-to later.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=n>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp_closed</span><span class=p>,</span> <span class=n>_sock</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+to later.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp_closed</span><span class=p>,</span> <span class=n>_sock</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
     <span class=p>{</span><span class=ss>:stop</span><span class=p>,</span> <span class=p>{</span><span class=ss>:shutdown</span><span class=p>,</span> <span class=ss>:tcp_closed</span><span class=p>},</span> <span class=n>state</span><span class=p>}</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
-  <span class=n>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp_error</span><span class=p>,</span> <span class=n>_sock</span><span class=p>,</span> <span class=n>reason</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:tcp_error</span><span class=p>,</span> <span class=n>_sock</span><span class=p>,</span> <span class=n>reason</span><span class=p>},</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
     <span class=p>{</span><span class=ss>:stop</span><span class=p>,</span> <span class=n>reason</span><span class=p>,</span> <span class=n>state</span><span class=p>}</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
 
-  <span class=n>def</span> <span class=n>terminate</span><span class=p>(</span><span class=n>_reason</span><span class=p>,</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
-    <span class=n>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:socket</span><span class=p>]</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>terminate</span><span class=p>(</span><span class=n>_reason</span><span class=p>,</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
+    <span class=k>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:socket</span><span class=p>]</span> <span class=k>do</span>
       <span class=ss>:gen_tcp</span><span class=o>.</span><span class=n>close</span><span class=p>(</span><span class=n>state</span><span class=p>[</span><span class=ss>:socket</span><span class=p>])</span>
-    <span class=n>end</span>
-  <span class=n>end</span>
+    <span class=k>end</span>
+  <span class=k>end</span>
 </code></pre></div><p>I think this is the proper way to handle the shutdown of the TCP stream, and the
 application has stopped throwing errors when clients disconnect, but I&rsquo;m
-ultimately not sure.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=n>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:get_buffer</span><span class=p>,</span> <span class=n>_from</span><span class=p>,</span> <span class=p>%{</span><span class=ss>socket</span><span class=p>:</span> <span class=n>socket</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=n>do</span>
+ultimately not sure.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=kd>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:get_buffer</span><span class=p>,</span> <span class=n>_from</span><span class=p>,</span> <span class=p>%{</span><span class=ss>socket</span><span class=p>:</span> <span class=n>socket</span><span class=p>}</span> <span class=o>=</span> <span class=n>state</span><span class=p>)</span> <span class=k>do</span>
     <span class=ss>:inet</span><span class=o>.</span><span class=n>setopts</span><span class=p>(</span><span class=n>socket</span><span class=p>,</span> <span class=p>[{</span><span class=ss>:active</span><span class=p>,</span> <span class=ss>:once</span><span class=p>}])</span>
     <span class=p>{</span><span class=ss>:reply</span><span class=p>,</span>
-    <span class=n>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]</span> <span class=n>do</span>
+    <span class=k>if</span> <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]</span> <span class=k>do</span>
       <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>state</span><span class=p>[</span><span class=ss>:buffer</span><span class=p>]}</span>
-    <span class=n>else</span>
+    <span class=k>else</span>
       <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=ss>:empty</span><span class=p>}</span>
-    <span class=n>end</span><span class=p>,</span>
-     <span class=p>%{</span><span class=n>state</span> <span class=o>|</span> <span class=ss>buffer</span><span class=p>:</span> <span class=n>nil</span><span class=p>}}</span>
-  <span class=n>end</span>
+    <span class=k>end</span><span class=p>,</span>
+     <span class=p>%{</span><span class=n>state</span> <span class=o>|</span> <span class=ss>buffer</span><span class=p>:</span> <span class=no>nil</span><span class=p>}}</span>
+  <span class=k>end</span>
 
-<span class=n>end</span>
+<span class=k>end</span>
 </code></pre></div><p>Reset the TCP socket, and query and reset the internal buffer. This means that
 the socket won&rsquo;t read more data than necessary, and effectively passes on the
-backpressure gained from <code>{:active, :once}</code>.</p><p>Let&rsquo;s take a look at the aggregator.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=n>defmodule</span> <span class=nc>Analysis.TcpStream.Aggregator</span> <span class=n>do</span>
-  <span class=n>use</span> <span class=nc>GenServer</span>
-  <span class=n>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>_args</span><span class=p>)</span> <span class=n>do</span>
+backpressure gained from <code>{:active, :once}</code>.</p><p>Let&rsquo;s take a look at the aggregator.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=kd>defmodule</span> <span class=nc>Analysis.TcpStream.Aggregator</span> <span class=k>do</span>
+  <span class=kn>use</span> <span class=nc>GenServer</span>
+  <span class=kd>def</span> <span class=n>start_link</span><span class=p>(</span><span class=n>_args</span><span class=p>)</span> <span class=k>do</span>
     <span class=nc>GenServer</span><span class=o>.</span><span class=n>start_link</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=p>[[]],</span> <span class=ss>name</span><span class=p>:</span> <span class=n>__MODULE__</span><span class=p>)</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
-  <span class=n>def</span> <span class=n>register</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>register</span> <span class=k>do</span>
     <span class=nc>GenServer</span><span class=o>.</span><span class=n>call</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=ss>:register</span><span class=p>)</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
-  <span class=n>def</span> <span class=n>get_buffer</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>get_buffer</span> <span class=k>do</span>
     <span class=nc>GenServer</span><span class=o>.</span><span class=n>call</span><span class=p>(</span><span class=n>__MODULE__</span><span class=p>,</span> <span class=ss>:get_buffer</span><span class=p>,</span> <span class=mi>10000</span><span class=p>)</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
   <span class=c1># Callbacks</span>
 
-  <span class=n>def</span> <span class=n>init</span><span class=p>(</span><span class=n>_args</span><span class=p>)</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>init</span><span class=p>(</span><span class=n>_args</span><span class=p>)</span> <span class=k>do</span>
     <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=p>[]}</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
 </code></pre></div><p>Note that this is globally registered. This allows any other piece of the
 application to read data from this socket. This has some caveats.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>
-  <span class=n>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:register</span><span class=p>,</span> <span class=p>{</span><span class=n>from</span><span class=p>,</span> <span class=n>_ref</span><span class=p>},</span> <span class=n>pids</span><span class=p>)</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:register</span><span class=p>,</span> <span class=p>{</span><span class=n>from</span><span class=p>,</span> <span class=n>_ref</span><span class=p>},</span> <span class=n>pids</span><span class=p>)</span> <span class=k>do</span>
     <span class=nc>IO</span><span class=o>.</span><span class=n>inspect</span><span class=p>({</span><span class=s2>&#34;Registration from &#34;</span><span class=p>,</span> <span class=n>from</span><span class=p>})</span>
     <span class=nc>Process</span><span class=o>.</span><span class=n>monitor</span><span class=p>(</span><span class=n>from</span><span class=p>)</span>
     <span class=p>{</span><span class=ss>:reply</span><span class=p>,</span> <span class=ss>:ok</span><span class=p>,</span> <span class=p>[</span><span class=n>from</span> <span class=o>|</span> <span class=n>pids</span><span class=p>]}</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
-  <span class=n>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:DOWN</span><span class=p>,</span> <span class=n>_</span><span class=p>,</span> <span class=ss>:process</span><span class=p>,</span> <span class=n>from</span><span class=p>,</span> <span class=n>_</span><span class=p>}</span> <span class=o>=</span> <span class=n>msg</span><span class=p>,</span> <span class=n>pids</span><span class=p>)</span> <span class=n>do</span>
+  <span class=kd>def</span> <span class=n>handle_info</span><span class=p>({</span><span class=ss>:DOWN</span><span class=p>,</span> <span class=n>_</span><span class=p>,</span> <span class=ss>:process</span><span class=p>,</span> <span class=n>from</span><span class=p>,</span> <span class=n>_</span><span class=p>}</span> <span class=o>=</span> <span class=n>msg</span><span class=p>,</span> <span class=n>pids</span><span class=p>)</span> <span class=k>do</span>
     <span class=nc>IO</span><span class=o>.</span><span class=n>inspect</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
     <span class=p>{</span><span class=ss>:noreply</span><span class=p>,</span> <span class=nc>List</span><span class=o>.</span><span class=n>delete</span><span class=p>(</span><span class=n>pids</span><span class=p>,</span> <span class=n>from</span><span class=p>)}</span>
-  <span class=n>end</span>
+  <span class=k>end</span>
 
 </code></pre></div><p>Sockets register themselves with the Aggregator, and the Aggregator monitors
-them so it can remove them from the list.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=n>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:get_buffer</span><span class=p>,</span> <span class=n>_from</span><span class=p>,</span> <span class=n>pids</span><span class=p>)</span> <span class=n>do</span>
-    <span class=n>buffer</span> <span class=o>=</span> <span class=nc>Parallel</span><span class=o>.</span><span class=n>pmap</span><span class=p>(</span><span class=n>pids</span><span class=p>,</span> <span class=n>fn</span><span class=p>(</span><span class=n>pid</span><span class=p>)</span> <span class=o>-&gt;</span>
-      <span class=n>try</span> <span class=n>do</span>
-        <span class=n>case</span> <span class=nc>GenServer</span><span class=o>.</span><span class=n>call</span><span class=p>(</span><span class=n>pid</span><span class=p>,</span> <span class=ss>:get_buffer</span><span class=p>,</span> <span class=mi>1000</span><span class=p>)</span> <span class=n>do</span>
+them so it can remove them from the list.</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir>  <span class=kd>def</span> <span class=n>handle_call</span><span class=p>(</span><span class=ss>:get_buffer</span><span class=p>,</span> <span class=n>_from</span><span class=p>,</span> <span class=n>pids</span><span class=p>)</span> <span class=k>do</span>
+    <span class=n>buffer</span> <span class=o>=</span> <span class=nc>Parallel</span><span class=o>.</span><span class=n>pmap</span><span class=p>(</span><span class=n>pids</span><span class=p>,</span> <span class=k>fn</span><span class=p>(</span><span class=n>pid</span><span class=p>)</span> <span class=o>-&gt;</span>
+      <span class=k>try</span> <span class=k>do</span>
+        <span class=k>case</span> <span class=nc>GenServer</span><span class=o>.</span><span class=n>call</span><span class=p>(</span><span class=n>pid</span><span class=p>,</span> <span class=ss>:get_buffer</span><span class=p>,</span> <span class=mi>1000</span><span class=p>)</span> <span class=k>do</span>
           <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=ss>:empty</span><span class=p>}</span> <span class=o>-&gt;</span> <span class=p>[]</span>
           <span class=p>{</span><span class=ss>:ok</span><span class=p>,</span> <span class=n>b</span><span class=p>}</span> <span class=o>-&gt;</span> <span class=nc>String</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=n>b</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
           <span class=n>x</span> <span class=o>-&gt;</span>
             <span class=nc>IO</span><span class=o>.</span><span class=n>inspect</span><span class=p>({</span><span class=ss>:unexpected_buffer</span><span class=p>,</span> <span class=n>x</span><span class=p>})</span>
             <span class=p>[]</span>
-        <span class=n>end</span>
-      <span class=n>rescue</span>
+        <span class=k>end</span>
+      <span class=k>rescue</span>
       <span class=n>_</span> <span class=o>-&gt;</span> <span class=p>[]</span>
-      <span class=n>end</span>
-    <span class=n>end</span>
+      <span class=k>end</span>
+    <span class=k>end</span>
     <span class=p>)</span> <span class=o>|&gt;</span> <span class=nc>List</span><span class=o>.</span><span class=n>flatten</span><span class=p>()</span> <span class=o>|&gt;</span> <span class=nc>Enum</span><span class=o>.</span><span class=n>filter</span><span class=p>(</span><span class=o>&amp;</span><span class=p>(</span><span class=ni>&amp;1</span> <span class=o>!=</span> <span class=s2>&#34;&#34;</span><span class=p>))</span>
 
     <span class=p>{</span><span class=ss>:reply</span><span class=p>,</span> <span class=n>buffer</span><span class=p>,</span> <span class=n>pids</span><span class=p>}</span>
-  <span class=n>end</span>
-<span class=n>end</span>
+  <span class=k>end</span>
+<span class=k>end</span>
 </code></pre></div><p>This queries all the registered sockets, then manipulates the responses slightly
 to make subsequent processing easier. In particular, it splits on newlines
 (because sometimes TCP connections don&rsquo;t really fully obey the request only for
@@ -274,10 +274,10 @@ from the pid list. Hypothetically, if a Socket crashed but didn&rsquo;t die, it 
 sit around in the pid list, taking up 1s of every attempt to get a buffer, until
 the program was restarted, so I guess we hope that sockets can&rsquo;t do that.</p><p>So given my previous failings to write a correct <code>GenStage</code>, how do I actually
 use this Aggregator?</p><div class=highlight><pre class=chroma><code class=language-Elixir data-lang=Elixir><span class=nc>Stream</span><span class=o>.</span><span class=n>resource</span><span class=p>(</span>
-    <span class=n>fn</span> <span class=o>-&gt;</span> <span class=n>nil</span> <span class=n>end</span><span class=p>,</span>
-    <span class=n>fn</span> <span class=n>_</span> <span class=o>-&gt;</span> <span class=p>{</span> <span class=nc>Analysis.TcpStream.Aggregator</span><span class=o>.</span><span class=n>get_buffer</span><span class=p>(),</span> <span class=n>nil</span> <span class=p>}</span> <span class=n>end</span><span class=p>,</span>
-    <span class=n>fn</span> <span class=n>_</span> <span class=o>-&gt;</span> <span class=n>nil</span>
-<span class=n>end</span>
+    <span class=k>fn</span> <span class=o>-&gt;</span> <span class=no>nil</span> <span class=k>end</span><span class=p>,</span>
+    <span class=k>fn</span> <span class=n>_</span> <span class=o>-&gt;</span> <span class=p>{</span> <span class=nc>Analysis.TcpStream.Aggregator</span><span class=o>.</span><span class=n>get_buffer</span><span class=p>(),</span> <span class=no>nil</span> <span class=p>}</span> <span class=k>end</span><span class=p>,</span>
+    <span class=k>fn</span> <span class=n>_</span> <span class=o>-&gt;</span> <span class=no>nil</span>
+<span class=k>end</span>
 </code></pre></div><p>Fun fact, this is actually a spinlock, which means it works, but it&rsquo;s really
 really bad. It works though, and ultimately lets you easily stream multiple
 different data sources directly over TCP using the same interface, and it&rsquo;ll all
