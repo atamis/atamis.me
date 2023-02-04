@@ -12,8 +12,11 @@ development and deployment, but my coursework and personal projects have covered
 graphics, game design, machine learning, system/linux,
 programming language development, data structures, and algorithms.
 
-You can find my code on my [github](http://github.com/atamis), my projects
-[ here ](/projects) on my site, and my writings below.
+You can find my code on my [github](http://github.com/atamis), my
+[twitter](https://twitter.com/atamiser)
+, my
+{{< rawhtml >}}<a rel="me" href="https://hachyderm.io/@azrea">mastodon</a>,{{< /rawhtml >}}
+my projects [here](/projects) on my site, and my writings below.
 
 My views on this site are my own, and do not reflect the views of my employer.
 
