@@ -2,43 +2,70 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: atamis-me
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        submodules: true
 
-    - name: Git config
-      uses: srt32/git-actions@v0.0.3
-      with:
-        args: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Git config
-      uses: srt32/git-actions@v0.0.3
-      with:
-        args: git config --global --add safe.directory "$GITHUB_WORKSPACE/themes/hugo-xmin"
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-    - name: Checkout submodules
-      uses: srt32/git-actions@v0.0.3
-      with:
-        args: git submodule update --init --recursive
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
+      # - name: Git config
+      #   uses: srt32/git-actions@v0.0.3
+      #   with:
+      #     args: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: atamis/atamis.me/atamis-me
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        registry: docker.pkg.github.com
-        snapshot: true
+      # - name: Git config
+      #   uses: srt32/git-actions@v0.0.3
+      #   with:
+      #     args: git config --global --add safe.directory "$GITHUB_WORKSPACE/themes/hugo-xmin"
+
+      # - name: Checkout submodules
+      #   uses: srt32/git-actions@v0.0.3
+      #   with:
+      #     args: git submodule update --init --recursive
+
+      # - name: Publish to Registry
+      #   uses: elgohr/Publish-Docker-Github-Action@master
+      #   with:
+      #     name: atamis/atamis.me/atamis-me
+      #     username: ${{ secrets.DOCKER_USERNAME }}
+      #     password: ${{ secrets.DOCKER_PASSWORD }}
+      #     registry: docker.pkg.github.com
+      #     snapshot: true
 
     # - name: Publish to Ava Registry
     #   uses: elgohr/Publish-Docker-Github-Action@master
