@@ -1,4 +1,5 @@
-<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 7 | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 7</span></h1><h2 class=date>2018/08/27</h2></div><main><p>Let&rsquo;s talk about the VM internals. I&rsquo;ve written a compiler for ISL, and
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 7 | Azrea Amis</title>
+<link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 7</span></h1><h2 class=date>2018/08/27</h2></div><main><p>Let&rsquo;s talk about the VM internals. I&rsquo;ve written a compiler for ISL, and
 implemented functions at the same time. This is not a mistake or an over-reach,
 rather a natural progression. To the VM, what is a function? The VM doesn&rsquo;t have
 a strong concept of &ldquo;functions&rdquo;, or even of procedures. It has the <code>Call</code> and
@@ -99,17 +100,16 @@ adds another push to the frame stack, but with tail call optimization, that can
 be avoided.</p><h1 id=the-current-compiler>The Current Compiler</h1><p>The current compiler is dumb and has 3 phases. I&rsquo;m tempted to name it something
 like &ldquo;failure&rdquo;, but I already use a library called failure, or fuckwit, or
 &ldquo;a disaster in three acts&rdquo;, or something. I&rsquo;m not exactly proud of it. It works, but
-produces some pretty shitty bytecode. This is the bytecode version of <code>(def x 1) x</code>, annotated manually:</p><div class=highlight><pre class=chroma><code class=language-fallback data-lang=fallback>        (0, 0)  Lit     N(1)
-        (0, 1)  Lit     :&#34;x&#34;
-        (0, 2)  Store           // Store x = 1
-        (0, 3)  Lit     :&#34;x&#34;
-        (0, 4)  Load            // load x
-        (0, 5)  Pop             // pop x
-        (0, 6)  Lit     :&#34;x&#34;
-        (0, 7)  Load            // load x
-        (0, 8)  Return          // return
-
-</code></pre></div><p>It stores x, it loads it, it pops it, and it loads it again before returning.
+produces some pretty shitty bytecode. This is the bytecode version of <code>(def x 1) x</code>, annotated manually:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl>        <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span>  <span class=n>Lit</span>     <span class=n>N</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>  <span class=n>Lit</span>     <span class=p>:</span><span class=s2>&#34;x&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span>  <span class=n>Store</span>           <span class=o>//</span> <span class=n>Store</span> <span class=n>x</span> <span class=o>=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>3</span><span class=p>)</span>  <span class=n>Lit</span>     <span class=p>:</span><span class=s2>&#34;x&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>4</span><span class=p>)</span>  <span class=n>Load</span>            <span class=o>//</span> <span class=nb>load</span> <span class=n>x</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>5</span><span class=p>)</span>  <span class=n>Pop</span>             <span class=o>//</span> <span class=n>pop</span> <span class=n>x</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>6</span><span class=p>)</span>  <span class=n>Lit</span>     <span class=p>:</span><span class=s2>&#34;x&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>7</span><span class=p>)</span>  <span class=n>Load</span>            <span class=o>//</span> <span class=nb>load</span> <span class=n>x</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>8</span><span class=p>)</span>  <span class=n>Return</span>          <span class=o>//</span> <span class=k>return</span>
+</span></span></code></pre></div><p>It stores x, it loads it, it pops it, and it loads it again before returning.
 Holy shit.</p><p>There are 2 major hurdles to get over when compiling ISL: if and functions. If
 is easy in the sense that it directly maps to a known operation, <code>JumpCond</code>, but
 <code>JumpCond</code> takes 2 addresses and a value, and jumps based on the value. But the
@@ -122,24 +122,24 @@ heavy. It does sound pretty generic, so you could build and test it in isolation
 and without loss of generality, but I decided to take a different approach. That
 different approach is an intermediate representation for operations. This
 intermediate pass is comparatively simple, and really only deals with the
-difficulties of <code>JumpCond</code>.</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=k>pub</span><span class=w> </span><span class=k>enum</span> <span class=nc>IrOp</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=n>Lit</span><span class=p>(</span><span class=n>Literal</span><span class=p>),</span><span class=w>
-</span><span class=w>    </span><span class=n>Return</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>Call</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>Jump</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>JumpCond</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>        </span><span class=n>pred</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>IrChunk</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
-</span><span class=w>        </span><span class=n>then</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>IrChunk</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
-</span><span class=w>        </span><span class=n>els</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>IrChunk</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=p>},</span><span class=w>
-</span><span class=w>    </span><span class=n>Load</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>Store</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>PushEnv</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>PopEnv</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>Dup</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>Pop</span><span class=p>,</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span></code></pre></div><p>This phase of the compiler is implemented as an <code>ASTVisitor&lt;IrChunk></code>. It walks
+difficulties of <code>JumpCond</code>.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>enum</span> <span class=nc>IrOp</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Lit</span><span class=p>(</span><span class=n>Literal</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Return</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Call</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Jump</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>JumpCond</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>pred</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>IrChunk</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>then</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>IrChunk</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>els</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>IrChunk</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Load</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Store</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>PushEnv</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>PopEnv</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Dup</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Pop</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>This phase of the compiler is implemented as an <code>ASTVisitor&lt;IrChunk></code>. It walks
 the AST tree and produces a vector of intermediate operations that may point to
 other vectors of intermediate operations. A lot of this phase is just emitting
 one or 2 instructions, and then appending the chunks generated from <code>visit</code>ing
@@ -188,18 +188,18 @@ and to push and pop environments. Then it compiles the root and puts it in the
 same place as the dummy function. Recall that packing each <code>IrChunk</code> can result
 in multiple real <code>Chunk</code>s. By pre-allocating chunks for the functions, we can
 ensure that any extra chunks don&rsquo;t take a function&rsquo;s assigned spot, and don&rsquo;t
-get overwritten.</p><h2 id=tco>TCO</h2><p>This is how Tail Call Optimization is implemented in the current compiler.</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=k>fn</span> <span class=nf>tail_call_optimization</span><span class=p>(</span><span class=n>chunk</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>IrChunk</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>len</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>chunk</span><span class=p>.</span><span class=n>len</span><span class=p>();</span><span class=w>
-</span><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=n>len</span><span class=w> </span><span class=o>&gt;=</span><span class=w> </span><span class=mi>3</span><span class=w>
-</span><span class=w>        </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>3</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>Call</span><span class=w>
-</span><span class=w>        </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>PopEnv</span><span class=w>
-</span><span class=w>        </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>Return</span><span class=w>
-</span><span class=w>    </span><span class=p>{</span><span class=w>
-</span><span class=w>        </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>3</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>PopEnv</span><span class=p>;</span><span class=w>
-</span><span class=w>        </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>Jump</span><span class=p>;</span><span class=w>
-</span><span class=w>    </span><span class=p>}</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span></code></pre></div><p>It works, but is very tightly bound to the compiler implementation, and if the
+get overwritten.</p><h2 id=tco>TCO</h2><p>This is how Tail Call Optimization is implemented in the current compiler.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>fn</span> <span class=nf>tail_call_optimization</span><span class=p>(</span><span class=n>chunk</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>IrChunk</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>len</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>chunk</span><span class=p>.</span><span class=n>len</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=n>len</span><span class=w> </span><span class=o>&gt;=</span><span class=w> </span><span class=mi>3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>3</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>Call</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>PopEnv</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>1</span><span class=p>]</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>Return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>3</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>PopEnv</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>chunk</span><span class=p>[</span><span class=n>len</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=mi>2</span><span class=p>]</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>IrOp</span>::<span class=n>Jump</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>It works, but is very tightly bound to the compiler implementation, and if the
 compiler ever gains the ability to elide environments, this will break.</p><h1 id=benching>Benching</h1><p>I tried benchmarking the VM, but for whatever reason, the executing time is
 pretty unreliable, with variance of between 5 and 15%. I haven&rsquo;t tried
 benchmarking the parser-compiler: I suspect it will be very slow, because,
@@ -212,6 +212,6 @@ start to work on the standard library. I could also work on the scheduler, but
 being able to implement the runtime access to the scheduler alongside the
 scheduler will likely be useful.</p><p>I&rsquo;m also thinking about a different kind of VM, one that doesn&rsquo;t use bytecode
 chunks like current one, and deals with &ldquo;first class value functions&rdquo; in a more
-literal way.</p></main><hr><section><a class=tag href=/tags/rust>rust</a>
-<a class=tag href=/tags/code>code</a>
-<a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>
+literal way.</p></main><hr><section><a class=tag href=/tags/rust>rust
+</a><a class=tag href=/tags/code>code
+</a><a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>

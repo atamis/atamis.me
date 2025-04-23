@@ -1,4 +1,5 @@
-<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>How I reduced my Gitlab CI Runtime by 80%! (Clickbait!) | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>How I reduced my Gitlab CI Runtime by 80%! (Clickbait!)</span></h1><h2 class=date>2022/08/13</h2></div><main><p>I use Gitlab to host a lot of my repos and I have one particular repo that runs
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>How I reduced my Gitlab CI Runtime by 80%! (Clickbait!) | Azrea Amis</title>
+<link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>How I reduced my Gitlab CI Runtime by 80%! (Clickbait!)</span></h1><h2 class=date>2022/08/13</h2></div><main><p>I use Gitlab to host a lot of my repos and I have one particular repo that runs
 CI a lot. It&rsquo;s more convenient when it runs fast and it&rsquo;s a lot cheaper on build
 minutes. It used to take nearly 4 minutes to run. Now it takes just 40 seconds.
 Why did it take so long in the first place, and how did I make it so much faster?</p><h1 id=previous-approach>Previous Approach</h1><p>This CI pipeline is actually related to a post I made some time ago about my
@@ -27,23 +28,23 @@ step, copying the template and customizing the build step from there. Benjamin&r
 <code>git</code> step cloned the repo and configured the commit user, committed the
 changes, all in a <code>git</code> specific container, leaving room for the main <code>script</code>
 tag to run the interaction. Note that the main <code>script</code> ran in the same
-container running the <code>git</code> commands.</p><p>So here&rsquo;s a heavy paraphrase of his setup:</p><div class=highlight><pre class=chroma><code class=language-yaml data-lang=yaml><span class=nt>.git:push</span><span class=p>:</span><span class=w>
-</span><span class=w>  </span><span class=nt>before_script</span><span class=p>:</span><span class=w> </span><span class=p>|-</span><span class=sd>
-</span><span class=sd>    git clone &#34;https://${GITLAB_USERNAME}:${GITLAB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git&#34; &#34;${CI_COMMIT_SHA}&#34;
-</span><span class=sd>    # Set the displayed user with the commits that are about to be made</span><span class=w>    
-</span><span class=w>  </span><span class=nt>after_script</span><span class=p>:</span><span class=w> </span><span class=p>|-</span><span class=sd>
-</span><span class=sd>    cd &#34;${CI_COMMIT_SHA}&#34;
-</span><span class=sd>    # check if there are changes and commit them</span><span class=w>    
-</span><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
-</span><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>alpine/git:${GIT_VERSION}</span><span class=w>
-</span><span class=w>
-</span><span class=w></span><span class=nt>deploy</span><span class=p>:</span><span class=w>
-</span><span class=w>  </span><span class=nt>extends</span><span class=p>:</span><span class=w> </span><span class=l>.git:push</span><span class=w>
-</span><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=c># Move some generated files</span><span class=w>
-</span><span class=w>    </span>- <span class=l>mv built/*.jpg &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
-</span></code></pre></div><p>This presented some problems to me. My interaction programs are private
+container running the <code>git</code> commands.</p><p>So here&rsquo;s a heavy paraphrase of his setup:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>.git:push</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>before_script</span><span class=p>:</span><span class=w> </span><span class=p>|-</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    git clone &#34;https://${GITLAB_USERNAME}:${GITLAB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git&#34; &#34;${CI_COMMIT_SHA}&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>    # Set the displayed user with the commits that are about to be made</span><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>after_script</span><span class=p>:</span><span class=w> </span><span class=p>|-</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    cd &#34;${CI_COMMIT_SHA}&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>    # check if there are changes and commit them</span><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>alpine/git:${GIT_VERSION}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>deploy</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>extends</span><span class=p>:</span><span class=w> </span><span class=l>.git:push</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># Move some generated files</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>mv built/*.jpg &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
+</span></span></span></code></pre></div><p>This presented some problems to me. My interaction programs are private
 and obviously weren&rsquo;t included in a public <code>git</code> oriented container image. I also
 had more than one interaction, each running in their own container. So I needed
 a different approach.</p><p>One interesting foible of Gitlab CI is that build steps don&rsquo;t share workspaces:
@@ -51,71 +52,71 @@ each step runs separately, clones a separate copy of the repo, and then does
 whatever it wants to do. If you want to transfer the output of one build step to
 another build step, you can use a feature called <code>artifacts</code>: select a path and
 the build worker will upload it to object storage and subsequent build steps will
-download it to the same path.</p><p>So here&rsquo;s a paraphrase of my build:</p><div class=highlight><pre class=chroma><code class=language-yaml data-lang=yaml><span class=nt>stages</span><span class=p>:</span><span class=w>
-</span><span class=w>  </span>- <span class=l>commit-prep</span><span class=w>
-</span><span class=w>  </span>- <span class=l>interaction</span><span class=w>
-</span><span class=w>  </span>- <span class=l>commit-push</span><span class=w>
-</span><span class=w>
-</span><span class=w></span><span class=nt>.git:config</span><span class=p>:</span><span class=w>
-</span><span class=w>  </span><span class=nt>before_script</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=c># Set the displayed user with the commits that are about to be made</span><span class=w>
-</span><span class=w>    </span>- <span class=l>git config --global user.email &#34;${GIT_USER_EMAIL:-$GITLAB_USER_EMAIL}&#34;</span><span class=w>
-</span><span class=w>    </span>- <span class=l>git config --global user.name &#34;${GIT_USER_NAME:-$GITLAB_USER_NAME}&#34;</span><span class=w>
-</span><span class=w>
-</span><span class=w></span><span class=nt>git:prep</span><span class=p>:</span><span class=w>
-</span><span class=w>  </span><span class=nt>extends</span><span class=p>:</span><span class=w> </span><span class=l>.git:config</span><span class=w>
-</span><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=c># Clone the repository via HTTPS inside a new directory</span><span class=w>
-</span><span class=w>    </span>- <span class=l>git clone &#34;https://${GITLAB_USERNAME}:${GITLAB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git&#34; &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
-</span><span class=w>  </span><span class=nt>stage</span><span class=p>:</span><span class=w> </span><span class=l>commit-prep</span><span class=w>
-</span><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
-</span><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>alpine/git</span><span class=w>
-</span><span class=w>  </span><span class=nt>artifacts</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=nt>expire_in</span><span class=p>:</span><span class=w> </span><span class=m>10</span><span class=w> </span><span class=l>minutes</span><span class=w>
-</span><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
-</span><span class=w>      </span>- <span class=s2>&#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
-</span><span class=w>
-</span><span class=w></span><span class=nt>interaction1</span><span class=p>:</span><span class=w>
-</span><span class=w>  </span><span class=nt>stage</span><span class=p>:</span><span class=w> </span><span class=l>interaction</span><span class=w>
-</span><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
-</span><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>registry.gitlab.com/azrea/interaction1:main</span><span class=w>
-</span><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span>- <span class=l>cd &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
-</span><span class=w>    </span>- <span class=w> </span><span class=c># do interaction 1</span><span class=w>
-</span><span class=w>    </span>- <span class=l>cd ..</span><span class=w>
-</span><span class=w>  </span><span class=nt>artifacts</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=nt>expire_in</span><span class=p>:</span><span class=w> </span><span class=m>10</span><span class=w> </span><span class=l>minutes</span><span class=w>
-</span><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
-</span><span class=w>      </span>- <span class=s2>&#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
-</span><span class=w>
-</span><span class=w></span><span class=nt>interaction2</span><span class=p>:</span><span class=w>
-</span><span class=w>  </span><span class=nt>stage</span><span class=p>:</span><span class=w> </span><span class=l>interaction</span><span class=w>
-</span><span class=w>  </span><span class=nt>needs</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;interaction1&#34;</span><span class=p>]</span><span class=w>
-</span><span class=w>  </span><span class=nt>allow_failure</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
-</span><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
-</span><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>registry.gitlab.com/azrea/interaction2:main</span><span class=w>
-</span><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span>- <span class=l>cd &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
-</span><span class=w>    </span>- <span class=w> </span><span class=c># do interaction 2</span><span class=w>
-</span><span class=w>    </span>- <span class=l>cd ..</span><span class=w>
-</span><span class=w>  </span><span class=nt>artifacts</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=nt>expire_in</span><span class=p>:</span><span class=w> </span><span class=m>10</span><span class=w> </span><span class=l>minutes</span><span class=w>
-</span><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
-</span><span class=w>      </span>- <span class=s2>&#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
-</span><span class=w>
-</span><span class=w></span><span class=nt>git:push</span><span class=p>:</span><span class=w>
-</span><span class=w>  </span><span class=nt>stage</span><span class=p>:</span><span class=w> </span><span class=l>commit-push</span><span class=w>
-</span><span class=w>  </span><span class=nt>extends</span><span class=p>:</span><span class=w> </span><span class=l>.git:config</span><span class=w>
-</span><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span>- <span class=l>cd &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
-</span><span class=w>    </span>- <span class=w> </span><span class=c># Commit changes if any</span><span class=w>
-</span><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
-</span><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
-</span><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>alpine/git</span><span class=w>
-</span></code></pre></div><p>So we have 3 different stages in strict order, but also note that the
+download it to the same path.</p><p>So here&rsquo;s a paraphrase of my build:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>stages</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>commit-prep</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>interaction</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>commit-push</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>.git:config</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>before_script</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># Set the displayed user with the commits that are about to be made</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>git config --global user.email &#34;${GIT_USER_EMAIL:-$GITLAB_USER_EMAIL}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>git config --global user.name &#34;${GIT_USER_NAME:-$GITLAB_USER_NAME}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>git:prep</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>extends</span><span class=p>:</span><span class=w> </span><span class=l>.git:config</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># Clone the repository via HTTPS inside a new directory</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>git clone &#34;https://${GITLAB_USERNAME}:${GITLAB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git&#34; &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>stage</span><span class=p>:</span><span class=w> </span><span class=l>commit-prep</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>alpine/git</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>artifacts</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>expire_in</span><span class=p>:</span><span class=w> </span><span class=m>10</span><span class=w> </span><span class=l>minutes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>interaction1</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>stage</span><span class=p>:</span><span class=w> </span><span class=l>interaction</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>registry.gitlab.com/azrea/interaction1:main</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>cd &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=w> </span><span class=c># do interaction 1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>cd ..</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>artifacts</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>expire_in</span><span class=p>:</span><span class=w> </span><span class=m>10</span><span class=w> </span><span class=l>minutes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>interaction2</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>stage</span><span class=p>:</span><span class=w> </span><span class=l>interaction</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>needs</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;interaction1&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>allow_failure</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>registry.gitlab.com/azrea/interaction2:main</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>cd &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=w> </span><span class=c># do interaction 2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>cd ..</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>artifacts</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>expire_in</span><span class=p>:</span><span class=w> </span><span class=m>10</span><span class=w> </span><span class=l>minutes</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>git:push</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>stage</span><span class=p>:</span><span class=w> </span><span class=l>commit-push</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>extends</span><span class=p>:</span><span class=w> </span><span class=l>.git:config</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>script</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>cd &#34;${CI_COMMIT_SHA}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=w> </span><span class=c># Commit changes if any</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>image</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>entrypoint</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>alpine/git</span><span class=w>
+</span></span></span></code></pre></div><p>So we have 3 different stages in strict order, but also note that the
 <code>interaction2</code> step depends on the <code>interaction1</code> step. This is because, if they
 run in parallel, they both will produce artifacts for the same path (the repo
 made in <code>git:pre</code>), and then one of their artifacts &ldquo;wins&rdquo; when the <code>git:push</code>
@@ -152,30 +153,30 @@ discontents. All these slow features.</p><p>In the &ldquo;brave new world&rdquo;
 build step and it will do <em>everything</em>, with no artifacts.</p><h2 id=repackaging-interactions>Repackaging Interactions</h2><p>The easy way would be just combining the Dockerfiles for the existing
 interaction tools. The existing interaction tools are written in Rust, so their
 Dockerfiles are pretty straightforward, and you can build together something
-like this:</p><div class=highlight><pre class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=k>FROM</span><span class=s> rust:1.60-alpine as builder1</span><span class=err>
-</span><span class=err>
-</span><span class=err></span><span class=k>RUN</span> apk add --no-cache musl-dev openssl-dev<span class=err>
-</span><span class=err></span><span class=k>WORKDIR</span><span class=s> /app</span><span class=err>
-</span><span class=err></span><span class=k>ADD</span> interaction1 ./<span class=err>
-</span><span class=err></span><span class=k>RUN</span> cargo build --release<span class=err>
-</span><span class=err>
-</span><span class=err></span><span class=k>FROM</span><span class=s> rust:1.60-alpine as builder2</span><span class=err>
-</span><span class=err>
-</span><span class=err></span><span class=k>RUN</span> apk add --no-cache musl-dev openssl-dev<span class=err>
-</span><span class=err></span><span class=k>WORKDIR</span><span class=s> /app</span><span class=err>
-</span><span class=err></span><span class=k>ADD</span> interaction2 ./<span class=err>
-</span><span class=err></span><span class=k>RUN</span> cargo build --release<span class=err>
-</span><span class=err>
-</span><span class=err></span><span class=k>FROM</span><span class=s> alpine:latest</span><span class=err>
-</span><span class=err>
-</span><span class=err></span><span class=k>ENV</span> <span class=nv>TZ</span><span class=o>=</span>Etc/UTC<span class=err>
-</span><span class=err></span><span class=k>RUN</span> apk add --no-cache openssl libgcc git pandoc<span class=err>
-</span><span class=err></span><span class=k>COPY</span> --from<span class=o>=</span>builder1 /app/target/release/interaction1 /<span class=err>
-</span><span class=err></span><span class=k>COPY</span> --from<span class=o>=</span>builder2 /app/target/release/interaction2 /<span class=err>
-</span><span class=err></span><span class=k>WORKDIR</span><span class=s> /work</span><span class=err>
-</span><span class=err>
-</span><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;sh&#34;</span><span class=p>]</span><span class=err>
-</span></code></pre></div><p>If you use Docker&rsquo;s new BuildKit, it&rsquo;ll build these in parallel: pretty solid.
+like this:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>FROM</span><span class=s> rust:1.60-alpine as builder1</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> apk add --no-cache musl-dev openssl-dev<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ADD</span> interaction1 ./<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> cargo build --release<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rust:1.60-alpine as builder2</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> apk add --no-cache musl-dev openssl-dev<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ADD</span> interaction2 ./<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> cargo build --release<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> alpine:latest</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>TZ</span><span class=o>=</span>Etc/UTC<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> apk add --no-cache openssl libgcc git pandoc<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> --from<span class=o>=</span>builder1 /app/target/release/interaction1 /<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> --from<span class=o>=</span>builder2 /app/target/release/interaction2 /<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /work</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;sh&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></div><p>If you use Docker&rsquo;s new BuildKit, it&rsquo;ll build these in parallel: pretty solid.
 There are some logistical issues actually building this Docker container: the
 interaction tools live in separate repos, so it&rsquo;s not exactly clear where this
 Dockerfile would run or what kind of access it would need, those are solvable
@@ -205,7 +206,7 @@ rarely changes, so can do even better and just run it.</p><p>I&rsquo;d previousl
 and apko make dealing with it a lot easier, and sand off a lot of the rough
 edges (while adding a few of their own.) I&rsquo;m looking forward to engaging with
 these tools and techniques, and I&rsquo;m hoping to see many more developments in this
-space going forward.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>I could maybe boot my own Gitlab runner and profile like that, but that
-would prove to be overkill.&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p>Easier than it sounds, thanks to to
-<a href=https://engineering.fundingcircle.com/blog/2015/04/28/create-alpine-linux-repository/>this</a> article.&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></main><hr><section><a class=tag href=/tags/cloud>cloud</a>
-<a class=tag href=/tags/linux>linux</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>
+space going forward.</p><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p>I could maybe boot my own Gitlab runner and profile like that, but that
+would prove to be overkill.&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2><p>Easier than it sounds, thanks to to
+<a href=https://engineering.fundingcircle.com/blog/2015/04/28/create-alpine-linux-repository/>this</a> article.&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></main><hr><section><a class=tag href=/tags/cloud>cloud
+</a><a class=tag href=/tags/linux>linux</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>

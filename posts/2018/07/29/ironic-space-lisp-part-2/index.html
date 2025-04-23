@@ -1,43 +1,44 @@
-<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 2 | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 2</span></h1><h2 class=date>2018/07/29</h2></div><main><p><a href=/posts/2018-07-29-ironic-space-lisp/>Part 1</a></p><p><a href=/posts/2018-07-09-ironic-space-lisp-part-2/>Part 2</a></p><p>Last time, the conceptual challenges of a the stack VM convinced me it was the
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 2 | Azrea Amis</title>
+<link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 2</span></h1><h2 class=date>2018/07/29</h2></div><main><p><a href=/posts/2018-07-29-ironic-space-lisp/>Part 1</a></p><p><a href=/posts/2018-07-09-ironic-space-lisp-part-2/>Part 2</a></p><p>Last time, the conceptual challenges of a the stack VM convinced me it was the
 wrong approach. In a normal recursive lisp interpreter, code is data, and you
-have a single evaluator function over every value. <a href=https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280>Follow along here</a>.</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=sd>/// Omni-datatype. Represents both data and code for the lisp VM.
-</span><span class=sd></span><span class=cp>#[derive(Debug, Clone)]</span><span class=w>
-</span><span class=w></span><span class=k>pub</span><span class=w> </span><span class=k>enum</span> <span class=nc>Lisp</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=sd>/// Represents a single u32 number.
-</span><span class=sd></span><span class=w>    </span><span class=n>Num</span><span class=p>(</span><span class=kt>u32</span><span class=p>),</span><span class=w>
-</span><span class=w>    </span><span class=sd>/// Represents an operation see `Op` for more info.
-</span><span class=sd></span><span class=w>    </span><span class=n>Op</span><span class=p>(</span><span class=n>Op</span><span class=p>),</span><span class=w>
-</span><span class=w>    </span><span class=sd>/// Represents a list of `Lisp` values. Note that this is reference counted.
-</span><span class=sd></span><span class=w>    </span><span class=n>List</span><span class=p>(</span><span class=n>Rc</span><span class=o>&lt;</span><span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;&gt;</span><span class=p>),</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span></code></pre></div><p><em>[that Rc pointer to the Vec should have been a hint something was going to go
+have a single evaluator function over every value. <a href=https://github.com/atamis/ironic-space-lisp/tree/4ee0904fdc54c876cdd9231ff4f1e49593286280>Follow along here</a>.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=sd>/// Omni-datatype. Represents both data and code for the lisp VM.
+</span></span></span><span class=line><span class=cl><span class=sd></span><span class=cp>#[derive(Debug, Clone)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>pub</span><span class=w> </span><span class=k>enum</span> <span class=nc>Lisp</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=sd>/// Represents a single u32 number.
+</span></span></span><span class=line><span class=cl><span class=sd></span><span class=w>    </span><span class=n>Num</span><span class=p>(</span><span class=kt>u32</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=sd>/// Represents an operation see `Op` for more info.
+</span></span></span><span class=line><span class=cl><span class=sd></span><span class=w>    </span><span class=n>Op</span><span class=p>(</span><span class=n>Op</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=sd>/// Represents a list of `Lisp` values. Note that this is reference counted.
+</span></span></span><span class=line><span class=cl><span class=sd></span><span class=w>    </span><span class=n>List</span><span class=p>(</span><span class=n>Rc</span><span class=o>&lt;</span><span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;&gt;</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p><em>[that Rc pointer to the Vec should have been a hint something was going to go
 wrong.]</em></p><p>This recursive type mirrors the recursive nature of the language, and can be
 easily consumed with a recursive function to evaluate the code into a single
-value.</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=w>  </span><span class=cp>#[deprecated]</span><span class=w>
-</span><span class=w>  </span><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>normal_eval</span><span class=o>&lt;</span><span class=na>&#39;a</span><span class=o>&gt;</span><span class=p>(</span><span class=n>l</span>: <span class=kp>&amp;</span><span class=nc>Lisp</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Lisp</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>      </span><span class=k>match</span><span class=w> </span><span class=n>l</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>          </span><span class=n>Lisp</span>::<span class=n>List</span><span class=p>(</span><span class=n>rc</span><span class=p>)</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>              </span><span class=c1>// Main recursion here:
-</span><span class=c1></span><span class=w>              </span><span class=kd>let</span><span class=w> </span><span class=n>l</span>: <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>rc</span><span class=p>.</span><span class=n>iter</span><span class=p>().</span><span class=n>map</span><span class=p>(</span><span class=n>normal_eval</span><span class=p>).</span><span class=n>collect</span><span class=p>();</span><span class=w>
-</span><span class=w>              </span><span class=kd>let</span><span class=w> </span><span class=n>op</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>l</span><span class=p>[</span><span class=mi>0</span><span class=p>];</span><span class=w>
-</span><span class=w>              </span><span class=kd>let</span><span class=w> </span><span class=n>args</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>l</span><span class=p>[</span><span class=mi>1</span><span class=p>..];</span><span class=w>
-</span><span class=w>
-</span><span class=w>              </span><span class=k>match</span><span class=w> </span><span class=n>op</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>                  </span><span class=n>Lisp</span>::<span class=n>Op</span><span class=p>(</span><span class=n>Op</span>::<span class=n>Add</span><span class=p>)</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>                      </span><span class=c1>// Sum up the args and aggressively panic.
-</span><span class=c1></span><span class=w>                      </span><span class=kd>let</span><span class=w> </span><span class=n>sum</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>args</span><span class=p>.</span><span class=n>iter</span><span class=p>().</span><span class=n>fold</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=o>|</span><span class=n>sum</span><span class=p>,</span><span class=w> </span><span class=n>i</span><span class=o>|</span><span class=w> </span><span class=k>match</span><span class=w> </span><span class=n>i</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>                          </span><span class=n>Lisp</span>::<span class=n>Num</span><span class=p>(</span><span class=n>i</span><span class=p>)</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=n>sum</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>i</span><span class=p>,</span><span class=w>
-</span><span class=w>                          </span><span class=n>_</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=n>panic</span><span class=o>!</span><span class=p>(</span><span class=s>&#34;Can&#39;t add non-numbers&#34;</span><span class=p>),</span><span class=w>
-</span><span class=w>                      </span><span class=p>});</span><span class=w>
-</span><span class=w>                      </span><span class=n>Lisp</span>::<span class=n>Num</span><span class=p>(</span><span class=n>sum</span><span class=p>)</span><span class=w>
-</span><span class=w>                  </span><span class=p>}</span><span class=w>
-</span><span class=w>                  </span><span class=n>_</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=n>panic</span><span class=o>!</span><span class=p>(</span><span class=s>&#34;Not operation, or operation not implemented&#34;</span><span class=p>),</span><span class=w>
-</span><span class=w>              </span><span class=p>}</span><span class=w>
-</span><span class=w>          </span><span class=p>}</span><span class=w>
-</span><span class=w>          </span><span class=n>x</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>(</span><span class=o>*</span><span class=n>x</span><span class=p>).</span><span class=n>clone</span><span class=p>(),</span><span class=w>
-</span><span class=w>      </span><span class=p>}</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span></code></pre></div><p>This function is quite simple: if it&rsquo;s a normal value, just clone the value and
+value.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=w>  </span><span class=cp>#[deprecated]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>normal_eval</span><span class=o>&lt;</span><span class=na>&#39;a</span><span class=o>&gt;</span><span class=p>(</span><span class=n>l</span>: <span class=kp>&amp;</span><span class=nc>Lisp</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Lisp</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=k>match</span><span class=w> </span><span class=n>l</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=n>Lisp</span>::<span class=n>List</span><span class=p>(</span><span class=n>rc</span><span class=p>)</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=c1>// Main recursion here:
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>              </span><span class=kd>let</span><span class=w> </span><span class=n>l</span>: <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>rc</span><span class=p>.</span><span class=n>iter</span><span class=p>().</span><span class=n>map</span><span class=p>(</span><span class=n>normal_eval</span><span class=p>).</span><span class=n>collect</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=kd>let</span><span class=w> </span><span class=n>op</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>l</span><span class=p>[</span><span class=mi>0</span><span class=p>];</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=kd>let</span><span class=w> </span><span class=n>args</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>l</span><span class=p>[</span><span class=mi>1</span><span class=o>..</span><span class=p>];</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=k>match</span><span class=w> </span><span class=n>op</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=n>Lisp</span>::<span class=n>Op</span><span class=p>(</span><span class=n>Op</span>::<span class=n>Add</span><span class=p>)</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                      </span><span class=c1>// Sum up the args and aggressively panic.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>                      </span><span class=kd>let</span><span class=w> </span><span class=n>sum</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>args</span><span class=p>.</span><span class=n>iter</span><span class=p>().</span><span class=n>fold</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=o>|</span><span class=n>sum</span><span class=p>,</span><span class=w> </span><span class=n>i</span><span class=o>|</span><span class=w> </span><span class=k>match</span><span class=w> </span><span class=n>i</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                          </span><span class=n>Lisp</span>::<span class=n>Num</span><span class=p>(</span><span class=n>i</span><span class=p>)</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=n>sum</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=n>i</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                          </span><span class=n>_</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=fm>panic!</span><span class=p>(</span><span class=s>&#34;Can&#39;t add non-numbers&#34;</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                      </span><span class=p>});</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                      </span><span class=n>Lisp</span>::<span class=n>Num</span><span class=p>(</span><span class=n>sum</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=n>_</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=fm>panic!</span><span class=p>(</span><span class=s>&#34;Not operation, or operation not implemented&#34;</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=n>x</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>(</span><span class=o>*</span><span class=n>x</span><span class=p>).</span><span class=n>clone</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>This function is quite simple: if it&rsquo;s a normal value, just clone the value and
 return it. If it&rsquo;s a list, it&rsquo;s a &ldquo;function&rdquo; application which is just the
 addition operation right now, so evaluate all the list items, and sum up the
 <code>rest</code> and return. It&rsquo;s easy to keep track of things in your head, if you add
@@ -69,22 +70,22 @@ they&rsquo;re operating on with a stack and local pointers on the stack.</p><p>W
 own stack, and pushed and popped frames to that, and pretended to be recursive
 when in fact we&rsquo;re some horrible amalgamation of programming concepts built to
 serve a sort of fake purpose? On the plus side, it&rsquo;ll make implementing
-wake-on-receive easy.</p><div class=highlight><pre class=chroma><code class=language-fallback data-lang=fallback>trait Frame: fmt::Debug {
-    fn single_step(&amp;mut self, return_val: &amp;mut Option&lt;Lisp&gt;)
-      -&gt; Result&lt;FrameStepResult, VmGeneralError&gt;;
-}
-</code></pre></div><p>This is one of our stack frames. What&rsquo;s <code>FrameStepResult</code>?</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=c1>// Controls flow in evaluation.
-</span><span class=c1></span><span class=cp>#[derive(Debug)]</span><span class=w>
-</span><span class=w></span><span class=k>enum</span> <span class=nc>FrameStepResult</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=c1>// Don&#39;t do anything to the control flow.
-</span><span class=c1></span><span class=w>    </span><span class=n>Continue</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=c1>// Indicates that the fragment is done and wants to return a value. Set
-</span><span class=c1></span><span class=w>    </span><span class=c1>// the return value, and pop the frame stack.
-</span><span class=c1></span><span class=w>    </span><span class=n>Return</span><span class=p>(</span><span class=n>Lisp</span><span class=p>),</span><span class=w>
-</span><span class=w>    </span><span class=c1>// Start to recur on a another piece of lisp code.
-</span><span class=c1></span><span class=w>    </span><span class=n>Recur</span><span class=p>(</span><span class=n>Lisp</span><span class=p>),</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span></code></pre></div><p>Oh boy. Frames need some way to actually call our fake recursive function, and
+wake-on-receive easy.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>trait Frame: fmt::Debug {
+</span></span><span class=line><span class=cl>    fn single_step(&amp;mut self, return_val: &amp;mut Option&lt;Lisp&gt;)
+</span></span><span class=line><span class=cl>      -&gt; Result&lt;FrameStepResult, VmGeneralError&gt;;
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></div><p>This is one of our stack frames. What&rsquo;s <code>FrameStepResult</code>?</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=c1>// Controls flow in evaluation.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#[derive(Debug)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>enum</span> <span class=nc>FrameStepResult</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Don&#39;t do anything to the control flow.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=n>Continue</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Indicates that the fragment is done and wants to return a value. Set
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=c1>// the return value, and pop the frame stack.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=n>Return</span><span class=p>(</span><span class=n>Lisp</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Start to recur on a another piece of lisp code.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=n>Recur</span><span class=p>(</span><span class=n>Lisp</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>Oh boy. Frames need some way to actually call our fake recursive function, and
 then they&rsquo;re just in limbo waiting for that function call to complete. Functions
 that can be called can return, and this is done by returning
 <code>FrameStepResult::Return(value)</code> rather than using the mutable pointer to the
@@ -99,26 +100,26 @@ return, so the frames have to be partially reentrant.</p><p>Let&rsquo;s look at 
 &ldquo;local variables&rdquo;, so <code>ApplicationFrame</code> holds a vector of lisp terms waiting to
 be evaluated, and a vector of already evaluated terms. Let&rsquo;s look at just that
 process of evaluating those terms (This code refers to them as fragments.
-Fragments of <em>what</em>, I&rsquo;m not sure.)</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=c1>// Extract the result of the last fragment we recurred on.
-</span><span class=c1></span><span class=k>if</span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=nb>Some</span><span class=p>(</span><span class=n>_</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>return_val</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=nb>Some</span><span class=p>(</span><span class=n>myr</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>mem</span>::<span class=n>replace</span><span class=p>(</span><span class=n>return_val</span><span class=p>,</span><span class=w> </span><span class=nb>None</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>        </span><span class=bp>self</span><span class=p>.</span><span class=n>vals</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>myr</span><span class=p>);</span><span class=w>
-</span><span class=w>    </span><span class=p>}</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span><span class=w>
-</span><span class=w></span><span class=c1>// We&#39;ve evaled all the arg fragments, so it&#39;s time to actually
-</span><span class=c1>// apply the args to the operation.
-</span><span class=c1></span><span class=k>if</span><span class=w> </span><span class=bp>self</span><span class=p>.</span><span class=n>list</span><span class=p>.</span><span class=n>len</span><span class=p>()</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=mi>0</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>  </span><span class=cm>/* dragons */</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=c1>// We&#39;re still evaling arguments.
-</span><span class=c1></span><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>l</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=bp>self</span><span class=p>.</span><span class=n>list</span><span class=p>.</span><span class=n>remove</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span><span class=w> </span><span class=c1>// TODO: use pop and reverse arg list
-</span><span class=c1></span><span class=w>
-</span><span class=w>    </span><span class=c1>// Indicate to the evaler that we want to recur on the next arg
-</span><span class=c1></span><span class=w>    </span><span class=c1>// fragment.
-</span><span class=c1></span><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nb>Ok</span><span class=p>(</span><span class=n>FrameStepResult</span>::<span class=n>Recur</span><span class=p>(</span><span class=n>l</span><span class=p>));</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span></code></pre></div><p>First, the frame checks to see if there is a return value. This would indicate
+Fragments of <em>what</em>, I&rsquo;m not sure.)</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=c1>// Extract the result of the last fragment we recurred on.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>if</span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=nb>Some</span><span class=p>(</span><span class=n>_</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>return_val</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=nb>Some</span><span class=p>(</span><span class=n>myr</span><span class=p>)</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>mem</span>::<span class=n>replace</span><span class=p>(</span><span class=n>return_val</span><span class=p>,</span><span class=w> </span><span class=nb>None</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=bp>self</span><span class=p>.</span><span class=n>vals</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>myr</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>// We&#39;ve evaled all the arg fragments, so it&#39;s time to actually
+</span></span></span><span class=line><span class=cl><span class=c1>// apply the args to the operation.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>if</span><span class=w> </span><span class=bp>self</span><span class=p>.</span><span class=n>list</span><span class=p>.</span><span class=n>len</span><span class=p>()</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=mi>0</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=cm>/* dragons */</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// We&#39;re still evaling arguments.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>l</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=bp>self</span><span class=p>.</span><span class=n>list</span><span class=p>.</span><span class=n>remove</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span><span class=w> </span><span class=c1>// TODO: use pop and reverse arg list
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Indicate to the evaler that we want to recur on the next arg
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=c1>// fragment.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=k>return</span><span class=w> </span><span class=nb>Ok</span><span class=p>(</span><span class=n>FrameStepResult</span>::<span class=n>Recur</span><span class=p>(</span><span class=n>l</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>First, the frame checks to see if there is a return value. This would indicate
 that this isn&rsquo;t the first time this frame has been invoked (because the
 <code>Evaler</code> resets it before recursive calls), and that the return value is the
 result of evaluating one of our terms. So we want to extract that value and push
@@ -152,9 +153,9 @@ change the value your immutable pointer is pointing to. <code>Rc</code> guarante
 thing: you can have multiple immutable pointers, or 1 mutable one.</p><p>Allow me to draw your attention to <code>ApplicationFrame</code>, which <em>consumes</em> its lisp
 terms. It must own them, and then pass them on to the next frame. If it receives
 a <code>Lisp::List</code>, the values are hidden behind an <code>Rc</code>, which owns the values. So
-<code>ApplicationFrame</code> takes them from the <code>Rc</code>.</p><p>That resulted in this delightful piece of code:</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=c1>// TODO: maybe don&#39;t do this.
-</span><span class=c1></span><span class=kd>let</span><span class=w> </span><span class=n>list</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Rc</span>::<span class=n>try_unwrap</span><span class=p>(</span><span class=n>l</span><span class=p>).</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
-</span></code></pre></div><p>This code attempts to take ownership the value from <code>Rc</code> in full, and then
+<code>ApplicationFrame</code> takes them from the <code>Rc</code>.</p><p>That resulted in this delightful piece of code:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=c1>// TODO: maybe don&#39;t do this.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>let</span><span class=w> </span><span class=n>list</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Rc</span>::<span class=n>try_unwrap</span><span class=p>(</span><span class=n>l</span><span class=p>).</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
+</span></span></span></code></pre></div><p>This code attempts to take ownership the value from <code>Rc</code> in full, and then
 panics if it can&rsquo;t. I love that comment. I put it there right after writing the
 line of code. I was so close to realizing what an awful idea this model was.</p><p>I wouldn&rsquo;t realize it for a long time.</p><h1 id=things-are-going-to-get-worse-before-they-get-better>Things are going to get worse before they get better.</h1><p>At this point, the code actually works. It consumes code so it can&rsquo;t be
 reexecuted, but the code does work.</p><p>This next part isn&rsquo;t reflected well in the commit history. I&rsquo;m not entirely sure
@@ -162,18 +163,18 @@ what prompted this change, but I was having trouble implementing <code>if</code>
 that process, I came to the realization of just what the code was doing, and
 that <strong>consuming</strong> code datums shouldn&rsquo;t be this literal.</p><p>So my next step was to replace all the full value passing with internal
 refernces. I figured that the <code>Evaler</code> would hold the code struct, and I&rsquo;d just
-pass references to it to the frames. Easy. Nope.</p><p>This is what I was trying to do:</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=cp>#[derive(Debug)]</span><span class=w>
-</span><span class=w></span><span class=k>enum</span> <span class=nc>Lisp</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=n>Data</span><span class=p>(</span><span class=kt>u32</span><span class=p>),</span><span class=w>
-</span><span class=w>    </span><span class=n>Pointer</span><span class=p>(</span><span class=o>&amp;</span><span class=n>Lisp</span><span class=p>)</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span><span class=w>
-</span><span class=w></span><span class=cp>#[derive(Debug)]</span><span class=w>
-</span><span class=w></span><span class=k>struct</span> <span class=nc>Evaler</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=n>data</span>: <span class=nc>Lisp</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>stack</span>: <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Frame</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span></code></pre></div><p>This does not work. The pointer in <code>Lisp</code> needs a lifetime tag. The lifetime
+pass references to it to the frames. Easy. Nope.</p><p>This is what I was trying to do:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=cp>#[derive(Debug)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>enum</span> <span class=nc>Lisp</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Data</span><span class=p>(</span><span class=kt>u32</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Pointer</span><span class=p>(</span><span class=o>&amp;</span><span class=n>Lisp</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=cp>#[derive(Debug)]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>struct</span> <span class=nc>Evaler</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>data</span>: <span class=nc>Lisp</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>stack</span>: <span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Frame</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>This does not work. The pointer in <code>Lisp</code> needs a lifetime tag. The lifetime
 checker in Rust needs a guarantee that the value the pointer is pointing at will
 live at least as long as itself, and there is no way to guarantee that. Thinking
 logically, you can more or less prove that this won&rsquo;t cause problems to
@@ -187,6 +188,6 @@ to me that <em>maybe</em> this traditionally garbage collected language of lisp 
 want to at least use reference counted pointers in its evaluation process.</p><p><a href=https://github.com/atamis/ironic-space-lisp/commit/7c5fcaad153be67345a25e46901e8deb72ae0489>Witness the carnage.</a></p><p><em>[The stepped implementation is 340 lines long. It doesn&rsquo;t have any more features
 than the recursive implementation at the top of the article.]</em></p><p>That&rsquo;s all for now. I&rsquo;m a little worried this crazy plan won&rsquo;t end up working.
 Or that the insane way frames have to be written is just untenable. Maybe I can
-solve those with state machines. Maybe I should revisit stacks.</p></main><hr><section><a class=tag href=/tags/rust>rust</a>
-<a class=tag href=/tags/code>code</a>
-<a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>
+solve those with state machines. Maybe I should revisit stacks.</p></main><hr><section><a class=tag href=/tags/rust>rust
+</a><a class=tag href=/tags/code>code
+</a><a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>

@@ -1,4 +1,5 @@
-<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Org Setup | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Org Setup</span></h1><h2 class=date>2021/09/15</h2></div><main><p>Emacs and Org posts are a dime a dozen on the internet, and they&rsquo;re usually
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Org Setup | Azrea Amis</title>
+<link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Org Setup</span></h1><h2 class=date>2021/09/15</h2></div><main><p>Emacs and Org posts are a dime a dozen on the internet, and they&rsquo;re usually
 extremely specific, going into precise detail on how the author uses every tool
 in Org&rsquo;s arsenal. I usually find these blog posts overwhelming and not
 particularly useful. Maybe I&rsquo;ll pick up some tricks and integrate them into my
@@ -35,18 +36,18 @@ use on a daily basis. Because merging was my issue, tracking changes to my Org
 file with git was an obvious choice, but git&rsquo;s ergonomics are heavily biased
 towards multi-user source control, not single user sync. I didn&rsquo;t want to think
 of a commit message for all my arbitrary changes. I eventually &ldquo;invented&rdquo; the
-<code>auto-commit</code> script:</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh><span class=cp>#!/usr/bin/env bash
-</span><span class=cp></span>
-<span class=c1># Add any changed files</span>
-git add -u
-<span class=c1># All all new files from directories where I always want new files</span>
-git add roam .attach
-git commit -m <span class=s2>&#34;Automatic commit at `date`&#34;</span>
-git push
-</code></pre></div><p>And it&rsquo;s associated Emacs function:</p><div class=highlight><pre class=chroma><code class=language-elisp data-lang=elisp><span class=p>(</span><span class=nb>defun</span> <span class=nv>auto-commit</span> <span class=p>()</span>
-  <span class=p>(</span><span class=nb>interactive</span><span class=p>)</span>
-  <span class=p>(</span><span class=nv>shell-command</span> <span class=s>&#34;cd $(git rev-parse --show-toplevel) &amp;&amp; ./auto-commit&#34;</span><span class=p>))</span>
-</code></pre></div><p>I didn&rsquo;t add this to any Emacs hooks, I just call it with <code>M-x</code> whenever I want
+<code>auto-commit</code> script:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=cp>#!/usr/bin/env bash
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1># Add any changed files</span>
+</span></span><span class=line><span class=cl>git add -u
+</span></span><span class=line><span class=cl><span class=c1># All all new files from directories where I always want new files</span>
+</span></span><span class=line><span class=cl>git add roam .attach
+</span></span><span class=line><span class=cl>git commit -m <span class=s2>&#34;Automatic commit at `date`&#34;</span>
+</span></span><span class=line><span class=cl>git push
+</span></span></code></pre></div><p>And it&rsquo;s associated Emacs function:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-elisp data-lang=elisp><span class=line><span class=cl><span class=p>(</span><span class=nb>defun</span> <span class=nv>auto-commit</span> <span class=p>()</span>
+</span></span><span class=line><span class=cl>  <span class=p>(</span><span class=nb>interactive</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=p>(</span><span class=nv>shell-command</span> <span class=s>&#34;cd $(git rev-parse --show-toplevel) &amp;&amp; ./auto-commit&#34;</span><span class=p>))</span>
+</span></span></code></pre></div><p>I didn&rsquo;t add this to any Emacs hooks, I just call it with <code>M-x</code> whenever I want
 to sync my changes. This unconditionally commits local changes before pushing to
 a remote repository. If this repo didn&rsquo;t have the most up to date changes, you
 don&rsquo;t have to worry about the remote changes clobbering local ones because they
@@ -104,15 +105,15 @@ tools. You could get RSS feeds, Twitter accounts, and Youtube subscriptions
 dumped directly into your Org file for efficient reading. Many chat apps,
 including Discord, also support webhooks, so you could use an automation
 platform like Zapier or IFTTT to get many platforms for the implementation of
-one. I mostly use it for notes to myself.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>I will note that I sometimes don&rsquo;t notice that I need to merge, and
+one. I mostly use it for notes to myself.</p><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p>I will note that I sometimes don&rsquo;t notice that I need to merge, and
 although the local changes are commited, they haven&rsquo;t been pushed. I&rsquo;ve
 considered writing a script to push to a branch in those cases (letting
 merging be done on any computer), but the script sounds complicated and you
 have to remember to merge the branch, so then you need some kind of alert or
-UI, and it gets complicated fast.&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p>This state was just a handfull of values about which Discord channel to
+UI, and it gets complicated fast.&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2><p>This state was just a handfull of values about which Discord channel to
 request and what was the ID of the last message seen. Discord made querying
 based on ID very easy, but other chat apps may other ways of getting unread
-messages.&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3 role=doc-endnote><p>This was an attempt to sync tasks in Org mode with tasks in Asana with PRs
+messages.&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3><p>This was an attempt to sync tasks in Org mode with tasks in Asana with PRs
 in Github. I needed to sync whether the task was done and the PR merged, and
 also if the Asana task had certain fields set correctly, and that the Asana
 task had the Github PR number, and that the Github PR linked to the Asana
@@ -122,4 +123,4 @@ info and then reported data mismatches. I wrote the program in Go, and after
 a couple of revisions, the code was unmaintainably complicated. I had
 trouble expressing program state using Go&rsquo;s type system, and found error
 handling inelegant. Luckily processes changed and I could retire the
-program before any of my coworkers asked me for a copy.&#160;<a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></main><hr><section><a class=tag href=/tags/writing>writing</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>
+program before any of my coworkers asked me for a copy.&#160;<a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></main><hr><section><a class=tag href=/tags/writing>writing</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>

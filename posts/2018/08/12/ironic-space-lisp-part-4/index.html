@@ -1,25 +1,26 @@
-<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 4 | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 4</span></h1><h2 class=date>2018/08/12</h2></div><main><p>This update is all about parsing, and this ended up being really difficult. Not
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 4 | Azrea Amis</title>
+<link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 4</span></h1><h2 class=date>2018/08/12</h2></div><main><p>This update is all about parsing, and this ended up being really difficult. Not
 in a good way though. In my <a href=/posts/2018-08-10-ironic-space-lisp-part-3/>last post</a>, I talked about using
 languages so difficult and alien that the difficulty clearly signified that
 there was something important you could learn from mastering them. I didn&rsquo;t find
-this was the case during this phase of the project.</p><div class=highlight><pre class=chroma><code class=language-fallback data-lang=fallback>$ cargo run
-   Compiling ironic-space-lisp v0.1.0 (file:///home/andrew/src/rust/ironic-space-lisp)                                                                                                                                                       
-error: no rules expected the token `,`
-  --&gt; src/parser.rs:21:5
-   |
-21 | /     delimited!(&#34;(&#34;,
-22 | |                alpha,
-23 | |                &#34;)&#34;);
-   | |____________________^
-   |
-   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
-
-error: aborting due to previous error
-
-error: Could not compile `ironic-space-lisp`.
-
-To learn more, run the command again with --verbose.
-</code></pre></div><p>Thanks, rust. The <code>external-macro-backtrace</code>, once I had got it working, did not
+this was the case during this phase of the project.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>$ cargo run
+</span></span><span class=line><span class=cl>   Compiling ironic-space-lisp v0.1.0 (file:///home/andrew/src/rust/ironic-space-lisp)                                                                                                                                                       
+</span></span><span class=line><span class=cl>error: no rules expected the token `,`
+</span></span><span class=line><span class=cl>  --&gt; src/parser.rs:21:5
+</span></span><span class=line><span class=cl>   |
+</span></span><span class=line><span class=cl>21 | /     delimited!(&#34;(&#34;,
+</span></span><span class=line><span class=cl>22 | |                alpha,
+</span></span><span class=line><span class=cl>23 | |                &#34;)&#34;);
+</span></span><span class=line><span class=cl>   | |____________________^
+</span></span><span class=line><span class=cl>   |
+</span></span><span class=line><span class=cl>   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>error: aborting due to previous error
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>error: Could not compile `ironic-space-lisp`.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>To learn more, run the command again with --verbose.
+</span></span></code></pre></div><p>Thanks, rust. The <code>external-macro-backtrace</code>, once I had got it working, did not
 help my comprehension. By the time I figured out what was wrong with this code,
 I had abandoned this parsing framework.</p><p>The AST I was targeting was quite simple, eschewing (for now) any
 differentiation for special forms, quoting, quasiquoting, booleans, etc. I
@@ -37,7 +38,7 @@ formats. I was dealing with valid utf8 strings, which Nom handled with aplomb,
 but my AST was actually context-free, making <code>nom</code> somewhat overkill. <code>nom</code>, as
 a library, is pretty much all macros for generating custom parser combinators
 out of smaller combinators. The whole parser has a type signature roughly like
-<code>&str -> AST</code>, plus or minus a result type. Because of the heavy use of macros,
+<code>&amp;str -> AST</code>, plus or minus a result type. Because of the heavy use of macros,
 the typing of everything was reasonably easy, but unfortunately, it ended up
 being hard to understand exactly how to use the macros together, and there were
 a large number of functions, some of which returned parsers, and some of which
@@ -103,6 +104,6 @@ better fit the semantics of the VM. Modifications to syntax can be implemented
 as AST modification stages, as those should be semantic neutral.</p><p>The project is really coming together, and starting with the parser, I&rsquo;ve begun
 building a test suite. I&rsquo;ve also had time to think on the bytecode VM, and I
 think I&rsquo;m happy with its current state and semantics, and ready to write a test
-suite for it too. The runtime scheduler is a ways off.</p></main><hr><section><a class=tag href=/tags/rust>rust</a>
-<a class=tag href=/tags/code>code</a>
-<a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>
+suite for it too. The runtime scheduler is a ways off.</p></main><hr><section><a class=tag href=/tags/rust>rust
+</a><a class=tag href=/tags/code>code
+</a><a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>

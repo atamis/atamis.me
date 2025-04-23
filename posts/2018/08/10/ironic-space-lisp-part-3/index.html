@@ -1,4 +1,5 @@
-<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 3 | Azrea Amis</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 3</span></h1><h2 class=date>2018/08/10</h2></div><main><p>Have you ever been working on a project and felt stupid and scared? Not in an
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Ironic Space Lisp Part 3 | Azrea Amis</title>
+<link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Ironic Space Lisp Part 3</span></h1><h2 class=date>2018/08/10</h2></div><main><p>Have you ever been working on a project and felt stupid and scared? Not in an
 anxious way, and not in an imposter syndrome way, but in a visceral way, like &ldquo;I
 don&rsquo;t really know what I&rsquo;m doing, and I&rsquo;m not sure I can do this.&rdquo; Some
 languages are so complex and <em>different</em> that, although I know they&rsquo;re full
@@ -22,12 +23,12 @@ dereferencing pointers into uncached memory is really slow (almost guaranteed to
 generate a cache miss).</p><p>As it turns out, tree walk interpreters dereference pointers constantly. Because
 AST trees are inherently recursive, and structs can&rsquo;t be of indeterminant size,
 all child nodes in ASTs must be pointers, and usually pointers to heap data,
-which in turn point to more heap data.</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=k>pub</span><span class=w> </span><span class=k>enum</span> <span class=nc>Lisp</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=n>Num</span><span class=p>(</span><span class=kt>u32</span><span class=p>),</span><span class=w>
-</span><span class=w>    </span><span class=n>Op</span><span class=p>(</span><span class=n>Op</span><span class=p>),</span><span class=w>
-</span><span class=w>    </span><span class=n>List</span><span class=p>(</span><span class=n>Rc</span><span class=o>&lt;</span><span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Rc</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;&gt;&gt;</span><span class=p>),</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span></code></pre></div><p>A lot of languages make these pointers implicit, like Java, where there are no
+which in turn point to more heap data.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>pub</span><span class=w> </span><span class=k>enum</span> <span class=nc>Lisp</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Num</span><span class=p>(</span><span class=kt>u32</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>Op</span><span class=p>(</span><span class=n>Op</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>List</span><span class=p>(</span><span class=n>Rc</span><span class=o>&lt;</span><span class=nb>Vec</span><span class=o>&lt;</span><span class=n>Rc</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;&gt;&gt;</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>A lot of languages make these pointers implicit, like Java, where there are no
 value/stack objects, only heap allocated objects, and everything is a reference.
 Writing a recursive interpreter over a simple tree structure like this is really
 easy, and it&rsquo;s the go to technique for &ldquo;writing your first interpreter&rdquo;
@@ -38,14 +39,14 @@ tutorial). Nystrom&rsquo;s book complicates that slightly by employing the visit
 pattern to implement evaluation, but I found his justification for it entirely
 convincing, and it really didn&rsquo;t change the performance implications of
 tree-walk. Additionally, my interpreter almost never deals with data values
-directly, they&rsquo;re almost always wrapped in an <code>Rc</code>,</p><div class=highlight><pre class=chroma><code class=language-rust data-lang=rust><span class=c1>// from src/frames/if_frame.rs
-</span><span class=c1></span><span class=k>pub</span><span class=w> </span><span class=k>struct</span> <span class=nc>IfFrame</span><span class=w> </span><span class=p>{</span><span class=w>
-</span><span class=w>    </span><span class=n>lisp</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>predicate</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=n>Rc</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;&gt;</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>answer</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=n>Rc</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;&gt;</span><span class=p>,</span><span class=w>
-</span><span class=w>    </span><span class=n>state</span>: <span class=nc>FState</span><span class=p>,</span><span class=w>
-</span><span class=w></span><span class=p>}</span><span class=w>
-</span></code></pre></div><p>primarily to prevent ownership issues. The AST/data are all treated as
+directly, they&rsquo;re almost always wrapped in an <code>Rc</code>,</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=c1>// from src/frames/if_frame.rs
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>pub</span><span class=w> </span><span class=k>struct</span> <span class=nc>IfFrame</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>lisp</span>: <span class=nc>Rc</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>predicate</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=n>Rc</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>answer</span>: <span class=nb>Option</span><span class=o>&lt;</span><span class=n>Rc</span><span class=o>&lt;</span><span class=n>Lisp</span><span class=o>&gt;&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>state</span>: <span class=nc>FState</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>primarily to prevent ownership issues. The AST/data are all treated as
 immutable, so reference counting the entire thing and directly sharing data and
 code is reasonable semantically speaking (especially for a Lisp), but too much
 indirection is inefficient.</p><p>It&rsquo;s worth noting that although the Ironic Space Lisp interpreter isn&rsquo;t a normal
@@ -100,6 +101,6 @@ implement the naive tree-walk version, so tests written for that partial
 interpreter would also have been thrown out. The stepped interpreter is very
 complicated with lots of moving parts, but all the parts are very tightly bound,
 which makes testing them independently very difficult, and testing them together
-very difficult too. The VM is easier to write tests for, luckily.</p></main><hr><section><a class=tag href=/tags/rust>rust</a>
-<a class=tag href=/tags/code>code</a>
-<a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>
+very difficult too. The VM is easier to write tests for, luckily.</p></main><hr><section><a class=tag href=/tags/rust>rust
+</a><a class=tag href=/tags/code>code
+</a><a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>

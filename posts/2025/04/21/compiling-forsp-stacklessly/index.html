@@ -1,0 +1,319 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Compiling Forsp Stacklessly | Azrea Amis</title>
+<link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bundle.css><script defer src=/js/katex.min.js></script><script defer src=/js/katex-auto-render.min.js></script><script>document.addEventListener("DOMContentLoaded",function(){renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})})</script></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li><li><a href=/projects/>Projects</a></li><li><a href=/pictures/>Pictures</a></li><li><a href=/downloads/resume.pdf>Resume</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>Compiling Forsp Stacklessly</span></h1><h2 class=date>2025/04/21</h2></div><main><p>Forsp is fascinating language billed as a combination of Lisp and Forth. It&rsquo;s
+stack based, but features easy idiomatic access to a local environment. This
+gives you the simplicity of Forth, but offers an &ldquo;escape hatch&rdquo; out of stack
+hell. Code that would require complicated stack/value shuffling in Forth can
+instead name the values and manipulate them in a way more natural to Lisp
+programmers. Forsp is also neither call by value nor call by name, but instead
+call by push value, though I&rsquo;m not entirely clear on why this is interesting as
+I haven&rsquo;t read the paper yet. Reading the paper wasn&rsquo;t necessary for this project</p><p>Forsp was designed (or, in the same way Paul Graham claims McCarthy &ldquo;discovered&rdquo; Lisp,
+&ldquo;discovered&rdquo;) by <a href=https://xorvoid.com/>Anthony Bonkoski</a> in a <a href=https://xorvoid.com/forsp.html>blog
+post</a>. That post describes the language, covers
+some interesting applications and properites, and links to an
+<a href=https://github.com/xorvoid/forsp/tree/main>interpreter</a> in C.</p><h1 id=summary-of-forsp>Summary of Forsp</h1><p>I&rsquo;d highly recommend reading Bonkoski&rsquo;s post on Forsp for greater familiarity,
+but I&rsquo;ll cover the basics here.</p><p>Forsp is a series of instructions, and it has a stack of values, an
+environment binding names to values, and a call stack (implicit in recursive
+interpreters and not reified in the language.)</p><p>One of the values is a &ldquo;thunk&rdquo;, a zero-argument function, or computation, that
+closes over the environment you can <code>force</code> later.</p><p>The core language&rsquo;s only values are atoms and thunks, but I added numbers
+to make things a little easier. You can quote values to put them directly on the
+stack (<code>'atom'</code>), and thunks are instructions surrounded by parenthesis, and are
+always pushed onto the stack directly.</p><p>You can <code>pop</code>, which pops a name, then a value, off the stack, and binds the
+value to the name in the current environment. Similarly, you can <code>push</code>, which
+pops a name off the stack, and pushes the value bound to that name in the
+current environment onto the stack. I found this terminology a little confusing,
+so it&rsquo;s important to remember that it&rsquo;s from the perspective of the <em>stack</em>, not
+the environment.</p><p>You can <code>force</code>, which pops a thunk from the stack and calls it. Bonkoski says
+that you can understand thunks as single argument functions from <code>stack -> stack</code>, but these thunks frequently take named arguments by popping values from
+the stack to the environment immediately, then referring to them later in the
+function, so it can also be helpful to understand these thunks as taking
+arguments and returning values.</p><p>There is some additional syntactic sugar:</p><table><thead><tr><th style=text-align:left>Sugar</th><th style=text-align:left>Code</th><th style=text-align:left>Commentary</th></tr></thead><tbody><tr><td style=text-align:left><code>'atom</code></td><td style=text-align:left><code>quote atom</code></td><td style=text-align:left>Push an atom literal to the stack</td></tr><tr><td style=text-align:left><code>$atom</code></td><td style=text-align:left><code>quote atom pop</code></td><td style=text-align:left>See <code>pop</code> above, binds a value to <code>atom</code>.</td></tr><tr><td style=text-align:left><code>^atom</code></td><td style=text-align:left><code>quote atom push</code></td><td style=text-align:left>Reference <code>atom</code> in the environment, pushing the bound value to the stack.</td></tr><tr><td style=text-align:left><code>atom</code></td><td style=text-align:left><code>quote atom push force</code></td><td style=text-align:left>Call the <code>atom</code> thunk from the environment</td></tr></tbody></table><p>I also added numbers (always literal, also quotable) and <code>inc</code>, because I wanted
+a built-in function to call on numbers. Bonkoski later adds <code>cons</code>, related
+functions, <code>cswap</code>, etc. I added <code>println</code> to make debugging easier</p><p>Forsp has no looping construct, but you can Y-combinator with it just fine.</p><h1 id=compiling-forsp>Compiling Forsp</h1><p>Compiling is a pretty broad topic, but usually when someone talk about compiling
+a language, they frequently mean lowering a high level language all the way to
+machine code, and I&rsquo;m not doing that, I&rsquo;m compiling to Rust, which is a lot less
+impressive. Rust is also a high level language, so writing a compiler from Forsp
+to Rust is actually really easy. It&rsquo;s almost as easy as writing an interpreter
+in Rust. It&rsquo;s so easy I won&rsquo;t demonstrate it.</p><p>However, I&rsquo;d like to highlight a problem with Forsp&rsquo;s looping. Forsp can only
+loop via Y-combinator, but this is infinite recursion, which requires tail call
+optimizations to ensure it doesn&rsquo;t blow the stack. I&rsquo;m pretty sure you can&rsquo;t
+really write a tail-call optimized interpreter for Forsp. And Rust lacks
+features to guarantee tail-calls (maybe coming soon), so I couldn&rsquo;t get the
+compiled Rust code to reliably tail-call optimize, and it blows the stack as
+well. &ldquo;Under what circumstances will Rust/LLVM do TCO&rdquo; and &ldquo;why isn&rsquo;t my Rust
+code getting TCO&rsquo;d&rdquo; are both really annoying questions.</p><p>So let&rsquo;s try and fix this.</p><h1 id=continuation-passing-style>Continuation Passing Style</h1><p>The goal is that every segment of Forsp code should end with a <code>force</code> call that
+doesn&rsquo;t return. That way, we don&rsquo;t need to keep track of a stack at all. And you
+can turn every <code>force</code> into a <code>jump</code>. I&rsquo;m not really sure what this style of
+compilation is called. I swear I read articles on a compiler written like this in
+relation to a Scheme compiler. And I can&rsquo;t find those articles anymore. CHICKEN
+compiles to C, but doesn&rsquo;t use this technique. So I guess I&rsquo;m implementing this
+based on hearsay.</p><p>But I do know that continuation passing style helps here. Every function takes a
+continuation representing the rest of the program, and every argument is either
+a literal or an argument, and each function ends with a call to some other
+function, which is the only function call in that function. So if the
+continuation to the entire program is just terminating the program, then you
+don&rsquo;t need to unwind the stack, and you can just exit.</p><p>Implementing CPS for Forsp was a bit of a challenge, as I believe it is novel
+work. I referenced the Wikipedia page on CPS, which included a function
+converting a simplified version of Scheme to CPS, which I had trouble following
+because Forsp is neither Scheme nor Lisp.</p><p>I spent a lot of time screwing around with implementations of this that didn&rsquo;t
+work before I returned to the Wikipedia page to realize that the conversion
+function <em>took</em> the current continuation as an argument. This was very helpful
+because it reminded me that you weren&rsquo;t always going to call the &ldquo;current&rdquo;
+continuation, the continuation of the program might come from somewhere else.</p><p>Before we get into it, I ended up adding some new primitives, <code>forceCC</code> and
+<code>forceCCBare</code>. One challenge I faced is that every thunk in CPS&rsquo;d program needs
+to take an argument for the continuation. Thunks don&rsquo;t strictly define
+arguments, so we need to be careful not to interfere with the rest of the
+program&rsquo;s stack manipulation. The continuation is the first argument, and we
+push the right continuation to the stack right before forcing the thunk, which
+immediately binds the continuation, so it&rsquo;s just CPS code running and the stack
+isn&rsquo;t mangled.</p><p>But wait, how do we push the continuation to the stack, then force the thunk we
+actually care about? If we have code that looks like</p><p>$$ (code&mldr; \quad force) \quad force $$</p><p>And we&rsquo;re trying to just CPS this <code>force</code>, how do we actually pass the
+continuation? If we put it first, $(code&mldr; \quad force) \quad continuation
+\quad force$, then we just force the continuation instead of the thunk we care
+about. So, can we just put the continuation last, $continuation \quad (code&mldr;
+\quad force) \quad \quad force$? And the answer is &ldquo;no&rdquo;, because not all <code>force</code>
+calls will be immediately preceded by code pushing the thunk to the stack. The
+stack is in an arbitrary state, and we need to accommodate that. So we need a new
+kind of force:</p><p>$$forceCC=swap \quad force$$</p><p>Where <code>swap</code> swaps the top elements of the stack. This lets us push the
+continuation to the stack immediately before running <code>forceCC</code>, but it actually
+forces the thunk underneath the continuation, and passing the continuation to it as its first
+&ldquo;argument&rdquo;.</p><p>At the end of the CPS process, we won&rsquo;t have any normal <code>force</code> instructions
+left, but there will be cases where some segment of instructions needs to
+continue computation, but won&rsquo;t be forcing any thunks itself. I&rsquo;ve introduced
+<code>forceCCBare</code>, which is just <code>force</code>, as a signal that the code has been
+processed by CPS, but that no special handling is actually required.</p><p>$$forceCCBare = force$$</p><p>So we need a function to convert Forsp code to CPS form. It needs to take the
+Forsp expressions, and it&rsquo;ll also take a continuation. At the top level, we&rsquo;ll
+pass in the entire program, and the continuation will either do nothing (because
+nothing happens after the program is done), or terminate the computation if
+that&rsquo;s more convenient for us. Each recursive call will take some subset of the
+code, representing the &ldquo;current&rdquo; of the computation, whatever that may mean at that
+point, and the continuation, representing whatever happens after that.</p><p>So the CPS function in pseudocode is going to look kind of like</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>fn cps(exprs, cont) -&gt; exprs { 
+</span></span><span class=line><span class=cl>     ?
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></div><p>We don&rsquo;t care about instructions that aren&rsquo;t <code>force</code>, so they can simply pass
+though unchanged:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>fn cps(exprs, cont) -&gt; exprs { 
+</span></span><span class=line><span class=cl>     push cps1(expr) in exprs to new_exprs while expr is not force
+</span></span><span class=line><span class=cl>     ?
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></div><p>Where <code>cps1</code> is a function that handles CPS conversion for single values. The
+only value that requires special handling is a thunk.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>fn cps1(expr) -&gt; expr {
+</span></span><span class=line><span class=cl>    return expr if expr not thunk
+</span></span><span class=line><span class=cl>    let thunk_exprs = children of expr
+</span></span><span class=line><span class=cl>    let cc_name = gensym
+</span></span><span class=line><span class=cl>    ($cc_name cps(expr.exprs, ^cc))
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></div><p>This generates a unique name for the continuation, then calls <code>cps</code> with that
+continuation as the continuation. The continuation is supposed to be some
+expressions that puts the continuation on the stack, so this could be a literal
+thunk, or an environment reference.</p><p>Back to <code>cps</code>:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>fn cps(exprs, cont) -&gt; exprs { 
+</span></span><span class=line><span class=cl>    let new_exprs = ()
+</span></span><span class=line><span class=cl>    push cps1(expr) in exprs to new_exprs while expr is not force
+</span></span><span class=line><span class=cl>    let force, rest = exprs.split
+</span></span><span class=line><span class=cl>    if rest is empty
+</span></span><span class=line><span class=cl>        push cont to new_exprs
+</span></span><span class=line><span class=cl>        push forceCC
+</span></span><span class=line><span class=cl>    else 
+</span></span><span class=line><span class=cl>        push (cps(rest, cont)) to new_exprs
+</span></span><span class=line><span class=cl>        push forceCC
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    push cont, forceCCBare to new_expr if we didn&#39;t force
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    new_exprs
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></div><p>If there are no force expressions, then we need to push the current
+continuation to the stack, and then force it to continue the computation. We use
+<code>forceCCBare</code> to signal that this is in CPS even though no swapping is
+required.</p><p>If there is a force expression, all the instructions after it are the &ldquo;rest of
+the computation&rdquo;, and need to become the next continuation. After that &ldquo;happens&rdquo;,
+then the current continuation needs to be called, so the current continuation is
+this new continuation&rsquo;s continuation. Continuations are thunks, so we wrap the
+results in a thunk, then call <code>forceCC</code> to force the thunk with that
+continuation.</p><p>But if there is no other computation after the force, we can just use the
+current continuation.</p><p>The top level continuation could be <code>()</code>, a thunk that does nothing, but we want
+to be able to terminate the program without unwinding the stack, so the top
+level continuation is <code>(terminate)</code>, where <code>terminate</code> immediately terminates
+the computation.</p><p>For example, lets consider the program <code>(1) force inc println</code>. We put the thunk on the
+stack, force it immediately to put 1 on the stack, call <code>inc</code>, resulting in 2 on
+the stack, then printing it. This can be desugared into <code>(1) force ^inc force ^println force</code>.</p><p>Here it is in CPS form:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>($cc-g 1 ^cc-g forceCCbare)
+</span></span><span class=line><span class=cl>(^inc 
+</span></span><span class=line><span class=cl>    (^println 
+</span></span><span class=line><span class=cl>        (terminate) 
+</span></span><span class=line><span class=cl>    forceCC) 
+</span></span><span class=line><span class=cl>forceCC)
+</span></span><span class=line><span class=cl>forceCC
+</span></span></code></pre></div><p>Every <code>force</code> becomes a <code>forceCC</code>, and the continuation directly before it is
+either the rest of the computation, or <code>(terminate)</code>. <code>(1)</code> doesn&rsquo;t force
+anything, so it takes a continuation and forces it at the end.</p><p>Note that built-in functions like <code>inc</code> and <code>println</code> have to take continuations
+as well, and should be considered different functions like <code>incCC</code> and
+<code>printlnCC</code>. However, because the target is a CPS-only platform, all this is
+handled at the language level. Builtins require no modification, but are
+separate types of values, and <code>forceCC</code> handles them separately by calling the
+associated built-in function, then forcing the CC.</p><h1 id=evaluating-or-compiling-cps>Evaluating or Compiling CPS</h1><p>With a little finagling, you can evaluate CPS-Forsp code on a normal
+interpreter, but, unlike normal Forsp code, it doesn&rsquo;t return and the next
+computation is always another stack frame, so instead of loops having problems
+blowing the stack, every program blows the stack. Rust has a stack limit of
+~3000, so I hope your program doesn&rsquo;t need to force more than 3000 times.</p><p>I think the easiest way to compile or evaluate CPS code is to extract all the
+thunks to a flat structure, replacing them with references to the thunks. The
+closure value is then just a thunk reference and the environment, and every
+thunk is just a flat list of instructions ending in a <code>forceCC</code>. You can represent
+your evaluation state with a simple structure: <code>(thunk_ref, env, inst_idx)</code>.
+You can step this interpreter instruction by instruction, and easily pause
+evaluation, which is always cool. I know CPS is also used for the code -> state
+machine conversions that Clojure and Rust use for their async features, and this
+resulting interpreter does look like a state machine.</p><p>But we&rsquo;re here to compile to Rust. There are a lot of details related to the
+runtime environment I won&rsquo;t cover here.</p><p>Thunk reference names become enum options in a <code>ThunkRef</code> enum.</p><p>The core of the compiled code looks like:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>fn</span> <span class=nf>top_level</span><span class=p>(</span><span class=n>env</span><span class=p>,</span><span class=w> </span><span class=n>stack</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>cur_frame</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Frame</span><span class=w> </span><span class=p>{</span><span class=n>tr</span>: <span class=nc>ThunkRef</span>::<span class=n>Entry</span><span class=p>,</span><span class=w> </span><span class=n>env</span>: <span class=nc>env</span><span class=p>.</span><span class=n>clone</span><span class=p>()};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>loop</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>match</span><span class=w> </span><span class=n>cur_frame</span><span class=p>.</span><span class=n>tr</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>ThunkRef</span>::<span class=n>Entry</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=c1>// Instructions
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>                </span><span class=c1>// The next thunk, thunk2
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>                </span><span class=c1>// Continuation (thunk3)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>                </span><span class=c1>// ForceCC
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>            </span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>ThunkRef</span>::<span class=n>thunk2</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=c1>// More instructions
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>                </span><span class=c1>// Push the continuation (thunk3)
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>                </span><span class=c1>// ForceCCBare
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>            </span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>ThunkRef</span>::<span class=n>thunk3</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=c1>// Terminate
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>                </span><span class=k>break</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>Most of the instructions are self-explanatory.</p><p>Thunks have already become <code>thunkrefs</code>, and are compiled as</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>stack.push(Value::Thunk { env: cur_frame.env.clone(), fp: ThunkRef::{tf} });
+</span></span></code></pre></div><p>Where <code>{tf}</code> is the name assigned to the thunk.</p><p><code>forceCC</code> is more complicated:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=c1>// header.rs:
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>builtin_force_cc</span><span class=p>(</span><span class=n>stack</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>Stack</span><span class=p>,</span><span class=w> </span><span class=n>cur_frame</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>Frame</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Frame</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>cc</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>stack</span><span class=p>.</span><span class=n>pop</span><span class=p>().</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>th</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>stack</span><span class=p>.</span><span class=n>pop</span><span class=p>().</span><span class=n>unwrap</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>match</span><span class=w> </span><span class=n>th</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>Value</span>::<span class=n>Thunk</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=n>env</span><span class=p>,</span><span class=w> </span><span class=n>fp</span><span class=w> </span><span class=p>}</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>stack</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>cc</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=kd>let</span><span class=w> </span><span class=n>nf</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Frame</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>env</span>: <span class=nc>env</span><span class=p>.</span><span class=n>clone</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>tr</span>: <span class=nc>fp</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>return</span><span class=w> </span><span class=n>nf</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=c1>// cs.push(nf);
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>Value</span>::<span class=n>BuiltIn</span><span class=p>(</span><span class=n>f</span><span class=p>)</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>f</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>cur_frame</span><span class=p>.</span><span class=n>env</span><span class=p>,</span><span class=w> </span><span class=n>stack</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>if</span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=n>Value</span>::<span class=n>Thunk</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>env</span>: <span class=nc>cc_env</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=n>fp</span>: <span class=nc>cc_fp</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>cc</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=kd>let</span><span class=w> </span><span class=n>nf</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Frame</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=n>env</span>: <span class=nc>cc_env</span><span class=p>.</span><span class=n>clone</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=n>tr</span>: <span class=nc>cc_fp</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=k>return</span><span class=w> </span><span class=n>nf</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=fm>panic!</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=s>&#34;Forcing builtin with CC, expected CC to be thunk, got </span><span class=si>{:?}</span><span class=s>&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=n>cc</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>x</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=fm>panic!</span><span class=p>(</span><span class=s>&#34;Can&#39;t force non-thunk: </span><span class=si>{:?}</span><span class=s>&#34;</span><span class=p>,</span><span class=w> </span><span class=n>x</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></div><p>And the instruction is compiled as:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=n>cur_frame</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>builtin_force_cc</span><span class=p>(</span><span class=n>stack</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>cur_frame</span><span class=p>);</span><span class=w>
+</span></span></span></code></pre></div><p>Built-ins are a separate type values that contain a Rust function pointer to
+their implementation, so <code>forceCC</code> handles the continuations itself. So
+<code>builtin</code> sort of becomes <code>'builtin do-builtin {cc} forceCCBare</code>, but this can&rsquo;t
+be implemented statically as part of CPS conversion because <code>force</code> never knows
+what it&rsquo;s actually forcing. <code>force</code>, <code>push</code>, and <code>pop</code> aren&rsquo;t built-ins, my
+current compiler treats them as keyworded instructions, but I think built-ins
+have value because the language should probably do something that isn&rsquo;t forcing
+thunks and returning atoms.</p><p>The current frame is just a local variable with a reference to the compiled
+code, and the <code>match</code> is basically just a jump to the compiled code. It&rsquo;s not
+quite a jump, but it&rsquo;s pretty close.</p><h1 id=results>Results</h1><p>This compiler&rsquo;s output is pleasantly fast and can loop indefinitely without
+leaking memory or building up runtime structures per-loop invocation. I haven&rsquo;t
+tested it with exceptionally large Forsp programs because suitable examples do
+not really exist. Probably the largest Forsp program currently written is
+Bonkoski&rsquo;s self-interpreter, which requires some extra language features like
+<code>cons</code>. CPS programs build their call stacks as continuations, which this
+compiler&rsquo;s output stores in its environment, so it&rsquo;s possible that the program
+could run into memory issues when dealing with very large programs, though I
+think its in-memory representation is reasonably efficient.</p><p>You can check out the compiler here: <a href=https://github.com/atamis/frospy>https://github.com/atamis/frospy</a></p><p>I called it Frospy</p><h1 id=future-work>Future Work</h1><p>An interpreter would be easy to implement, but it&rsquo;s also easy to imagine converting
+the compiler output from a normal program to a program that can &ldquo;pause&rdquo; and
+return control to its caller to request input, or something. It seems like it
+would be easy to implement asyncronous message calling without reaching for
+Rust&rsquo;s <code>async</code> features that do the work already.</p><p>It&rsquo;s noteworthy how we&rsquo;ve converted a recursive expression tree to a flat
+representation without losing the call structure of the program. An interpreter
+of the CPS for now operates strictly on instructions without any need for
+recursion, meaning it can limit how many instructions it processed, and pause
+before resuming indefinitely, but the implementation each instruction is nearly
+identical to its non-CPS implementation.</p><p>It&rsquo;s also worth inspecting whether all environment interactions need to be with
+the real environment. If those values are only written to and read from the
+current environment, and they aren&rsquo;t referenced in any closures generated by the
+code, then it doesn&rsquo;t need to bind to the environment at all, we can compile it
+to local variables. But how do we determine whether it&rsquo;s used in the closures?
+This turns out to be trickier than expected. Consider the following program:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>1 &#39;x
+</span></span><span class=line><span class=cl>(pop         ; thunk 1
+</span></span><span class=line><span class=cl>    (^x inc) ; thunk 2
+</span></span><span class=line><span class=cl> force) 
+</span></span><span class=line><span class=cl> force 
+</span></span><span class=line><span class=cl> println
+</span></span></code></pre></div><p>The pop in thunk 1 is configured entirely by values put on the stack outside the
+thunk. Thunk 1&rsquo;s environment has <code>x</code> bound to <code>1</code>, and thunk 2 closes over that
+environment, and and so both has and uses the binding.</p><p>But consider a very similar program:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>1 &#39;y
+</span></span><span class=line><span class=cl>(pop         ; thunk 1
+</span></span><span class=line><span class=cl>    (^x inc) ; thunk 2
+</span></span><span class=line><span class=cl> force) 
+</span></span><span class=line><span class=cl> force 
+</span></span><span class=line><span class=cl> println
+</span></span></code></pre></div><p>The top level code passes in <code>y</code> instead of <code>x</code>, so thunk 1&rsquo;s environment will
+be different and <code>x</code> will be unbound in thunk 2. So not only can we not
+statically identify <code>^x</code> in thunk 2 as unbound, it&rsquo;s possible for a thunk to not
+know what its environment will be unless it takes into account how and where
+it&rsquo;s called.</p><p>If binding name used by each <code>pop</code> and <code>push</code> is static, then you can determine
+local vs. non-local bindings, but if a series of expressions includes a <code>push</code>
+or <code>pop</code> to a dynamic name, then this optimization has to be disabled for that
+thunk and all thunks containing that thunk because they can no longer
+definitively say whether their bindings are local or not. I will admit that it&rsquo;s
+a little difficult to identify a use-case for dynamic bindings, and might be
+able to ban them from the language without much loss of power, though it&rsquo;s
+definitely less elegant.</p><p>Of course, some more sophisticated data-flow analysis could help this, and expand the
+situations where <code>push</code> and <code>pop</code> operate on static names. For each instruction,
+and built-in, you can calculate the number of stack elements it consumes and produces
+(call it arity), and infer, based on that, an arity for all thunks Then you can
+convert stack operations to &ldquo;registry&rdquo; operations in SSA, and thunk arities to
+arguments and multiple return values. This is a fairly standard compilation
+technique for stack-based languages, because you don&rsquo;t really want a stack, they&rsquo;re
+slow.</p><p>However, Forsp presents a unique challenge: <code>force</code>. What is <code>force</code>&rsquo;s
+arity? When does <code>force</code> know what its arity is? <code>force</code> has no idea what thunk
+it&rsquo;s forcing, just the top of the stack. So <code>force</code>&rsquo;s arity is generic over the
+arity of the thunk it&rsquo;s forcing, which is <em>deeply</em> inconvenient. I think this
+means that doing this data-flow analysis correctly requires also <em>typing</em> the
+stack and <em>typing</em> thunks based on their arity, so you can track the type of top
+of the stack, and give <code>force</code> the right arity. But how do you handle thunks
+that push arbitrary numbers of values to the stack. I think it also requires
+that conditionals (<code>cswap</code>, not mentioned here, but Bonkoski discusses it) have
+the same type for their arms, or at least the thunks need identical arities. And
+you don&rsquo;t necessarily have the same escape hatch of disabling the optimization
+because if you a <code>force</code> has multiple possible arities, then the stack can have
+multiple different types, and all code afterwards has to type-check for all
+possible types. This kind of uncertainty is usually frowned upon in type systems.</p><p>Banning these use-cases is probably a good idea anyway? What are you doing with
+arbitrary stack sizes? Why are your conditional thunks consuming different
+numbers of stack elements? No instruction or built-in requires this, so it would
+have to be a feature of user code: the user would have to write thunks that put
+arbitrary numbers of values on the stack, and the only meaningful thing they
+could do with them is write another function that takes all of them off the
+stack for whatever purpose. Or a conditional that <em>might</em> have left an extra
+value on the stack, so you need another conditional to remove the extra value
+before continuing.</p><p>But Forsp <em>does</em> let you do these things. It is dynamic and dynamically typed.
+There&rsquo;s no obvious reason to ban them other than that they&rsquo;re probably bad ideas
+to use in your program, and they make optimizations hard. The syntax makes it
+look like it&rsquo;s possible, so it&rsquo;d probably be pretty confusing if they weren&rsquo;t.
+Bonkoski even articulates the syntax in a way that discourages you from
+considering these options (particularly the dynamic environment problem), but
+they&rsquo;re totally possible in his interpreter.</p><p>That&rsquo;s kind of the beauty of Forsp. Future work probably isn&rsquo;t applying existing
+optimizations to Forsp because it resists existing techniques. That&rsquo;s pretty
+cool.</p></main><hr><section><a class=tag href=/tags/rust>rust
+</a><a class=tag href=/tags/code>code
+</a><a class=tag href=/tags/language>language</a></section><footer><div class="pride-strip pride-strip-position"></div><hr>© <a href=http://atamis.me>Azrea Amis</a> &mdash; <a href=http://github.com/atamis>Github</a> &mdash; 2022</footer></body></html>
